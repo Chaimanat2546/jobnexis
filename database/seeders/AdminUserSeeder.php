@@ -16,6 +16,9 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'admin',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
 
         User::create([
@@ -24,14 +27,20 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'education',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
 
         User::create([
             'name' => 'Provider User',
-            'email' => 'provider user',
+            'email' => 'provider@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'provider',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
 
         User::create([
@@ -40,6 +49,12 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'jobber',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
+        User::factory(5)
+            ->hasUserProfile()
+            ->create();
     }
 }
