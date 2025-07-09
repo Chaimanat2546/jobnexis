@@ -30,7 +30,7 @@ return new class extends Migration
         });
 
         Schema::create('sessions', function (Blueprint $table) {
-            $table->string('u_id')->primary();
+            $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->id('up_id');
             $table->string('up_prefix')->nullable();
             $table->string('up_first_name')->nullable();
-            $table->string('up_ast_name')->nullable();
+            $table->string('up_last_name')->nullable();
             $table->string('up_uid')->nullable();
             $table->string('up_address')->nullable();
             $table->string('up_city')->nullable();

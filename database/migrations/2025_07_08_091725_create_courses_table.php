@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('c_number');
             $table->date('c_create_at');
             $table->date('c_end_at');
-            $table->boolean('c_publiced')->default(false);
+            $table->enum('c_status', ['open', 'closed', 'draft'])->default('draft');
         });
     }
 
