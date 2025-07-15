@@ -22,9 +22,20 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request)
     {
-        $request->authenticate();
+        $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+            // เก็บ flash session เพื่อแจ้งให้ modal เปิดอัตโนมัติ
+            return back()
+                ->withErrors(['email' => __('auth.failed')])
+                ->withInput()
+                ->with('showLoginModal', true);
+        }
 
         $request->session()->regenerate();
 
