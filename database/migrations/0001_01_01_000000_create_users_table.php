@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('username');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -30,28 +30,12 @@ return new class extends Migration
         });
 
         Schema::create('sessions', function (Blueprint $table) {
-            $table->string('u_id')->primary();
+            $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
-        });
-
-        Schema::create('user_profiles', function (Blueprint $table) {
-            $table->id('up_id');
-            $table->string('up_prefix')->nullable();
-            $table->string('up_first_name')->nullable();
-            $table->string('up_ast_name')->nullable();
-            $table->string('up_uid')->nullable();
-            $table->string('up_address')->nullable();
-            $table->string('up_city')->nullable();
-            $table->string('up_country')->nullable();
-            $table->date('up_birth_date')->nullable();
-            $table->string('up_gender')->nullable();
-            $table->string('up_nationality')->nullable();
-            $table->string('up_phone')->nullable();
-            $table->foreignId('up_u_id')->constrained('users')->onDelete('cascade');
         });
     }
 
@@ -63,6 +47,5 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
-        Schema::dropIfExists('user_profiles');
     }
 };

@@ -11,35 +11,50 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name' => 'Admin User',
+            'username' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
 
         User::create([
-            'name' => 'Education User',
+            'username' => 'Education',
             'email' => 'education@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'education',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
 
         User::create([
-            'name' => 'Provider User',
-            'email' => 'provider user',
+            'username' => 'Provider',
+            'email' => 'provider@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'provider',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
 
         User::create([
-            'name' => 'Jobber User',
+            'username' => 'Jobber',
             'email' => 'jobber@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'jobber',
             'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+
         ]);
+        User::factory(5)
+            ->hasUserProfile()
+            ->create();
     }
 }

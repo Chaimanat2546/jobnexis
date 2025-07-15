@@ -12,11 +12,17 @@ return new class extends Migration
     public function up()
     {
         Schema::create('certificates', function (Blueprint $table) {
-            $table->id('cer_id');
+            $table->increments('cer_id');
             $table->string('cer_image');
-            $table->foreignId('cer_u_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('cer_c_id')->references('c_id')->on('courses')->onDelete('cascade');
+            $table->unsignedInteger('cer_u_id');
+            $table->unsignedInteger('cer_c_id');
             $table->boolean('cer_publiced')->default(false);
+
+            // Foreign key เชื่อมไปตาราง users
+            $table->foreign('cer_u_id')->references('id')->on('users')->onDelete('cascade');
+
+            // Foreign key เชื่อมไปตาราง courses
+            $table->foreign('cer_c_id')->references('c_id')->on('courses')->onDelete('cascade');
         });
     }
 
