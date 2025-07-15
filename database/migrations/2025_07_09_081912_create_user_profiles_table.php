@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('up_prefix')->nullable();
             $table->string('up_first_name')->nullable();
             $table->string('up_last_name')->nullable();
-            $table->string('up_uid')->nullable();
             $table->string('up_address')->nullable();
             $table->string('up_city')->nullable();
             $table->string('up_country')->nullable();

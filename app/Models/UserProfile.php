@@ -9,13 +9,12 @@ class UserProfile extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'up_id'; // ระบุชื่อ primary key
+    protected $primaryKey = 'up_id';
 
     protected $fillable = [
         'up_prefix',
         'up_first_name',
         'up_last_name',
-        'up_uid',
         'up_address',
         'up_city',
         'up_country',

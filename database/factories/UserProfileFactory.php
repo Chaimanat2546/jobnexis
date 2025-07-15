@@ -21,7 +21,6 @@ class UserProfileFactory extends Factory
             'up_prefix' => $this->faker->title(),
             'up_first_name' => $this->faker->firstName(),
             'up_last_name' => $this->faker->lastName(),
-            'up_uid' => $this->faker->uuid(),
             'up_address' => $this->faker->address(),
             'up_city' => $this->faker->city(),
             'up_country' => $this->faker->country(),

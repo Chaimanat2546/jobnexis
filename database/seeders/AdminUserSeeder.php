@@ -11,7 +11,7 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name' => 'Admin User',
+            'username' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
@@ -22,7 +22,7 @@ class AdminUserSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Education User',
+            'username' => 'Education',
             'email' => 'education@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'education',
@@ -33,7 +33,7 @@ class AdminUserSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Provider User',
+            'username' => 'Provider',
             'email' => 'provider@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'provider',
@@ -44,7 +44,7 @@ class AdminUserSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Jobber User',
+            'username' => 'Jobber',
             'email' => 'jobber@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'jobber',
