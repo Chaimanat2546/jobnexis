@@ -28,8 +28,16 @@ Route::middleware('guest')->group(function () {
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
+    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+    //     ->name('password.reset');
+    Route::get('/reset-password/{token}', function ($token) {
+        return view('welcome')->with([
+            'showAuthModal' => true,
+            'authForm' => 'reset',
+            'passwordResetToken' => $token,
+            'passwordResetEmail' => request('email')
+        ]);
+    })->name('password.reset');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');

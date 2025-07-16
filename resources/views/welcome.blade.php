@@ -3,63 +3,345 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login Modal</title>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Modal - Refactored</title>
     @vite('resources/css/app.css')
 </head>
 
 <body class="antialiased bg-gray-100">
-    <div x-data="{ showLogin: {{ session('showLoginModal') ? 'true' : 'false' }} }" class="flex items-center justify-center min-h-screen">
+    <div x-data="authModal()" x-init="init()" class="flex items-center justify-center min-h-screen">
 
-
-        <!-- ปุ่มเปิด Modal -->
-        <button @click="showLogin = true" class="px-4 py-2 text-white bg-indigo-600 rounded">
-            Login
+        <!-- Trigger Button -->
+        <button @click="openModal('login')"
+                class="px-6 py-3 text-white transition-colors bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            Sign In
         </button>
 
-        <!-- Modal -->
-        <div x-show="showLogin" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div class="relative w-full max-w-md p-6 bg-white rounded-lg">
-                <!-- ปุ่มปิด -->
-                <button @click="showLogin = false" class="absolute text-gray-500 top-2 right-2">&times;</button>
+        <!-- Modal Overlay -->
+        <div x-show="showModal"
+             x-cloak
+             x-transition.opacity.duration.300ms
+             class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
 
-                <!-- ฟอร์ม Login -->
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
-                    <h2 class="mb-4 text-xl font-semibold">Login</h2>
+            <!-- Modal Content -->
+            <div x-transition.scale.origin.center.duration.300ms
+                 class="relative w-full max-w-md mx-4 bg-white shadow-2xl rounded-xl">
 
-                    <div>
-                        <x-input-label for="email" :value="__('Email')" />
-                        <x-text-input id="email" class="block w-full mt-1" type="email" name="email"
-                            :value="old('email')" required autofocus />
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                    </div>
+                <!-- Close Button -->
+                <button @click="closeModal()"
+                        class="absolute p-1 text-gray-400 transition-colors rounded-full top-4 right-4 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
 
-                    <div class="mt-4">
-                        <x-input-label for="password" :value="__('Password')" />
-                        <x-text-input id="password" class="block w-full mt-1" type="password" name="password" required
-                            autocomplete="current-password" />
-                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                    </div>
+                <!-- Modal Body -->
+                <div class="p-8">
+                    <!-- Login Form -->
+                    <template x-if="currentModal === 'login'">
+                        <div>
+                            <h2 class="mb-6 text-2xl font-bold text-center text-gray-900">Welcome Back</h2>
 
-                    <div class="block mt-4">
-                        <label for="remember_me" class="inline-flex items-center">
-                            <input id="remember_me" type="checkbox"
-                                class="text-indigo-600 border-gray-300 rounded shadow-sm focus:ring-indigo-500"
-                                name="remember">
-                            <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-                        </label>
-                    </div>
+                            <!-- Success message สำหรับ password reset -->
+                            @if (session('status') === 'password-updated')
+                                <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
+                                    Password updated successfully! You can now log in with your new password.
+                                </div>
+                            @endif
 
-                    <div class="flex items-center justify-end mt-4">
-                        <x-primary-button class="ms-3">
-                            {{ __('Log in') }}
-                        </x-primary-button>
-                    </div>
-                </form>
+                            <form method="POST" action="{{ route('login') }}" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <x-input-label for="email" :value="__('Email')" />
+                                    <x-text-input id="email" name="email" type="email"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                :value="old('email')" required autofocus />
+                                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-input-label for="password" :value="__('Password')" />
+                                    <x-text-input id="password" name="password" type="password"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                required />
+                                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="remember" class="text-indigo-600 border-gray-300 rounded shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                                    </label>
+                                    <button type="button" @click="switchModal('forgot')"
+                                            class="text-sm text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline">
+                                        Forgot Password?
+                                    </button>
+                                </div>
+
+                                <x-primary-button class="justify-center w-full py-3">
+                                    {{ __('Sign In') }}
+                                </x-primary-button>
+                            </form>
+
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-600">
+                                    Don't have an account?
+                                    <button @click="switchModal('register')"
+                                            class="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline">
+                                        Sign Up
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Register Form -->
+                    <template x-if="currentModal === 'register'">
+                        <div>
+                            <h2 class="mb-6 text-2xl font-bold text-center text-gray-900">Create Account</h2>
+                            <form method="POST" action="{{ route('register') }}" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <x-input-label for="username" :value="__('Username')" />
+                                    <x-text-input id="username" name="username" type="text"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                :value="old('username')" required autofocus />
+                                    <x-input-error :messages="$errors->get('username')" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-input-label for="email" :value="__('Email')" />
+                                    <x-text-input id="email" name="email" type="email"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                :value="old('email')" required />
+                                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-input-label for="password" :value="__('Password')" />
+                                    <x-text-input id="password" name="password" type="password"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                required />
+                                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+                                    <x-text-input id="password_confirmation" name="password_confirmation" type="password"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                required />
+                                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                                </div>
+
+                                <x-primary-button class="justify-center w-full py-3">
+                                    {{ __('Create Account') }}
+                                </x-primary-button>
+                            </form>
+
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-600">
+                                    Already have an account?
+                                    <button @click="switchModal('login')"
+                                            class="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline">
+                                        Sign In
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Forgot Password Form -->
+                    <template x-if="currentModal === 'forgot'">
+                        <div>
+                            <h2 class="mb-6 text-2xl font-bold text-center text-gray-900">Reset Password</h2>
+
+                            @if (session('status'))
+                                <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
+                                    {{ session('status') }}
+                                </div>
+                            @endif
+
+                            <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <x-input-label for="email" :value="__('Email')" />
+                                    <x-text-input id="email" name="email" type="email"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                :value="old('email')" required />
+                                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                </div>
+
+                                <x-primary-button class="justify-center w-full py-3">
+                                    {{ __('Send Reset Link') }}
+                                </x-primary-button>
+                            </form>
+
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-600">
+                                    Remember your password?
+                                    <button @click="switchModal('login')"
+                                            class="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline">
+                                        Sign In
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Email Verification -->
+                    <template x-if="currentModal === 'verify'">
+                        <div>
+                            <h2 class="mb-6 text-2xl font-bold text-center text-indigo-700">Verify Your Email</h2>
+
+                            @if (session('status') === 'verification-link-sent')
+                                <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
+                                    A new verification link has been sent to your email address.
+                                </div>
+                            @endif
+
+                            <div class="text-center">
+                                <div class="mb-6">
+                                    <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <p class="mb-6 text-gray-600">
+                                    Please check your email for a verification link. If you didn't receive it, we can send you another.
+                                </p>
+
+                                <form method="POST" action="{{ route('verification.send') }}" class="space-y-4">
+                                    @csrf
+                                    <x-primary-button class="justify-center w-full py-3">
+                                        Resend Verification Email
+                                    </x-primary-button>
+                                </form>
+
+                                <form method="POST" action="{{ route('logout') }}" class="mt-4">
+                                    @csrf
+                                    <button type="submit" class="text-sm text-gray-500 hover:text-gray-700 focus:outline-none focus:underline">
+                                        Log Out
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Reset Password Form -->
+                    <template x-if="currentModal === 'reset'">
+                        <div>
+                            <h2 class="mb-6 text-2xl font-bold text-center text-gray-900">Set New Password</h2>
+
+                            <form method="POST" action="{{ route('password.store') }}" class="space-y-4">
+                                @csrf
+
+                                <!-- ใช้ token จาก URL parameter หรือ session -->
+                                @if(request('token'))
+                                    <input type="hidden" name="token" value="{{ request('token') }}" />
+                                @else
+                                    <input type="hidden" name="token" value="{{ session('passwordResetToken') }}" />
+                                @endif
+
+                                <div>
+                                    <x-input-label for="email" :value="__('Email')" />
+                                    <x-text-input id="email" name="email" type="email"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg bg-gray-50"
+                                                :value="request('email') ?: session('passwordResetEmail')"
+                                                readonly />
+                                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-input-label for="password" :value="__('New Password')" />
+                                    <x-text-input id="password" name="password" type="password"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                required autofocus />
+                                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                                </div>
+
+                                <div>
+                                    <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+                                    <x-text-input id="password_confirmation" name="password_confirmation" type="password"
+                                                class="block w-full mt-1 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-indigo-500"
+                                                required />
+                                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                                </div>
+
+                                <x-primary-button class="justify-center w-full py-3">
+                                    {{ __('Update Password') }}
+                                </x-primary-button>
+                            </form>
+
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-600">
+                                    Back to
+                                    <button @click="switchModal('login')"
+                                            class="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline">
+                                        Sign In
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Alpine.js Script -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+    function authModal() {
+        return {
+            showModal: {{ session('showAuthModal') ? 'true' : 'false' }},
+            currentModal: '{{ session('authForm', 'login') }}',
+
+            init() {
+                console.log('authModal initialized');
+                console.log('showModal:', this.showModal);
+                console.log('currentModal:', this.currentModal);
+
+                // ตรวจสอบ URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const token = urlParams.get('token');
+                const email = urlParams.get('email');
+
+                console.log('URL token:', token);
+                console.log('URL email:', email);
+                console.log('Current URL:', window.location.href);
+
+                // ตรวจสอบว่า URL มี token หรือไม่
+                if (window.location.pathname.includes('/reset-password/')) {
+                    console.log('Reset password URL detected');
+                    this.openModal('reset');
+                }
+            },
+
+            openModal(modalType) {
+                console.log('Opening modal:', modalType);
+                this.currentModal = modalType;
+                this.showModal = true;
+                document.body.style.overflow = 'hidden';
+            },
+
+            closeModal() {
+                console.log('Closing modal');
+                this.showModal = false;
+                document.body.style.overflow = 'auto';
+
+                // ลบ parameters จาก URL
+                if (window.location.pathname.includes('/reset-password/')) {
+                    window.history.replaceState({}, '', '/');
+                }
+            },
+
+            switchModal(modalType) {
+                console.log('Switching to modal:', modalType);
+                this.currentModal = modalType;
+            }
+        }
+    }
+</script>
 </body>
 
 </html>
