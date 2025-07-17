@@ -27,27 +27,35 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        try {
+            $request->validate([
+                'username' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ]);
 
-        $user = User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+            $user = User::create([
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
-        event(new Registered($user));
+            event(new Registered($user));
 
-        Auth::login($user);
+            Auth::login($user);
 
-        return redirect('/')->with([
-            'showAuthModal' => true,
-            'authForm' => 'verify'
-        ]);
+            return redirect('/')->with([
+                'showAuthModal' => true,
+                'authForm' => 'verify'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // กลับไปหน้าเดิมพร้อม error และเปิด register modal
+            return back()->withErrors($e->errors())->with([
+                'showAuthModal' => true,
+                'authForm' => 'register'
+            ])->withInput();
+        }
     }
 }
