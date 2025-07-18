@@ -18,10 +18,14 @@
         </button> --}}
         <!-- ถ้ายังไม่ login -->
         @guest
-            <button @click="openModal('login')"
-                class="px-6 py-3 text-white transition-colors bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                Sign In
-            </button>
+            <div class="flex justify-center gap-4 mb-8">
+                <button @click="openRegister('jobber')"
+                    class="px-6 py-3 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">สมัครเป็นบุคคลทั่วไป</button>
+                <button @click="openRegister('provider')"
+                    class="px-6 py-3 text-white bg-green-600 rounded-lg hover:bg-green-700">สมัครเป็นผู้ประกอบการ</button>
+                <button @click="openRegister('education')"
+                    class="px-6 py-3 text-white bg-yellow-500 rounded-lg hover:bg-yellow-600">สมัครเป็นบุคลากรสถานศึกษา</button>
+            </div>
         @endguest
 
         <!-- ถ้า login แล้ว -->
@@ -130,7 +134,9 @@
                     <!-- Register Form -->
                     <template x-if="currentModal === 'register'">
                         <div>
-                            <h2 class="mb-6 text-2xl font-bold text-center text-gray-900">Create Account</h2>
+                            <h2 class="mb-6 text-2xl font-bold text-center text-gray-900"
+                                x-text="registerRole === 'jobber' ? 'สมัครเป็นบุคคลทั่วไป' : (registerRole === 'provider' ? 'สมัครเป็นผู้ประกอบการ' : 'สมัครเป็นบุคลากรสถานศึกษา')">
+                            </h2>
 
                             <!-- General Error Message for Register -->
                             @if ($errors->any() && request()->routeIs('register'))
@@ -146,6 +152,7 @@
                             <form method="POST" action="{{ route('register') }}" class="space-y-4">
                                 @csrf
                                 <input type="hidden" name="form_type" value="register">
+                                <input type="hidden" name="role" :value="registerRole">
 
                                 <div>
                                     <x-input-label for="email" :value="__('Email')" />
@@ -170,21 +177,6 @@
                                         class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'register' && session('errors')->has('password_confirmation') ? 'border-red-500' : '' }}"
                                         required />
                                     <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                                </div>
-
-                                <div>
-                                    <x-input-label for="role" :value="__('Role')" />
-                                    <select id="role" name="role" required
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('role') border-red-500 @enderror">
-                                        <option value="">-- เลือกตำแหน่ง --</option>
-                                        <option value="jobber" {{ old('role') == 'jobber' ? 'selected' : '' }}>บุคคลทั่วไป
-                                        </option>
-                                        <option value="provider" {{ old('role') == 'provider' ? 'selected' : '' }}>
-                                            ผู้ประกอบการ</option>
-                                        <option value="education" {{ old('role') == 'education' ? 'selected' : '' }}>
-                                            บุคลากรสถานศึกษา</option>
-                                    </select>
-                                    <x-input-error :messages="$errors->get('role')" class="mt-2" />
                                 </div>
 
                                 <x-primary-button class="justify-center w-full py-3">
@@ -393,7 +385,14 @@
             return {
                 showModal: false,
                 currentModal: 'login',
+                registerRole: 'jobber', // default
 
+                openRegister(role) {
+                    this.registerRole = role;
+                    this.currentModal = 'register';
+                    this.showModal = true;
+                    document.body.style.overflow = 'hidden';
+                },
                 init() {
                     console.log('authModal initialized');
 
