@@ -54,7 +54,7 @@ class RegisteredUserController extends Controller
                         ->mixedCase()
                         ->numbers()
                         ->symbols()
-                ],
+                ],'role' => ['required', 'in:jobber,provider,education'],
             ], [
                 // username
                 'username.required' => 'กรุณากรอกชื่อผู้ใช้',
@@ -85,6 +85,7 @@ class RegisteredUserController extends Controller
                 'username' => $request->username,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'role' => $request->role,
             ]);
 
             event(new Registered($user));

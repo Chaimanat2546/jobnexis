@@ -179,6 +179,17 @@
                                     <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                                 </div>
 
+                                <div>
+                                    <input type="hidden" name="role" value="jobber">
+                                    <label class="flex items-center mt-2">
+                                        <input type="checkbox" name="provider_check" value="provider"
+                                            @checked(old('role') == 'provider' || old('provider_check'))
+                                            onchange="this.form.role.value = this.checked ? 'provider' : 'jobber'">
+                                        <span class="ml-2 text-sm text-gray-700">สมัครเป็น Provider</span>
+                                    </label>
+                                    <x-input-error :messages="$errors->get('role')" class="mt-2" />
+                                </div>
+
                                 <x-primary-button class="justify-center w-full py-3">
                                     {{ __('Create Account') }}
                                 </x-primary-button>
