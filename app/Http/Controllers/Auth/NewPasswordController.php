@@ -21,11 +21,11 @@ class NewPasswordController extends Controller
     public function create(Request $request): View
     {
         return view('welcome', [
-        'showAuthModal' => true,
-        'authForm' => 'reset',
-        'passwordResetToken' => $request->token,
-        'passwordResetEmail' => $request->email,
-    ]);
+            'showAuthModal' => true,
+            'authForm' => 'reset',
+            'passwordResetToken' => $request->token,
+            'passwordResetEmail' => $request->email,
+        ]);
     }
 
     /**
@@ -39,6 +39,16 @@ class NewPasswordController extends Controller
             'token' => ['required'],
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'token.required' => 'ลิงก์รีเซ็ตรหัสผ่านไม่ถูกต้อง',
+
+            'email.required' => 'กรุณากรอกอีเมล',
+            'email.email' => 'รูปแบบอีเมลไม่ถูกต้อง',
+            'email.exists' => 'ไม่พบบัญชีผู้ใช้นี้ในระบบ',
+
+            'password.required' => 'กรุณากรอกรหัสผ่านใหม่',
+            'password.min' => 'รหัสผ่านต้องมีอย่างน้อย :min ตัวอักษร',
+            'password.confirmed' => 'ยืนยันรหัสผ่านไม่ตรงกัน',
         ]);
 
         $status = Password::reset(
@@ -67,7 +77,7 @@ class NewPasswordController extends Controller
             'passwordResetToken' => $request->token,
             'passwordResetEmail' => $request->email
         ])->withInput($request->only('email'))
-         ->withErrors(['email' => __($status)]);
+            ->withErrors(['email' => __($status)]);
         // return back()->withInput($request->only('email'))
         //     ->withErrors(['email' => __($status)])
         //     ->with([

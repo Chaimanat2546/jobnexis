@@ -27,8 +27,20 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string', 'email', 'exists:users,email'],
             'password' => ['required', 'string'],
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'กรุณากรอกอีเมล',
+            'email.string' => 'อีเมลต้องเป็นข้อความ',
+            'email.email' => 'รูปแบบอีเมลไม่ถูกต้อง',
+            'email.exists' => 'ไม่พบบัญชีผู้ใช้นี้ในระบบ',
+
+            'password.required' => 'กรุณากรอกรหัสผ่าน',
+            'password.string' => 'รหัสผ่านต้องเป็นข้อความ',
         ];
     }
 
@@ -45,7 +57,8 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                // 'email' => trans('auth.failed'),
+                'email' => __('อีเมลหรือรหัสผ่านไม่ถูกต้อง'),
             ]);
         }
 
@@ -80,6 +93,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

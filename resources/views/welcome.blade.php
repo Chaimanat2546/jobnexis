@@ -85,7 +85,7 @@
                                 <div>
                                     <x-input-label for="email" :value="__('Email')" />
                                     <x-text-input id="email" name="email" type="email"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('email') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'login' && session('errors')->has('email') ? 'border-red-500' : '' }}"
                                         :value="old('email')" required autofocus />
                                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                 </div>
@@ -93,7 +93,7 @@
                                 <div>
                                     <x-input-label for="password" :value="__('Password')" />
                                     <x-text-input id="password" name="password" type="password"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('password') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'login' && session('errors')->has('password') ? 'border-red-500' : '' }}"
                                         required />
                                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                 </div>
@@ -149,7 +149,7 @@
                                 <div>
                                     <x-input-label for="username" :value="__('Username')" />
                                     <x-text-input id="username" name="username" type="text"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('username') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'register' && session('errors')->has('username') ? 'border-red-500' : '' }}"
                                         :value="old('username')" required autofocus />
                                     <x-input-error :messages="$errors->get('username')" class="mt-2" />
                                 </div>
@@ -157,7 +157,7 @@
                                 <div>
                                     <x-input-label for="email" :value="__('Email')" />
                                     <x-text-input id="email" name="email" type="email"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('email') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'register' && session('errors')->has('email') ? 'border-red-500' : '' }}"
                                         :value="old('email')" required />
                                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                 </div>
@@ -165,7 +165,7 @@
                                 <div>
                                     <x-input-label for="password" :value="__('Password')" />
                                     <x-text-input id="password" name="password" type="password"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('password') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'register' && session('errors')->has('password') ? 'border-red-500' : '' }}"
                                         required />
                                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                 </div>
@@ -174,7 +174,7 @@
                                     <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
                                     <x-text-input id="password_confirmation" name="password_confirmation"
                                         type="password"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('password_confirmation') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'register' && session('errors')->has('password_confirmation') ? 'border-red-500' : '' }}"
                                         required />
                                     <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                                 </div>
@@ -225,7 +225,7 @@
                                 <div>
                                     <x-input-label for="email" :value="__('Email')" />
                                     <x-text-input id="email" name="email" type="email"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('email') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'password.email' && session('errors')->has('email') ? 'border-red-500' : '' }}"
                                         :value="old('email')" required />
                                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                 </div>
@@ -334,7 +334,7 @@
                                 <div>
                                     <x-input-label for="email" :value="__('Email')" />
                                     <x-text-input id="email" name="email" type="email"
-                                        class="block w-full mt-1 rounded-lg bg-gray-50 border-gray-300 @error('email') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg bg-gray-50 border-gray-300 {{ session('errors') && old('form_type') === 'password.store' && session('errors')->has('email') ? 'border-red-500' : '' }}"
                                         :value="request('email') ?: session('passwordResetEmail')" readonly />
                                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                 </div>
@@ -342,7 +342,7 @@
                                 <div>
                                     <x-input-label for="password" :value="__('New Password')" />
                                     <x-text-input id="password" name="password" type="password"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('password') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'password.store' && session('errors')->has('password') ? 'border-red-500' : '' }}"
                                         required autofocus />
                                     <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                 </div>
@@ -351,7 +351,7 @@
                                     <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
                                     <x-text-input id="password_confirmation" name="password_confirmation"
                                         type="password"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('password_confirmation') border-red-500 @enderror"
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'password.store' && session('errors')->has('password_confirmation') ? 'border-red-500' : '' }}"
                                         required />
                                     <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                                 </div>
