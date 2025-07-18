@@ -146,13 +146,6 @@
                             <form method="POST" action="{{ route('register') }}" class="space-y-4">
                                 @csrf
                                 <input type="hidden" name="form_type" value="register">
-                                <div>
-                                    <x-input-label for="username" :value="__('Username')" />
-                                    <x-text-input id="username" name="username" type="text"
-                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'register' && session('errors')->has('username') ? 'border-red-500' : '' }}"
-                                        :value="old('username')" required autofocus />
-                                    <x-input-error :messages="$errors->get('username')" class="mt-2" />
-                                </div>
 
                                 <div>
                                     <x-input-label for="email" :value="__('Email')" />
@@ -180,13 +173,17 @@
                                 </div>
 
                                 <div>
-                                    <input type="hidden" name="role" value="jobber">
-                                    <label class="flex items-center mt-2">
-                                        <input type="checkbox" name="provider_check" value="provider"
-                                            @checked(old('role') == 'provider' || old('provider_check'))
-                                            onchange="this.form.role.value = this.checked ? 'provider' : 'jobber'">
-                                        <span class="ml-2 text-sm text-gray-700">สมัครเป็น Provider</span>
-                                    </label>
+                                    <x-input-label for="role" :value="__('Role')" />
+                                    <select id="role" name="role" required
+                                        class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 @error('role') border-red-500 @enderror">
+                                        <option value="">-- เลือกตำแหน่ง --</option>
+                                        <option value="jobber" {{ old('role') == 'jobber' ? 'selected' : '' }}>บุคคลทั่วไป
+                                        </option>
+                                        <option value="provider" {{ old('role') == 'provider' ? 'selected' : '' }}>
+                                            ผู้ประกอบการ</option>
+                                        <option value="education" {{ old('role') == 'education' ? 'selected' : '' }}>
+                                            บุคลากรสถานศึกษา</option>
+                                    </select>
                                     <x-input-error :messages="$errors->get('role')" class="mt-2" />
                                 </div>
 

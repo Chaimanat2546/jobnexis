@@ -31,14 +31,6 @@ class RegisteredUserController extends Controller
     {
         try {
             $request->validate([
-                'username' => [
-                    'required',
-                    'string',
-                    'min:3',
-                    'max:20',
-                    'regex:/^[A-Za-z][A-Za-z0-9_]*$/',
-                    'unique:users,username',
-                ],
                 'email' => [
                     'required',
                     'string',
@@ -56,14 +48,6 @@ class RegisteredUserController extends Controller
                         ->symbols()
                 ],'role' => ['required', 'in:jobber,provider,education'],
             ], [
-                // username
-                'username.required' => 'กรุณากรอกชื่อผู้ใช้',
-                'username.string' => 'ชื่อผู้ใช้ต้องเป็นข้อความ',
-                'username.min' => 'ชื่อผู้ใช้ต้องมีอย่างน้อย :min ตัวอักษร',
-                'username.max' => 'ชื่อผู้ใช้ต้องไม่เกิน :max ตัวอักษร',
-                'username.regex' => 'ชื่อผู้ใช้ต้องขึ้นต้นด้วยตัวอักษร และใช้ได้เฉพาะตัวอักษร, ตัวเลข, และ _ เท่านั้น (ห้ามเว้นวรรคหรืออักขระพิเศษ)',
-                'username.unique' => 'ชื่อผู้ใช้นี้ถูกใช้แล้ว',
-
                 // email
                 'email.required' => 'กรุณากรอกอีเมล',
                 'email.string' => 'อีเมลต้องเป็นข้อความ',
@@ -82,7 +66,6 @@ class RegisteredUserController extends Controller
             ]);
 
             $user = User::create([
-                'username' => $request->username,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
