@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id('c_id');
             $table->string('c_name');
             $table->text('c_description')->nullable();
-            $table->string('c_starter_skill')->nullable();
             $table->foreignId('c_create_by_id')->constrained('users')->onDelete('cascade');
             $table->string('c_number');
             $table->date('c_create_at');

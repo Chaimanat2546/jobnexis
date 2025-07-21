@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('q_answer2');
             $table->string('q_answer3');
             $table->string('q_answer4');
-            $table->integer('q_correct_index');
+            $table->integer('q_correct_answer');
             $table->foreignId('q_e_id')->references('e_id')->on('exams')->onDelete('cascade');
         });
     }

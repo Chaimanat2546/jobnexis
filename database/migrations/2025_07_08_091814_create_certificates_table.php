@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('certificates', function (Blueprint $table) {
             $table->increments('cer_id');
+            $table->string('cer_name');
             $table->string('cer_image');
-            $table->unsignedInteger('cer_u_id');
-            $table->unsignedInteger('cer_c_id');
+            $table->unsignedInteger('cer_u_id')->nullable();
+            $table->unsignedInteger('cer_c_id')->nullable();
             $table->boolean('cer_publiced')->default(false);
 
             // Foreign key เชื่อมไปตาราง users

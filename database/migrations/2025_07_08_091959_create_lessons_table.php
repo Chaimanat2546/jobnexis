@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('lessons', function (Blueprint $table) {
             $table->id('l_id');
             $table->string('l_name');
+            $table->string('l_description')->nullable();
             $table->enum('l_status', ['open', 'closed', 'draft'])->default('draft');
             $table->string('l_index');
             $table->foreignId('l_c_id')->references('c_id')->on('courses')->onDelete('cascade');

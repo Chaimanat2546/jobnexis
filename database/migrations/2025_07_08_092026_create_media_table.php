@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->id('m_id');
+            $table->string('m_name');
             $table->integer('m_index');
-            $table->string('m_video');
+            $table->string('m_path')->nullable();
             $table->foreignId('m_l_id')->references('l_id')->on('lessons')->onDelete('cascade');
         });
     }
