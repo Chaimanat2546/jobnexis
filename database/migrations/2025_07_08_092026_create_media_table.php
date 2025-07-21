@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('m_index');
             $table->string('m_path')->nullable();
             $table->foreignId('m_l_id')->references('l_id')->on('lessons')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

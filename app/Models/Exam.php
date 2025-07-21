@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Exam extends Model
 {
     use HasFactory;
-
+    protected $primaryKey = 'e_id';
     protected $fillable = [
         'e_name',
         'e_description',

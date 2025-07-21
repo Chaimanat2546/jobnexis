@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('work_experiences', function (Blueprint $table) {
-            $table->id('w_id');
+            $table->id('we_id');
             $table->string('we_company_name');
             $table->string('we_position');
             $table->date('we_start_date');
@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('we_amount');
             $table->string('we_u_duties')->nullable();
             $table->foreignId('we_u_id')->constrained('users')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

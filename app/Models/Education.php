@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Education extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'ed_id';
+    protected $table = 'educations';
     protected $fillable = [
-        'e_name',
-        'e_description',
-        'e_start_date',
-        'e_end_date',
-        'e_degree',
+        'ed_name',
+        'ed_description',
+        'ed_start_date',
+        'ed_end_date',
+        'ed_degree',
         'ed_u_id', // FK ไปยัง users
     ];
     protected $casts = [

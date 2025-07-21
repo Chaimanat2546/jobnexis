@@ -9,6 +9,7 @@ class CourseMember extends Model
 {
     use HasFactory;
     protected $table = "course_members";
+    protected $primaryKey = 'cm_id';
     protected $fillable = [
         'cm_c_id',
         'cm_u_id',

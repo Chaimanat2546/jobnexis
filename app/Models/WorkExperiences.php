@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class WorkExperiences extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'we_id';
     protected $fillable = [
         'we_company_name',
         'we_position',

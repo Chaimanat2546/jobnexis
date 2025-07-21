@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('cer_u_id')->nullable();
             $table->unsignedInteger('cer_c_id')->nullable();
             $table->boolean('cer_publiced')->default(false);
+            $table->timestamps();
 
             // Foreign key เชื่อมไปตาราง users
             $table->foreign('cer_u_id')->references('id')->on('users')->onDelete('cascade');

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class CompaniesProfile extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'co_id';
     protected $fillable = [
         'co_name',
         'co_tagline',

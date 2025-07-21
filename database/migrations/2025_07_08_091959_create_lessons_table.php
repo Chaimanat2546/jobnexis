@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('l_status', ['open', 'closed', 'draft'])->default('draft');
             $table->string('l_index');
             $table->foreignId('l_c_id')->references('c_id')->on('courses')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

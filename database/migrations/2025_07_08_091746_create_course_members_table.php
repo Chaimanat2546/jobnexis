@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('cm_c_id')->references('c_id')->on('courses')->onDelete('cascade');
             $table->foreignId('cm_u_id')->constrained('users')->onDelete('cascade');
             $table->boolean('cm_passed')->default(false);
+            $table->timestamps();
         });
     }
 

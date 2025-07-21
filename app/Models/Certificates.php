@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Certificates extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'cer_id';
     protected $fillable = [
         'cer_name',
         'cer_image',

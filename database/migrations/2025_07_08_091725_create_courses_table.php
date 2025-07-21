@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('c_create_at');
             $table->date('c_end_at');
             $table->enum('c_status', ['open', 'closed', 'draft'])->default('draft');
+            $table->timestamps();
         });
     }
 

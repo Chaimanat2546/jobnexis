@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('e_name');
             $table->string('e_description')->nullable();
             $table->foreignId('e_l_id')->references('l_id')->on('lessons')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
