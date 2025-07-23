@@ -16,19 +16,35 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        return view('welcome');
     }
 
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
-        $request->authenticate();
+        try {
+            $request->authenticate();
+            $request->session()->regenerate();
 
-        $request->session()->regenerate();
+            $user = Auth::user();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+            if ($user && $user->email_verified_at) {
+                return redirect('/');
+            }
+
+            return redirect('/')->with([
+                'showAuthModal' => true,
+                'authForm' => 'verify'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // กลับไปหน้าเดิมพร้อม error และเปิด login modal
+            return back()->withErrors($e->errors())->with([
+                'showAuthModal' => true,
+                'authForm' => 'login'
+            ])->onlyInput('email');
+        }
     }
 
     /**

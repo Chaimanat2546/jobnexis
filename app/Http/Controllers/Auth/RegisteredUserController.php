@@ -9,7 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -29,23 +29,62 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'username' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        try {
+            $request->validate([
+                'email' => [
+                    'required',
+                    'string',
+                    'email',
+                    'max:255',
+                    'unique:users,email'
+                ],
+                'password' => [
+                    'required',
+                    'confirmed',
+                    Password::min(8)
+                        ->letters()
+                        ->mixedCase()
+                        ->numbers()
+                        ->symbols()
+                ],'role' => ['required', 'in:jobber,provider,education'],
+            ], [
+                // email
+                'email.required' => 'กรุณากรอกอีเมล',
+                'email.string' => 'อีเมลต้องเป็นข้อความ',
+                'email.email' => 'รูปแบบอีเมลไม่ถูกต้อง',
+                'email.max' => 'อีเมลต้องไม่เกิน :max ตัวอักษร',
+                'email.unique' => 'อีเมลนี้ถูกใช้งานแล้ว',
 
-        $user = User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'jobber', // Default role for new users
-        ]);
+                // password
+                'password.required' => 'กรุณากรอกรหัสผ่าน',
+                'password.confirmed' => 'ยืนยันรหัสผ่านไม่ตรงกัน',
+                'password.min' => 'รหัสผ่านต้องมีอย่างน้อย :min ตัวอักษร',
+                'password.letters' => 'รหัสผ่านต้องมีตัวอักษรอย่างน้อย 1 ตัว',
+                'password.mixed' => 'รหัสผ่านต้องมีทั้งตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก',
+                'password.numbers' => 'รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว',
+                'password.symbols' => 'รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว',
+            ]);
 
-        event(new Registered($user));
+            $user = User::create([
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+            ]);
 
-        Auth::login($user);
+            event(new Registered($user));
 
-        return redirect(route('dashboard', absolute: false));
+            Auth::login($user);
+
+            return redirect('/')->with([
+                'showAuthModal' => true,
+                'authForm' => 'verify'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // กลับไปหน้าเดิมพร้อม error และเปิด register modal
+            return back()->withErrors($e->errors())->with([
+                'showAuthModal' => true,
+                'authForm' => 'register'
+            ])->withInput();
+        }
     }
 }

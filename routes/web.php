@@ -3,17 +3,10 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return view('welcome');
-});
-
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-
-    return back()->with('message', 'Verification link sent!');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+})->name('/');
 
 Route::middleware((['auth', 'verified']))->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
