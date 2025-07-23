@@ -19,7 +19,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'username',
         'email',
         'password',
         'role',
@@ -47,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
     public function isAdmin()
     {
         return $this->role === 'admin';
@@ -68,5 +68,29 @@ class User extends Authenticatable implements MustVerifyEmail
     public function userProfile()
     {
         return $this->hasOne(UserProfile::class, 'up_u_id');
+    }
+    public function courseMembers()
+    {
+        return $this->hasMany(CourseMember::class, 'cm_u_id');
+    }
+    public function educations()
+    {
+        return $this->hasMany(Education::class, 'ed_u_id');
+    }
+    public function workExpreriences()
+    {
+        return $this->hasMany(WorkExperiences::class, 'we_u_id');
+    }
+    public function recruitment()
+    {
+        return $this->hasMany(Recruitment::class, 'rc_user_id');
+    }
+    public function user()
+    {
+        return $this->belongsTo(CompaniesProfile::class, 'co_user_id');
+    }
+    public function Certificate()
+    {
+        return $this->hasMany(Certificates::class, 'cer_u_id');
     }
 }
