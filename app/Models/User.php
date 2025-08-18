@@ -13,6 +13,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
+
+
     /**
      * The attributes that are mass assignable.
      *
@@ -46,7 +48,18 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
-
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class, 'up_u_id', 'id');
+    }
+    public function educations()
+    {
+        return $this->hasMany(Education::class, 'ed_u_id', 'id');
+    }
+    public function workExperiences()
+    {
+        return $this->hasMany(WorkExperience::class, 'we_u_id', 'id');
+    }
     public function isAdmin()
     {
         return $this->role === 'admin';
@@ -64,22 +77,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role === 'jobber';
     }
-    // Relationship: User -> UserProfile (One to One)
-    public function userProfile()
-    {
-        return $this->hasOne(UserProfile::class, 'up_u_id');
-    }
     public function courseMembers()
     {
         return $this->hasMany(CourseMember::class, 'cm_u_id');
-    }
-    public function educations()
-    {
-        return $this->hasMany(Education::class, 'ed_u_id');
-    }
-    public function workExpreriences()
-    {
-        return $this->hasMany(WorkExperiences::class, 'we_u_id');
     }
     public function recruitment()
     {
@@ -91,6 +91,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function Certificate()
     {
-        return $this->hasMany(Certificates::class, 'cer_u_id');
+        return $this->hasMany(Certificate::class, 'cer_u_id');
     }
+
 }

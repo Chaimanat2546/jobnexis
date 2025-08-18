@@ -12,20 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('companies_profiles', function (Blueprint $table) {
-            $table->id('co_id');
+            $table->bigIncrements('co_id');
             $table->string('co_name');
-            $table->string('co_logo')->nullable();
-            $table->string('co_tagline')->nullable();
-            $table->text('co_description')->nullable();
-            $table->string('co_website')->nullable();
             $table->string('co_email')->nullable();
             $table->string('co_phone')->nullable();
+            $table->date('co_birthday')->nullable();
+            $table->string('co_type')->nullable();
+            $table->string('co_number')->nullable();
+            $table->integer('co_jobber_amount')->nullable();
             $table->string('co_address')->nullable();
-            $table->string('co_city')->nullable();
-            $table->string('co_country')->nullable();
-            $table->date('co_founded_at')->nullable();
-            $table->foreignId('co_user_id')->constrained('users')->onDelete('cascade');
+            $table->string('co_province')->nullable();
+            $table->text('co_details')->nullable();
+            $table->string('co_profile_img')->nullable();
+            $table->string('co_banner_img')->nullable();
+            $table->unsignedBigInteger('co_user_id')->nullable();
             $table->timestamps();
+
+            // ความสัมพันธ์กับ users
+            $table->foreign('co_user_id')
+                  ->references('id')
+                  ->on('users')
+                  ->onDelete('cascade');
         });
     }
 
