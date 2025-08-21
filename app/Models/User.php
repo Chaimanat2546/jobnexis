@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'is_banned'
     ];
 
     /**
@@ -93,5 +94,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Certificate::class, 'cer_u_id');
     }
-
 }
