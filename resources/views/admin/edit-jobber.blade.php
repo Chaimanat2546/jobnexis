@@ -21,7 +21,7 @@
                 @endif
 
                 {{-- ================= ข้อมูลส่วนตัว (user_profiles) ================= --}}
-                <div class="flex items-center justify-between">
+                <div class="flex justify-between">
                     <div class="w-full">
                         <h1>โปรไฟล์</h1>
                         <p>จัดการข้อมูลบัญชีและการตั้งค่าของคุณ</p>
