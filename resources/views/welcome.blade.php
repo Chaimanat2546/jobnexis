@@ -51,6 +51,7 @@
                                 Logout
                             </button>
                         </form>
+                        <a href="{{ route('profile-jobber.edit') }}" class="btn btn-info">แก้โปรไฟล์ของฉัน</a>
                     @endauth
                 </div>
             </div>

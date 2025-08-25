@@ -4,214 +4,344 @@
 
 @section('content')
     <div class="p-4 overflow-x-auto border shadow bg-base-200 rounded-2xl">
-        <div class="flex items-center justify-between">
-            <div class="w-full">
-                <h1>โปรไฟล์</h1>
-                <p>จัดการข้อมูลบัญชีและการตั้งค่าของคุณ</p>
-            </div>
-            <div class="flex flex-col justify-end w-full gap-4">
-                <div class="flex gap-4">
-                    <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">ชื่อ-นามสุกล</legend>
-                        <input type="text" class="pl-2 border border-gray-300 input w-72" placeholder="ชื่อ-นามสุกล" />
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">อีเมล</legend>
-                        <label class="border border-gray-300 input validator w-72">
-                            <input type="email" placeholder="example@site.com" required />
-                        </label>
-                    </fieldset>
-                </div>
-                <div class="flex gap-4">
-                    <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">เบอร์โทรศัพท์</legend>
-                        <label class="border border-gray-300 input validator w-72">
-                            <input type="tel" class="tabular-nums" required placeholder="Phone" pattern="[0-9]*"
-                                minlength="10" maxlength="10" title="Must be 10 digits" />
-                        </label>
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">วันเกิด</legend>
-                        <input type="date" class="pl-2 border border-gray-300 input w-72" />
-                    </fieldset>
-                </div>
-                <div class="flex gap-4">
-                    <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">เพศ</legend>
-                        <select class="pl-2 border border-gray-300 select w-72" required>
-                            <option value="">-- เลือกเพศ --</option>
-                            <option value="ชาย">ชาย</option>
-                            <option value="หญิง">หญิง</option>
-                            <option value="อื่นๆ">อื่นๆ</option>
-                        </select>
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">จังหวัด</legend>
-                        <select class="pl-2 border border-gray-300 select w-72" required>
-                            <option value="">-- เลือกจังหวัด --</option>
-                            <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
-                            <option value="กระบี่">กระบี่</option>
-                            <option value="กาญจนบุรี">กาญจนบุรี</option>
-                            <option value="กาฬสินธุ์">กาฬสินธุ์</option>
-                            <option value="กำแพงเพชร">กำแพงเพชร</option>
-                            <option value="ขอนแก่น">ขอนแก่น</option>
-                            <option value="จันทบุรี">จันทบุรี</option>
-                            <option value="ฉะเชิงเทรา">ฉะเชิงเทรา</option>
-                            <option value="ชลบุรี">ชลบุรี</option>
-                            <option value="ชัยนาท">ชัยนาท</option>
-                            <option value="ชัยภูมิ">ชัยภูมิ</option>
-                            <option value="ชุมพร">ชุมพร</option>
-                            <option value="เชียงราย">เชียงราย</option>
-                            <option value="เชียงใหม่">เชียงใหม่</option>
-                            <option value="ตรัง">ตรัง</option>
-                            <option value="ตราด">ตราด</option>
-                            <option value="ตาก">ตาก</option>
-                            <option value="นครนายก">นครนายก</option>
-                            <option value="นครปฐม">นครปฐม</option>
-                            <option value="นครพนม">นครพนม</option>
-                            <option value="นครราชสีมา">นครราชสีมา</option>
-                            <option value="นครศรีธรรมราช">นครศรีธรรมราช</option>
-                            <option value="นครสวรรค์">นครสวรรค์</option>
-                            <option value="นราธิวาส">นราธิวาส</option>
-                            <option value="น่าน">น่าน</option>
-                            <option value="บึงกาฬ">บึงกาฬ</option>
-                            <option value="บุรีรัมย์">บุรีรัมย์</option>
-                            <option value="ปทุมธานี">ปทุมธานี</option>
-                            <option value="ประจวบคีรีขันธ์">ประจวบคีรีขันธ์</option>
-                            <option value="ปราจีนบุรี">ปราจีนบุรี</option>
-                            <option value="ปัตตานี">ปัตตานี</option>
-                            <option value="พระนครศรีอยุธยา">พระนครศรีอยุธยา</option>
-                            <option value="พังงา">พังงา</option>
-                            <option value="พัทลุง">พัทลุง</option>
-                            <option value="พิจิตร">พิจิตร</option>
-                            <option value="พิษณุโลก">พิษณุโลก</option>
-                            <option value="เพชรบุรี">เพชรบุรี</option>
-                            <option value="เพชรบูรณ์">เพชรบูรณ์</option>
-                            <option value="แพร่">แพร่</option>
-                            <option value="พะเยา">พะเยา</option>
-                            <option value="ภูเก็ต">ภูเก็ต</option>
-                            <option value="มหาสารคาม">มหาสารคาม</option>
-                            <option value="มุกดาหาร">มุกดาหาร</option>
-                            <option value="แม่ฮ่องสอน">แม่ฮ่องสอน</option>
-                            <option value="ยโสธร">ยโสธร</option>
-                            <option value="ยะลา">ยะลา</option>
-                            <option value="ร้อยเอ็ด">ร้อยเอ็ด</option>
-                            <option value="ระนอง">ระนอง</option>
-                            <option value="ระยอง">ระยอง</option>
-                            <option value="ราชบุรี">ราชบุรี</option>
-                            <option value="ลพบุรี">ลพบุรี</option>
-                            <option value="ลำปาง">ลำปาง</option>
-                            <option value="ลำพูน">ลำพูน</option>
-                            <option value="เลย">เลย</option>
-                            <option value="ศรีสะเกษ">ศรีสะเกษ</option>
-                            <option value="สกลนคร">สกลนคร</option>
-                            <option value="สงขลา">สงขลา</option>
-                            <option value="สตูล">สตูล</option>
-                            <option value="สมุทรปราการ">สมุทรปราการ</option>
-                            <option value="สมุทรสงคราม">สมุทรสงคราม</option>
-                            <option value="สมุทรสาคร">สมุทรสาคร</option>
-                            <option value="สระแก้ว">สระแก้ว</option>
-                            <option value="สระบุรี">สระบุรี</option>
-                            <option value="สิงห์บุรี">สิงห์บุรี</option>
-                            <option value="สุโขทัย">สุโขทัย</option>
-                            <option value="สุพรรณบุรี">สุพรรณบุรี</option>
-                            <option value="สุราษฎร์ธานี">สุราษฎร์ธานี</option>
-                            <option value="สุรินทร์">สุรินทร์</option>
-                            <option value="หนองคาย">หนองคาย</option>
-                            <option value="หนองบัวลำภู">หนองบัวลำภู</option>
-                            <option value="อ่างทอง">อ่างทอง</option>
-                            <option value="อุดรธานี">อุดรธานี</option>
-                            <option value="อุตรดิตถ์">อุตรดิตถ์</option>
-                            <option value="อุทัยธานี">อุทัยธานี</option>
-                            <option value="อุบลราชธานี">อุบลราชธานี</option>
-                            <option value="อำนาจเจริญ">อำนาจเจริญ</option>
-                        </select>
-                    </fieldset>
-                </div>
-            </div>
-        </div>
-        <hr class="my-12 border-gray-300">
-        <div class="flex items-center justify-between">
-            <div class="w-full">
-                <h1>ประสบการณ์การศึกษา</h1>
-                <p>ข้อมูลวุฒิการศึกษาของคุณ จะช่วยให้นายจ้างประเมิน<br>ความเหมาะสมกับตำแหน่งงานได้ง่ายขึ้น</p>
-            </div>
-            <div class="flex flex-col justify-end w-full gap-4" id="education-container">
-                <!-- ตัวอย่างแถวแรก -->
-                <div class="relative">
-                    <div class="flex gap-4">
-                        <fieldset class="fieldset">
-                            <legend class="mb-1 fieldset-legend">สถานศึกษาและสาขาวิชา</legend>
-                            <input type="text" class="pl-2 border border-gray-300 input w-72"
-                                placeholder="ชื่อสถานศึกษาและสาขาวิชา" />
-                        </fieldset>
-                        <fieldset class="fieldset">
-                            <legend class="mb-1 fieldset-legend">ปีการศึกษา</legend>
-                            <input type="text" class="pl-2 border border-gray-300 input w-72"
-                                placeholder="ปีการศึกษา" />
-                        </fieldset>
+
+
+        <form method="POST"
+            action="{{ auth()->user()->role === 'admin'
+                ? route('profile-details.store', $targetUserId ?? auth()->id())
+                : route('profile-jobber.store') }}">
+            @csrf
+            <div>
+                @if ($errors->any())
+                    <ul class="mt-3 text-red-600 text-sm list-disc list-inside">
+                        @foreach ($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                {{-- ================= ข้อมูลส่วนตัว (user_profiles) ================= --}}
+                <div class="flex justify-between">
+                    <div class="w-full">
+                        <h1>โปรไฟล์</h1>
+                        <p>จัดการข้อมูลบัญชีและการตั้งค่าของคุณ</p>
                     </div>
-                    <!-- ปุ่มลบ -->
-                    <div class="flex justify-end w-full mt-1">
-                        <button type="button" class="text-red-600 delete-row right-2">
-                            <i class="fa-solid fa-trash"></i> ลบ
+                    <div class="flex flex-col justify-end w-full gap-4">
+                        <div class="flex gap-4">
+                            <fieldset class="fieldset">
+                                <legend class="mb-1 fieldset-legend">คำนำหน้า</legend>
+                                <select name="up_prefix" class="pl-2 border border-gray-300 select w-72">
+                                    <option value="">-- เลือกคำนำหน้า --</option>
+                                    <option value="นาย"
+                                        {{ old('up_prefix', $profile->up_prefix ?? '') == 'นาย' ? 'selected' : '' }}>นาย
+                                    </option>
+                                    <option value="นาง"
+                                        {{ old('up_prefix', $profile->up_prefix ?? '') == 'นาง' ? 'selected' : '' }}>นาง
+                                    </option>
+                                    <option value="นางสาว"
+                                        {{ old('up_prefix', $profile->up_prefix ?? '') == 'นางสาว' ? 'selected' : '' }}>
+                                        นางสาว
+                                    </option>
+                                    <option value="เด็กชาย"
+                                        {{ old('up_prefix', $profile->up_prefix ?? '') == 'เด็กชาย' ? 'selected' : '' }}>
+                                        เด็กชาย
+                                    </option>
+                                    <option value="เด็กหญิง"
+                                        {{ old('up_prefix', $profile->up_prefix ?? '') == 'เด็กหญิง' ? 'selected' : '' }}>
+                                        เด็กหญิง</option>
+                                    <option value="อื่นๆ"
+                                        {{ old('up_prefix', $profile->up_prefix ?? '') == 'อื่นๆ' ? 'selected' : '' }}>อื่นๆ
+                                    </option>
+                                </select>
+
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend class="mb-1 fieldset-legend">ชื่อ-นามสกุล</legend>
+                                <input value="{{ old('up_name', $profile->up_name ?? '') }}" type="text" name="up_name"
+                                    class="pl-2 border border-gray-300 input w-72" placeholder="ชื่อ-นามสกุล" />
+                            </fieldset>
+
+                        </div>
+                        <div class="flex gap-4">
+                            <fieldset class="fieldset">
+                                <legend class="mb-1 fieldset-legend">เบอร์โทรศัพท์</legend>
+                                <input value="{{ old('up_phone', $profile->up_phone ?? '') }}" type="text"
+                                    name="up_phone" class="pl-2 border border-gray-300 input w-72" placeholder="Phone"
+                                    maxlength="10" />
+                            </fieldset>
+
+                            <fieldset class="fieldset">
+                                <legend class="mb-1 fieldset-legend">เพศ</legend>
+                                <select name="up_gender" class="pl-2 border border-gray-300 select w-72">
+                                    <option value="">-- เลือกเพศ --</option>
+                                    <option value="ชาย"
+                                        {{ old('up_gender', $profile->up_gender ?? '') == 'ชาย' ? 'selected' : '' }}>ชาย
+                                    </option>
+                                    <option value="หญิง"
+                                        {{ old('up_gender', $profile->up_gender ?? '') == 'หญิง' ? 'selected' : '' }}>หญิง
+                                    </option>
+                                    <option value="อื่นๆ"
+                                        {{ old('up_gender', $profile->up_gender ?? '') == 'อื่นๆ' ? 'selected' : '' }}>
+                                        อื่นๆ
+                                    </option>
+                                </select>
+                            </fieldset>
+                        </div>
+                        <div class="flex gap-4">
+                            <fieldset class="fieldset">
+                                <legend class="mb-1 fieldset-legend">วันเกิด</legend>
+                                <input value="{{ old('up_birth_date', $profile->up_birth_date ?? '') }}" type="date"
+                                    name="up_birth_date" class="pl-2 border border-gray-300 input w-72" />
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend for="up_city" class="mb-1 fieldset-legend">จังหวัด</legend>
+                                <select name="up_city" id="up_city" class="pl-2 border border-gray-300 select w-72">
+                                    <option value="">-- เลือกจังหวัด --</option>
+                                    @php
+                                        $provinces = [
+                                            'กรุงเทพมหานคร',
+                                            'กระบี่',
+                                            'กาญจนบุรี',
+                                            'กาฬสินธุ์',
+                                            'กำแพงเพชร',
+                                            'ขอนแก่น',
+                                            'จันทบุรี',
+                                            'ฉะเชิงเทรา',
+                                            'ชลบุรี',
+                                            'ชัยนาท',
+                                            'ชัยภูมิ',
+                                            'ชุมพร',
+                                            'เชียงราย',
+                                            'เชียงใหม่',
+                                            'ตรัง',
+                                            'ตราด',
+                                            'ตาก',
+                                            'นครนายก',
+                                            'นครปฐม',
+                                            'นครพนม',
+                                            'นครราชสีมา',
+                                            'นครศรีธรรมราช',
+                                            'นครสวรรค์',
+                                            'นนทบุรี',
+                                            'นราธิวาส',
+                                            'น่าน',
+                                            'บึงกาฬ',
+                                            'บุรีรัมย์',
+                                            'ปทุมธานี',
+                                            'ประจวบคีรีขันธ์',
+                                            'ปราจีนบุรี',
+                                            'ปัตตานี',
+                                            'พระนครศรีอยุธยา',
+                                            'พังงา',
+                                            'พัทลุง',
+                                            'พิจิตร',
+                                            'พิษณุโลก',
+                                            'เพชรบุรี',
+                                            'เพชรบูรณ์',
+                                            'แพร่',
+                                            'ภูเก็ต',
+                                            'มหาสารคาม',
+                                            'มุกดาหาร',
+                                            'แม่ฮ่องสอน',
+                                            'ยโสธร',
+                                            'ยะลา',
+                                            'ร้อยเอ็ด',
+                                            'ระนอง',
+                                            'ระยอง',
+                                            'ราชบุรี',
+                                            'ลพบุรี',
+                                            'ลำปาง',
+                                            'ลำพูน',
+                                            'ศรีสะเกษ',
+                                            'สกลนคร',
+                                            'สงขลา',
+                                            'สตูล',
+                                            'สมุทรปราการ',
+                                            'สมุทรสงคราม',
+                                            'สมุทรสาคร',
+                                            'สระแก้ว',
+                                            'สระบุรี',
+                                            'สิงห์บุรี',
+                                            'สุโขทัย',
+                                            'สุพรรณบุรี',
+                                            'สุราษฎร์ธานี',
+                                            'สุรินทร์',
+                                            'หนองคาย',
+                                            'หนองบัวลำภู',
+                                            'อ่างทอง',
+                                            'อำนาจเจริญ',
+                                            'อุดรธานี',
+                                            'อุตรดิตถ์',
+                                            'อุทัยธานี',
+                                            'อุบลราชธานี',
+                                        ];
+                                    @endphp
+
+                                    @foreach ($provinces as $province)
+                                        <option value="{{ $province }}"
+                                            {{ old('up_city', $profile->up_city ?? '') == $province ? 'selected' : '' }}>
+                                            {{ $province }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </fieldset>
+
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-12 border-gray-300">
+
+                {{-- ================= ประสบการณ์การศึกษา (educations) ================= --}}
+                <div class="flex justify-between">
+                    <h1 class="w-full">ประสบการณ์การศึกษา</h1>
+                    <div id="education-container">
+                        @foreach ($educations ?? collect() as $i => $edu)
+                            <div class="relative edu-row" data-id="{{ $edu->ed_id }}">
+                                <div class="flex flex-col gap-4">
+                                    <fieldset class="fieldset">
+                                        <legend class="mb-1 fieldset-legend">สถานศึกษาและสาขา</legend>
+                                        <input type="text" name="educations[{{ $i }}][ed_name]"
+                                            value="{{ old("educations.$i.ed_name", $edu->ed_name) }}"
+                                            class="pl-2 border border-gray-300 input w-72">
+                                    </fieldset>
+                                    <div class="flex gap-4">
+                                        <fieldset class="fieldset">
+                                            <legend class="mb-1 fieldset-legend">วันที่เริ่ม</legend>
+                                            <input type="date" name="educations[{{ $i }}][ed_start_date]"
+                                                value="{{ old("educations.$i.ed_start_date", $edu->ed_start_date) }}"
+                                                class="pl-2 border border-gray-300 input w-72">
+                                        </fieldset>
+                                        <fieldset class="fieldset">
+                                            <legend class="mb-1 fieldset-legend">วันที่สิ้นสุด</legend>
+                                            <input type="date" name="educations[{{ $i }}][ed_end_date]"
+                                                value="{{ old("educations.$i.ed_end_date", $edu->ed_end_date) }}"
+                                                class="pl-2 border border-gray-300 input w-72">
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end mt-1">
+                                    <button type="button" class="text-red-600 delete-education"
+                                        data-id="{{ $edu->ed_id }}"><i class="fa-solid fa-trash"></i>
+                                        ลบ</button>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        @if (($educations ?? collect())->count() == 0)
+                            <div class="relative edu-row">
+                                <div class="flex flex-col gap-4">
+                                    <fieldset class="fieldset">
+                                        <legend class="mb-1 fieldset-legend">สถานศึกษาและสาขา</legend>
+                                        <input type="text" name="educations[0][ed_name]"
+                                            class="pl-2 border border-gray-300 input w-72">
+                                    </fieldset>
+                                    <div class="flex gap-4">
+                                        <fieldset class="fieldset">
+                                            <legend class="mb-1 fieldset-legend">วันที่เริ่ม</legend>
+                                            <input type="date" name="educations[0][ed_start_date]"
+                                                class="pl-2 border border-gray-300 input w-72">
+                                        </fieldset>
+                                        <fieldset class="fieldset">
+                                            <legend class="mb-1 fieldset-legend">วันที่สิ้นสุด</legend>
+                                            <input type="date" name="educations[0][ed_end_date]"
+                                                class="pl-2 border border-gray-300 input w-72">
+                                        </fieldset>
+                                    </div>
+
+                                </div>
+                            </div>
+                        @endif
+
+                        <button type="button" id="add-education"
+                            class="w-full mt-2 text-blue-600 border-2 border-blue-600 border-dashed rounded-lg btn btn-sm">
+                            <i class="fa-solid fa-plus"></i> เพิ่มการศึกษา
                         </button>
                     </div>
                 </div>
 
-                <button type="button" id="add-education"
-                    class="w-full text-blue-600 border-2 border-blue-600 border-dashed rounded-lg btn btn-sm">
-                    <i class="fa-solid fa-plus"></i>
-                    <p>เพิ่มประสบการณ์การศึกษา</p>
-                </button>
-            </div>
-        </div>
-        <hr class="my-12 border-gray-300">
-        <div class="flex items-center justify-between">
-            <div class="w-full">
-                <h1>ประสบการณ์ทำงาน</h1>
-                <p>ประสบการณ์ทำงานของคุณ เป็นองค์ประกอบ<br>สำคัญที่ช่วยให้นายจ้างสามารถประเมินความเหมาะสม</p>
-            </div>
-            <div class="flex flex-col justify-end w-full gap-4" id="work-container">
-                <!-- ตัวอย่างแถวแรก -->
-                <div class="relative">
-                    <div class="flex gap-4">
-                        <fieldset class="fieldset">
-                            <legend class="mb-1 fieldset-legend">ชื่อบริษัท</legend>
-                            <input type="text" class="pl-2 border border-gray-300 input w-72"
-                                placeholder="ชื่อบริษัท" />
-                        </fieldset>
-                        <fieldset class="fieldset">
-                            <legend class="mb-1 fieldset-legend">ช่วงเวลาทำงาน</legend>
-                            <input type="text" class="pl-2 border border-gray-300 input w-72"
-                                placeholder="เช่น 2019 - 2022" />
-                        </fieldset>
-                    </div>
-                    <!-- ปุ่มลบ -->
-                    <div class="flex justify-end w-full mt-1">
-                        <button type="button" class="text-red-600 delete-row right-2">
-                            <i class="fa-solid fa-trash"></i> ลบ
+
+
+                <hr class="my-12 border-gray-300">
+
+                {{-- ================= ประสบการณ์ทำงาน (work_experiences) ================= --}}
+                <div class="flex justify-between">
+                    <h1>ประสบการณ์ทำงาน</h1>
+                    <div id="work-container">
+                        @foreach ($works ?? collect() as $i => $work)
+                            <div class="relative" data-id="{{ $work->we_id }}">
+                                <div class="flex flex-col gap-4">
+                                    <fieldset class="fieldset">
+                                        <legend class="mb-1 fieldset-legend">ชื่อบริษัท</legend>
+                                        <input type="text"
+                                            name="work_experiences[{{ $i }}][we_company_name]"
+                                            value="{{ old("work_experiences.$i.we_company_name", $work->we_company_name) }}"
+                                            class="pl-2 border border-gray-300 input w-72">
+                                    </fieldset>
+                                    <div class="flex gap-4 ">
+                                        <fieldset class="fieldset">
+                                            <legend class="mb-1 fieldset-legend">วันที่เริ่ม</legend>
+                                            <input type="date"
+                                                name="work_experiences[{{ $i }}][we_start_date]"
+                                                value="{{ old("work_experiences.$i.we_start_date", $work->we_start_date) }}"
+                                                class="pl-2 border border-gray-300 input w-72">
+                                        </fieldset>
+                                        <fieldset class="fieldset">
+                                            <legend class="mb-1 fieldset-legend">วันที่สิ้นสุด</legend>
+                                            <input type="date"
+                                                name="work_experiences[{{ $i }}][we_end_date]"
+                                                value="{{ old("work_experiences.$i.we_end_date", $work->we_end_date) }}"
+                                                class="pl-2 border border-gray-300 input w-72">
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end w-full mt-1">
+                                    <button type="button" class="text-red-600 delete-work"
+                                        data-id="{{ $work->we_id }}"><i class="fa-solid fa-trash"></i>
+                                        ลบ</button>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        @if (($works ?? collect())->count() == 0)
+                            <div class="relative">
+                                <div class="flex flex-col gap-4">
+                                    <fieldset class="fieldset">
+                                        <legend class="mb-1 fieldset-legend">ชื่อบริษัท</legend>
+                                        <input type="text" name="work_experiences[0][we_company_name]"
+                                            class="pl-2 border border-gray-300 input w-72">
+                                    </fieldset>
+                                    <div class="flex gap-4 ">
+                                        <fieldset class="fieldset">
+                                            <legend class="mb-1 fieldset-legend">วันที่เริ่ม</legend>
+                                            <input type="date" name="work_experiences[0][we_start_date]"
+                                                class="pl-2 border border-gray-300 input w-72">
+                                        </fieldset>
+                                        <fieldset class="fieldset">
+                                            <legend class="mb-1 fieldset-legend">วันที่สิ้นสุด</legend>
+                                            <input type="date" name="work_experiences[0][we_end_date]"
+                                                class="pl-2 border border-gray-300 input w-72">
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <button type="button" id="add-work"
+                            class="w-full mt-2 text-blue-600 border-2 border-blue-600 border-dashed rounded-lg btn btn-sm">
+                            <i class="fa-solid fa-plus"></i> เพิ่มการทำงาน
                         </button>
                     </div>
-
                 </div>
-
-                <button type="button" id="add-work"
-                    class="w-full text-blue-600 border-2 border-blue-600 border-dashed rounded-lg btn btn-sm">
-                    <i class="fa-solid fa-plus"></i>
-                    <p>เพิ่มประสบการณ์ทำงาน</p>
-                </button>
-                <div class="flex justify-end w-full mt-4">
-                    <button class="p-2 text-white bg-blue-600 btn hover:bg-blue-700">
-                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                <div class="flex justify-end mt-10">
+                    <button type="submit" class="px-6 py-2 text-white bg-blue-600 rounded-lg shadow">
                         บันทึกข้อมูล
                     </button>
                 </div>
-
             </div>
-
-        </div>
+        </form>
         <hr class="my-12 border-gray-300">
+        {{-- ================= ใบประกาศนียบัตร (certificates) ================= --}}
         <div class="flex flex-col items-start gap-4">
             <div class="flex justify-between w-full">
                 <h1>ประกาศนียบัตร</h1>
@@ -221,98 +351,185 @@
                 </button>
             </div>
 
-            <!-- ฟอร์มเพิ่ม -->
-            <div id="addForm" class="hidden w-full p-4 border rounded-lg bg-base-200">
-                <form method="POST" action="{{ route('certificates.store') }}">
-                    @csrf
-                    <div class="grid grid-cols-2 gap-4">
-                        <input name="cer_name" type="text" placeholder="ชื่อคอร์ส" class="w-full pl-2 border input"
-                            required />
-                        <input name="cer_ref_number" type="text" placeholder="รหัสใบประกาศ"
-                            class="w-full pl-2 border input" />
-                        <input name="cer_institute_name" type="text" placeholder="ชื่อสถาบัน"
-                            class="w-full pl-2 border input" required />
-                        <input name="cer_image_path" type="text" placeholder="ลิงก์รูปภาพ"
-                            class="w-full pl-2 border input" required />
-                    </div>
-                    <button type="submit" class="px-4 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                        บันทึก
-                    </button>
-                </form>
-            </div>
+            {{-- ฟอร์มเพิ่มใบประกาศ --}}
+            {{-- ฟอร์มเพิ่มใบประกาศ --}}
+            <form method="POST"
+                action="{{ auth()->user()->role === 'admin'
+                    ? route('admin.certificates.store', ['userId' => $targetUserId])
+                    : route('certificates.store') }}"
+                enctype="multipart/form-data" id="addForm" class="hidden w-full p-4 border rounded-lg bg-base-200">
+                @csrf
 
-            <!-- รายการใบประกาศ -->
-            <x-cert-tabs :certificates="$certificates" />
+                <div class="grid grid-cols-2 gap-4">
+                    <fieldset class="fieldset">
+                        <legend class="mb-1 fieldset-legend">ชื่อใบประกาศ *</legend>
+                        <input name="cer_name" type="text" placeholder="ชื่อใบประกาศ *"
+                            class="w-full pl-2 border border-gray-300 input" required />
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="mb-1 fieldset-legend">สถาบันผู้ออก *</legend>
+                        <input name="cer_institute_name" type="text" placeholder="สถาบันผู้ออก *"
+                            class="w-full pl-2 border border-gray-300 input" required />
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="mb-1 fieldset-legend">รหัสอ้างอิง</legend>
+                        <input name="cer_ref_number" type="text" placeholder="รหัสอ้างอิง"
+                            class="w-full pl-2 border border-gray-300 input" />
+                    </fieldset>
+
+                    <fieldset class="fieldset">
+                        <legend class="mb-1 fieldset-legend">อัปโหลดรูปภาพ *</legend>
+                        <input type="file" name="cer_image" accept="image/*"
+                            class="w-full pl-2 border border-gray-300 file-input file-input-bordered" required>
+                        <p class="text-xs text-gray-400 w-full flex justify-end">jpg,jpeg,png,webp:max 4 MB</p>
+                    </fieldset>
+                </div>
+                <div class=" w-full flex justify-end">
+                    <button type="submit" class="px-4 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                        เพิ่มใบประกาศ
+                    </button>
+                </div>
+
+            </form>
+
+
+            {{-- แท็บแสดงรายการใบประกาศ (component) --}}
+            <div class="w-full mt-6">
+                <x-cert-tabs :certificates="$certificates" />
+            </div>
         </div>
     </div>
 
-
     <script>
-        function createRow(type) {
+        function createRow(type, index) {
             const row = document.createElement('div');
             row.classList.add('relative');
 
             if (type === 'education') {
                 row.innerHTML = `
-                <div class="flex gap-4">
+                <div class="flex flex-col gap-4">
                     <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">สถานศึกษาและสาขาวิชา</legend>
-                        <input type="text" class="pl-2 border border-gray-300 input w-72"
-                            placeholder="ชื่อสถานศึกษาและสาขาวิชา" />
+                        <legend class="mb-1 fieldset-legend">สถานศึกษาและสาขา</legend>
+                        <input type="text" name="educations[${index}][ed_name]"
+                            class="pl-2 border border-gray-300 input w-72">
+                    </fieldset>
+                    <div class="flex gap-4">
+                        <fieldset class="fieldset">
+                        <legend class="mb-1 fieldset-legend">วันที่เริ่ม</legend>
+                        <input type="date" name="educations[${index}][ed_start_date]"
+                            class="pl-2 border border-gray-300 input w-72">
                     </fieldset>
                     <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">ปีการศึกษา</legend>
-                        <input type="text" class="pl-2 border border-gray-300 input w-72" placeholder="ปีการศึกษา" />
+                        <legend class="mb-1 fieldset-legend">วันที่สิ้นสุด</legend>
+                        <input type="date" name="educations[${index}][ed_end_date]"
+                            class="pl-2 border border-gray-300 input w-72">
                     </fieldset>
+                    </div>
                 </div>
                 <div class="flex justify-end w-full mt-1">
-                    <button type="button" class="text-red-600 delete-row right-2">
+                    <button type="button" class="text-red-600 delete-row">
                         <i class="fa-solid fa-trash"></i> ลบ
                     </button>
-                </div>
-            `;
-            } else if (type === 'work') {
-                row.innerHTML = `
-                <div class="flex gap-4">
-                    <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">ชื่อบริษัท</legend>
-                        <input type="text" class="pl-2 border border-gray-300 input w-72"
-                            placeholder="ชื่อบริษัท" />
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend class="mb-1 fieldset-legend">ช่วงเวลาทำงาน</legend>
-                        <input type="text" class="pl-2 border border-gray-300 input w-72" placeholder="เช่น 2019 - 2022" />
-                    </fieldset>
-                </div>
-                <div class="flex justify-end w-full mt-1">
-                    <button type="button" class="text-red-600 delete-row right-2">
-                        <i class="fa-solid fa-trash"></i> ลบ
-                    </button>
-                </div>
-            `;
+                </div>`;
             }
 
-            // ผูก event ปุ่มลบ
+            if (type === 'work') {
+                row.innerHTML = `
+                <div class="flex flex-col gap-4">
+                    <fieldset class="fieldset">
+                        <legend class="mb-1 fieldset-legend">ชื่อบริษัท</legend>
+                        <input type="text" name="work_experiences[${index}][we_company_name]"
+                            class="pl-2 border border-gray-300 input w-72">
+                    </fieldset>
+                    <div class="flex gap-4">
+                        <fieldset class="fieldset">
+                        <legend class="mb-1 fieldset-legend">วันที่เริ่ม</legend>
+                        <input type="date" name="work_experiences[${index}][we_start_date]"
+                            class="pl-2 border border-gray-300 input w-72">
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="mb-1 fieldset-legend">วันที่สิ้นสุด</legend>
+                        <input type="date" name="work_experiences[${index}][we_end_date]"
+                            class="pl-2 border border-gray-300 input w-72">
+                    </fieldset>
+                    </div>
+                </div>
+                <div class="flex justify-end w-full mt-1">
+                    <button type="button" class="text-red-600 delete-row">
+                        <i class="fa-solid fa-trash"></i> ลบ
+                    </button>
+                </div>`;
+            }
+
             row.querySelector('.delete-row').addEventListener('click', () => row.remove());
             return row;
         }
 
-        // ปุ่มเพิ่ม
         document.getElementById('add-education').addEventListener('click', () => {
             const container = document.getElementById('education-container');
-            container.insertBefore(createRow('education'), document.getElementById('add-education'));
+            const index = container.querySelectorAll('.relative').length;
+            container.insertBefore(createRow('education', index), document.getElementById('add-education'));
         });
 
         document.getElementById('add-work').addEventListener('click', () => {
             const container = document.getElementById('work-container');
-            container.insertBefore(createRow('work'), document.getElementById('add-work'));
-        });
-
-        // ให้ปุ่มลบแถวแรกทำงานด้วย
-        document.querySelectorAll('.delete-row').forEach(btn => {
-            btn.addEventListener('click', (e) => e.target.closest('.relative').remove());
+            const index = container.querySelectorAll('.relative').length;
+            container.insertBefore(createRow('work', index), document.getElementById('add-work'));
         });
     </script>
+    <script>
+        // ลบ Education
+        document.querySelectorAll('.delete-education').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                if (confirm('คุณต้องการลบข้อมูลนี้ใช่หรือไม่?')) {
+                    fetch(`/admin/profile/education/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.closest('.relative').remove();
+                            } else {
+                                alert(data.error || 'เกิดข้อผิดพลาด');
+                            }
+                        });
+                }
+            });
+        });
+
+        // ลบ Work
+        document.querySelectorAll('.delete-work').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                if (confirm('คุณต้องการลบข้อมูลนี้ใช่หรือไม่?')) {
+                    fetch(`/admin/profile/work/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.closest('.relative').remove();
+                            } else {
+                                alert(data.error || 'เกิดข้อผิดพลาด');
+                            }
+                        });
+                }
+            });
+        });
+    </script>
+
+
 
 
 @endsection

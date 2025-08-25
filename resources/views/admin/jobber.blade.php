@@ -18,20 +18,18 @@
                 @foreach ($pagedData as $user)
                     <tr>
                         <td>{{ $user['id'] }}</td>
-                        <td>{{ $user['name'] }}</td>
+                        <td>{{ $user->profile ? ($user->profile->up_prefix . ' ' . $user->profile->up_name) : '-' }}</td>
                         <td>{{ $user['email'] }}</td>
                         <td>
-                            @if ($user['status'] === 'Active')
+                            @if ($user['is_banned'] === false)
                                 <span class="px-3 py-1 text-sm text-green-600 bg-green-200 rounded-full">ออนไลน์</span>
-                            @elseif ($user['status'] === 'Pending')
-                                <span class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-full">รอยืนยันตัวตน</span>
                             @else
                                 <span class="px-3 py-1 text-sm text-red-600 bg-red-200 rounded-full">ถูกแบน</span>
                             @endif
                         </td>
                         <td>
                             <div class="flex gap-2">
-                                <a href="#"
+                                <a href="{{ route('profile-details.edit', $user->id) }}"
                                     class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </a>
