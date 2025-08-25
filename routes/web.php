@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CompaniesProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CertificateController;
@@ -17,18 +19,22 @@ Route::middleware((['auth', 'verified']))->group(function () {
     Route::post('/admin/edit-jobber', [CertificateController::class, 'store'])->name('certificates.store');
     Route::patch('/admin/edit-jobber/{id}/toggle', [CertificateController::class, 'toggle'])->name('certificates.toggle');
     Route::delete('/admin/edit-jobber/{id}', [CertificateController::class, 'destroy'])->name('certificates.destroy');
-
+    Route::get('/edit-provider/{userId?}', [CompaniesProfileController::class, 'edit'])
+        ->name('provider.profile.edit');
+    Route::post('/edit-provider/{userId?}/store', [CompaniesProfileController::class, 'store'])
+        ->name('provider.profile.store');
     // Admin routes
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    });
-    Route::middleware('role:admin')->group(function () {
         Route::get('/admin/jobber', [UserController::class, 'index']);
-        Route::get('/admin/provider', [UserController::class, 'indexProvider']);
+        Route::get('/admin/providers', [ProviderController::class, 'index'])
+            ->name('admin.providers.index');
         Route::get('/admin/education', [UserController::class, 'indexEducation']);
+         Route::patch('/admin/providers/{user}/toggle-ban', [ProviderController::class, 'toggleBan'])
+        ->name('admin.providers.toggleBan');
+        Route::delete('/admin/providers/{user}', [ProviderController::class, 'destroy'])
+        ->name('admin.providers.destroy');
     });
-
-
 
     // Provider routes
     Route::middleware('role:provider')->group(function () {
