@@ -82,16 +82,22 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(CourseMember::class, 'cm_u_id');
     }
-    public function recruitment()
+    public function recruitments()
     {
-        return $this->hasMany(Recruitment::class, 'rc_user_id');
+        return $this->hasMany(\App\Models\Recruitment::class, 'rc_u_id');
     }
-    public function user()
+    public function companyProfile()
     {
-        return $this->belongsTo(CompaniesProfile::class, 'co_user_id');
+        return $this->hasOne(\App\Models\CompaniesProfile::class, 'co_user_id');
     }
     public function Certificate()
     {
         return $this->hasMany(Certificate::class, 'cer_u_id');
+    }
+
+    public function getStatusLabelAttribute()
+    {
+        if ($this->is_banned) return 'Active';
+        return $this->email_verified_at ? 'Banned' : 'Pending';
     }
 }

@@ -22,8 +22,7 @@ return new class extends Migration
             $table->enum('rc_status', ['open', 'closed', 'draft'])->default('open');
             $table->date('rc_posted_at');
             $table->date('rc_expire_at')->nullable();
-            $table->foreignId('rc_co_id')->references('co_id')->on('companies_profiles')->onDelete('cascade');
-            $table->foreignId('rc_user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('rc_u_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

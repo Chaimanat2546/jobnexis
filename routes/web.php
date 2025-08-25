@@ -2,9 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\CompaniesProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileDetailController;
 use App\Http\Controllers\CertificateController;
 
@@ -14,7 +17,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     /** ---------------- Dashboard ---------------- */
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
+    Route::get('/edit-provider/{userId?}', [CompaniesProfileController::class, 'edit'])
+        ->name('provider.profile.edit');
+    Route::post('/edit-provider/{userId?}/store', [CompaniesProfileController::class, 'store'])
+        ->name('provider.profile.store');
+    // Admin routes
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/providers', [ProviderController::class, 'index'])
+            ->name('admin.providers.index');
+         Route::patch('/admin/providers/{user}/toggle-ban', [ProviderController::class, 'toggleBan'])
+        ->name('admin.providers.toggleBan');
+        Route::delete('/admin/providers/{user}', [ProviderController::class, 'destroy'])
+        ->name('admin.providers.destroy');
+    });
 
     /** ---------------- Profile Details ---------------- */
     Route::prefix('admin/profile')->group(function () {
@@ -27,7 +42,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/jobber', [UserController::class, 'index']);
-        Route::get('/provider', [UserController::class, 'indexProvider']);
         Route::get('/education', [UserController::class, 'indexEducation']);
         Route::post('/edit-jobber/{userId}/certificate', [CertificateController::class, 'store'])
         ->name('admin.certificates.store');
