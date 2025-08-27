@@ -1,4 +1,4 @@
-<aside class="bg-base-200 w-[230px] p-4 flex flex-col items-center shadow border-r border-gray-300">
+<aside class="bg-base-200 w-[230px] p-4 flex flex-col items-center shadow border-r border-gray-300 min-h-[calc(100vh-4rem)]">
     <a href="/">
         <img src="{{ asset('image/web-image/logo.png') }}" alt="logo" class="w-auto h-12 mb-6">
     </a>

@@ -35,7 +35,7 @@
             @include('layouts.header')
 
             {{-- Content --}}
-            <main class="p-6 text-md">
+            <main class="px-6 pt-6 text-md">
                 @yield('content')
             </main>
         </div>

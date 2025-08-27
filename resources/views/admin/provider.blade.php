@@ -10,13 +10,13 @@
                     <th>ชื่อบริษัท</th>
                     <th>เลขผู้ประกอบการ</th>
                     <th>อีเมล</th>
-                    <th>ประกาศงาน (จำนวน)</th>
+                    <th>ประกาศงาน</th>
                     <th>สถานะ</th>
                     <th>การทำงาน</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($providers as $p)
+                @forelse ($providers as $p)
                     <tr>
                         <td>{{ $p->co_name ?? '-' }}</td>
                         <td>{{ $p->co_number ?? '-' }}</td>
@@ -29,7 +29,6 @@
                                 <span class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-full">รอยืนยัน</span>
                             @else
                                 <span class="px-3 py-1 text-sm text-green-600 bg-green-200 rounded-full">ออนไลน์</span>
-
                             @endif
                         </td>
                         @php
@@ -43,8 +42,8 @@
                             <div class="gap-4 join">
                                 {{-- ไปหน้าแก้ไข --}}
                                 <a href="{{ route('provider.profile.edit', $p->id) }}"
-                                    class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white" title="แก้ไข">
+                                    <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
                                 @if ($status === 'Active')
                                     {{-- แบน --}}
@@ -81,11 +80,25 @@
                             </div>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        {{-- ปรับจำนวน colspan ให้เท่ากับจำนวนคอลัมน์จริงของคุณ
+             เช่น มี: ไอดี, ชื่อ, อีเมล, โทร, (คอร์ส), สถานะ, การทำงาน => 6 หรือ 7 --}}
+                        <td colspan="6" class="py-10 text-center text-gray-500">
+                            @if (request()->filled('q'))
+                                ไม่พบผู้ใช้ที่เป็น <b>ผู้ประกอบการ</b> ที่ตรงกับ
+                                “<span class="font-semibold">{{ e(request('q')) }}</span>”
+                                <a href="{{ url()->current() }}" class="ml-2 link">ล้างการค้นหา</a>
+                            @else
+                                ไม่มีผู้ใช้ที่เป็น <b>ผู้ประกอบการ</b> ในระบบ
+                            @endif
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
-
-        <div class="mt-4">
+    </div>
+        <div class="flex justify-center mt-4">
             @if ($providers->lastPage() > 1)
                 <div class="join">
                     @php

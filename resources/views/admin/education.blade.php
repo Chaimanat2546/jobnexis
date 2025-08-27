@@ -18,7 +18,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($pagedData as $row)
+                @forelse ($pagedData as $row)
                     <tr>
                         <td>{{ $row->e_name ?: '-' }}</td>
                         <td>{{ $row->institute_email ?: $row->user_email }}</td>
@@ -88,7 +88,21 @@
                             </div>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        {{-- ปรับจำนวน colspan ให้เท่ากับจำนวนคอลัมน์จริงของคุณ
+             เช่น มี: ไอดี, ชื่อ, อีเมล, โทร, (คอร์ส), สถานะ, การทำงาน => 6 หรือ 7 --}}
+                        <td colspan="6" class="py-10 text-center text-gray-500">
+                            @if (request()->filled('q'))
+                                ไม่พบผู้ใช้ที่เป็น <b>สถาบันการศึกษา</b> ที่ตรงกับ
+                                “<span class="font-semibold">{{ e(request('q')) }}</span>”
+                                <a href="{{ url()->current() }}" class="ml-2 link">ล้างการค้นหา</a>
+                            @else
+                                ไม่มีผู้ใช้ที่เป็น <b>สถาบันการศึกษา</b> ในระบบ
+                            @endif
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

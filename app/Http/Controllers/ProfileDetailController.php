@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certificate;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\UserProfile;
 use App\Models\Education;
@@ -15,6 +16,15 @@ use Illuminate\Support\Facades\Log;
 class ProfileDetailController extends Controller
 {
     use AuthorizesRequests;
+    public function index()
+    {
+        // ดึงข้อมูลจาก DB (เฉพาะ role = jobber)
+        $pagedData = User::with('profile')
+            ->where('role', 'jobber')
+            ->paginate(7); // ยังคงใช้ paginate
+
+        return view('admin.jobber', compact('pagedData'));
+    }
 
     public function edit($userId = null)
     {
@@ -30,13 +40,13 @@ class ProfileDetailController extends Controller
             } else {
                 $targetUserId = $user->id; // jobber = ตัวเองเท่านั้น
             }
-
+            $provinces = config('th_provinces', []);
             $profile      = UserProfile::where('up_u_id', $targetUserId)->first();
             $educations   = Education::where('ed_u_id', $targetUserId)->get();
             $works        = WorkExperience::where('we_u_id', $targetUserId)->get();
             $certificates = Certificate::where('cer_u_id', $targetUserId)->get();
 
-            return view('admin.edit-jobber', compact('profile', 'educations', 'works', 'targetUserId', 'certificates'));
+            return view('admin.edit-jobber', compact('profile', 'educations', 'works', 'targetUserId', 'certificates', 'provinces'));
         } catch (\Throwable $e) {
             Log::error('Edit profile failed', [
                 'action' => 'edit',
@@ -44,6 +54,7 @@ class ProfileDetailController extends Controller
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
+                'provinces' => $provinces,
             ]);
 
             return back()->withErrors(['edit' => 'ไม่สามารถโหลดข้อมูลได้ โปรดลองใหม่อีกครั้ง'])->withInput();
@@ -192,5 +203,29 @@ class ProfileDetailController extends Controller
             Log::error('Delete work failed', ['id' => $id, 'error' => $e->getMessage()]);
             return response()->json(['error' => 'Server error'], 500);
         }
+    }
+    public function toggleBan(User $user)
+    {
+        $auth = Auth::user();
+        if ($auth->role !== 'admin') abort(403);
+        if ($user->role !== 'jobber') abort(404);
+        $user->is_banned = !$user->is_banned;
+        $user->save();
+
+        return back()->with('success', $user->is_banned ? 'แบนผู้ใช้แล้ว' : 'ปลดแบนผู้ใช้แล้ว');
+    }
+
+    public function destroy(User $user)
+    {
+        $auth = Auth::user();
+        if ($auth->role !== 'admin') abort(403);
+        if ($user->role !== 'jobber') abort(404);
+
+
+        // จะ Soft Delete หรือ Hard Delete ขึ้นกับ Model User ของคุณ
+        // ถ้าไม่ได้ใช้ SoftDeletes นี่จะเป็นการลบถาวร และ FK ที่ onDelete('cascade') จะจัดการโปรไฟล์ให้
+        $user->delete();
+
+        return redirect()->route('admin.jobber.index')->with('success', 'ลบผู้ใช้เรียบร้อย');
     }
 }

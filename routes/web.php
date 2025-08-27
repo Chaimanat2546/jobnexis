@@ -23,11 +23,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('provider.profile.store');
     // Admin routes
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin/providers', [ProviderController::class, 'index'])
+        Route::get('/admin/providers', [CompaniesProfileController::class, 'index'])
             ->name('admin.providers.index');
-        Route::patch('/admin/providers/{user}/toggle-ban', [ProviderController::class, 'toggleBan'])
+        Route::patch('/admin/providers/{user}/toggle-ban', [CompaniesProfileController::class, 'toggleBan'])
             ->name('admin.providers.toggleBan');
-        Route::delete('/admin/providers/{user}', [ProviderController::class, 'destroy'])
+        Route::delete('/admin/providers/{user}', [CompaniesProfileController::class, 'destroy'])
             ->name('admin.providers.destroy');
     });
 
@@ -41,7 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /** ---------------- Admin Routes ---------------- */
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-        Route::get('/jobber', [UserController::class, 'index']);
+        Route::get('/jobber', [ProfileDetailController::class, 'index'])->name('admin.jobber.index');
         Route::get('/education', [EducationProfileController::class, 'index'])->name('admin.educations.index');
         Route::post('/edit-jobber/{userId}/certificate', [CertificateController::class, 'store'])
             ->name('admin.certificates.store');
@@ -51,10 +51,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('admin.profile-education.edit');
         Route::post('/edit-education/{userId?}/store', [EducationProfileController::class, 'store'])
             ->name('admin.profile-education.store');
-            Route::patch('/educations/{user}/toggle-ban', [EducationProfileController::class, 'toggleBan'])
-        ->name('admin.educations.toggleBan');
-    Route::delete('/educations/{user}', [EducationProfileController::class, 'destroy'])
-        ->name('admin.educations.destroy');
+        Route::patch('/educations/{user}/toggle-ban', [EducationProfileController::class, 'toggleBan'])
+            ->name('admin.educations.toggleBan');
+        Route::delete('/educations/{user}', [EducationProfileController::class, 'destroy'])
+            ->name('admin.educations.destroy');
+        Route::patch('/jobber/{user}/toggle-ban', [ProfileDetailController::class, 'toggleBan'])
+            ->name('admin.jobber.toggleBan');
+        Route::delete('/jobber/{user}', [ProfileDetailController::class, 'destroy'])
+            ->name('admin.jobber.destroy');
     });
 
     /** ---------------- Provider Routes ---------------- */

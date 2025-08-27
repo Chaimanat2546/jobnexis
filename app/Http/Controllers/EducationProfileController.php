@@ -113,27 +113,27 @@ class EducationProfileController extends Controller
             ->with('success', 'บันทึกโปรไฟล์ (Education) สำเร็จ');
     }
     public function toggleBan(User $user)
-{
-    $auth = Auth::user();
-    if ($auth->role !== 'admin') abort(403);
-    if ($user->role !== 'education') abort(404);
+    {
+        $auth = Auth::user();
+        if ($auth->role !== 'admin') abort(403);
+        if ($user->role !== 'education') abort(404);
 
-    $user->is_banned = !$user->is_banned;
-    $user->save();
+        $user->is_banned = !$user->is_banned;
+        $user->save();
 
-    return back()->with('success', $user->is_banned ? 'แบนผู้ใช้แล้ว' : 'ปลดแบนผู้ใช้แล้ว');
-}
+        return back()->with('success', $user->is_banned ? 'แบนผู้ใช้แล้ว' : 'ปลดแบนผู้ใช้แล้ว');
+    }
 
-public function destroy(User $user)
-{
-    $auth = Auth::user();
-    if ($auth->role !== 'admin') abort(403);
-    if ($user->role !== 'education') abort(404);
+    public function destroy(User $user)
+    {
+        $auth = Auth::user();
+        if ($auth->role !== 'admin') abort(403);
+        if ($user->role !== 'education') abort(404);
 
-    // จะ Soft Delete หรือ Hard Delete ขึ้นกับ Model User ของคุณ
-    // ถ้าไม่ได้ใช้ SoftDeletes นี่จะเป็นการลบถาวร และ FK ที่ onDelete('cascade') จะจัดการโปรไฟล์ให้
-    $user->delete();
+        // จะ Soft Delete หรือ Hard Delete ขึ้นกับ Model User ของคุณ
+        // ถ้าไม่ได้ใช้ SoftDeletes นี่จะเป็นการลบถาวร และ FK ที่ onDelete('cascade') จะจัดการโปรไฟล์ให้
+        $user->delete();
 
-    return redirect()->route('admin.educations.index')->with('success', 'ลบผู้ใช้เรียบร้อย');
-}
+        return redirect()->route('admin.educations.index')->with('success', 'ลบผู้ใช้เรียบร้อย');
+    }
 }

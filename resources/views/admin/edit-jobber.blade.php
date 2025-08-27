@@ -13,7 +13,7 @@
             @csrf
             <div>
                 @if ($errors->any())
-                    <ul class="mt-3 text-red-600 text-sm list-disc list-inside">
+                    <ul class="mt-3 text-sm text-red-600 list-disc list-inside">
                         @foreach ($errors->all() as $err)
                             <li>{{ $err }}</li>
                         @endforeach
@@ -97,86 +97,6 @@
                                 <legend for="up_city" class="mb-1 fieldset-legend">จังหวัด</legend>
                                 <select name="up_city" id="up_city" class="pl-2 border border-gray-300 select w-72">
                                     <option value="">-- เลือกจังหวัด --</option>
-                                    @php
-                                        $provinces = [
-                                            'กรุงเทพมหานคร',
-                                            'กระบี่',
-                                            'กาญจนบุรี',
-                                            'กาฬสินธุ์',
-                                            'กำแพงเพชร',
-                                            'ขอนแก่น',
-                                            'จันทบุรี',
-                                            'ฉะเชิงเทรา',
-                                            'ชลบุรี',
-                                            'ชัยนาท',
-                                            'ชัยภูมิ',
-                                            'ชุมพร',
-                                            'เชียงราย',
-                                            'เชียงใหม่',
-                                            'ตรัง',
-                                            'ตราด',
-                                            'ตาก',
-                                            'นครนายก',
-                                            'นครปฐม',
-                                            'นครพนม',
-                                            'นครราชสีมา',
-                                            'นครศรีธรรมราช',
-                                            'นครสวรรค์',
-                                            'นนทบุรี',
-                                            'นราธิวาส',
-                                            'น่าน',
-                                            'บึงกาฬ',
-                                            'บุรีรัมย์',
-                                            'ปทุมธานี',
-                                            'ประจวบคีรีขันธ์',
-                                            'ปราจีนบุรี',
-                                            'ปัตตานี',
-                                            'พระนครศรีอยุธยา',
-                                            'พังงา',
-                                            'พัทลุง',
-                                            'พิจิตร',
-                                            'พิษณุโลก',
-                                            'เพชรบุรี',
-                                            'เพชรบูรณ์',
-                                            'แพร่',
-                                            'ภูเก็ต',
-                                            'มหาสารคาม',
-                                            'มุกดาหาร',
-                                            'แม่ฮ่องสอน',
-                                            'ยโสธร',
-                                            'ยะลา',
-                                            'ร้อยเอ็ด',
-                                            'ระนอง',
-                                            'ระยอง',
-                                            'ราชบุรี',
-                                            'ลพบุรี',
-                                            'ลำปาง',
-                                            'ลำพูน',
-                                            'ศรีสะเกษ',
-                                            'สกลนคร',
-                                            'สงขลา',
-                                            'สตูล',
-                                            'สมุทรปราการ',
-                                            'สมุทรสงคราม',
-                                            'สมุทรสาคร',
-                                            'สระแก้ว',
-                                            'สระบุรี',
-                                            'สิงห์บุรี',
-                                            'สุโขทัย',
-                                            'สุพรรณบุรี',
-                                            'สุราษฎร์ธานี',
-                                            'สุรินทร์',
-                                            'หนองคาย',
-                                            'หนองบัวลำภู',
-                                            'อ่างทอง',
-                                            'อำนาจเจริญ',
-                                            'อุดรธานี',
-                                            'อุตรดิตถ์',
-                                            'อุทัยธานี',
-                                            'อุบลราชธานี',
-                                        ];
-                                    @endphp
-
                                     @foreach ($provinces as $province)
                                         <option value="{{ $province }}"
                                             {{ old('up_city', $profile->up_city ?? '') == $province ? 'selected' : '' }}>
@@ -383,10 +303,10 @@
                         <legend class="mb-1 fieldset-legend">อัปโหลดรูปภาพ *</legend>
                         <input type="file" name="cer_image" accept="image/*"
                             class="w-full pl-2 border border-gray-300 file-input file-input-bordered" required>
-                        <p class="text-xs text-gray-400 w-full flex justify-end">jpg,jpeg,png,webp:max 4 MB</p>
+                        <p class="flex justify-end w-full text-xs text-gray-400">jpg,jpeg,png,webp:max 4 MB</p>
                     </fieldset>
                 </div>
-                <div class=" w-full flex justify-end">
+                <div class="flex justify-end w-full ">
                     <button type="submit" class="px-4 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
                         เพิ่มใบประกาศ
                     </button>

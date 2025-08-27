@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="flex items-center justify-between p-4 overflow-x-auto border shadow bg-base-200 rounded-2xl">
+    <div class="flex items-center justify-between p-4 overflow-x-auto border shadow bg-base-200 rounded-2xl ">
         <table class="table">
             <thead>
                 <tr>
@@ -16,46 +16,94 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($pagedData as $user)
+                @forelse ($pagedData as $row)
                     <tr>
-                        <td>{{ $user['id'] }}</td>
-                        <td>{{ $user->profile ? ($user->profile->up_prefix . ' ' . $user->profile->up_name) : '-' }}</td>
-                        <td>{{ $user['email'] }}</td>
+                        <td>{{ $row['id'] }}</td>
+                        <td>{{ $row->profile ? $row->profile->up_prefix . ' ' . $row->profile->up_name : '-' }}</td>
+                        <td>{{ $row['email'] }}</td>
                         <td>
-                            @if ($user['is_banned'] === false && $user['email_verified_at'] !== null)
+                            @php
+                                $status = $row->is_banned
+                                    ? 'Banned'
+                                    : (is_null($row->email_verified_at)
+                                        ? 'Pending'
+                                        : 'Active');
+                            @endphp
+                            @if ($status === 'Active')
                                 <span class="px-3 py-1 text-sm text-green-600 bg-green-200 rounded-full">ออนไลน์</span>
-                            @elseif ($user['email_verified_at'] === null)
+                            @elseif ($status === 'Pending')
                                 <span class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-full">รอยืนยัน</span>
                             @else
                                 <span class="px-3 py-1 text-sm text-red-600 bg-red-200 rounded-full">ถูกแบน</span>
                             @endif
                         </td>
                         <td>
+                            @php
+                                $status = $row->is_banned
+                                    ? 'Banned'
+                                    : (is_null($row->email_verified_at)
+                                        ? 'Pending'
+                                        : 'Active');
+                            @endphp
                             <div class="flex gap-2">
-                                <a href="{{ route('profile-details.edit', $user->id) }}"
-                                    class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                <a href="{{ route('profile-details.edit', $row->id) }}"
+                                    class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white"
+                                    title="แก้ไข">
+                                    <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
-                                @if ($user['is_banned'] === 'Active' && $user['email_verified_at'] !== null)
-                                    <a href="#"
-                                        class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white">
-                                        <i class="fa-solid fa-ban"></i>
-                                    </a>
-                                @elseif ($user['email_verified_at'] === null)
-                                    <a href="#"
-                                        class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
+                                @if ($status === 'Active')
+                                    {{-- แบน --}}
+                                    <form method="POST" action="{{ route('admin.jobber.toggleBan', $row->id) }}"
+                                        class="inline-flex">
+                                        @csrf @method('PATCH')
+                                        <button type="submit"
+                                            class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white"
+                                            title="แบน">
+                                            <i class="fa-solid fa-ban"></i>
+                                        </button>
+                                    </form>
+                                @elseif ($status === 'Pending')
+                                    {{-- ลบ (ยังไม่ยืนยันอีเมล) --}}
+                                    <form method="POST" action="{{ route('admin.jobber.destroy', $row->id) }}"
+                                        class="inline-flex"
+                                        onsubmit="return confirm('ยืนยันลบผู้ใช้ #{{ $row->id }} ?');">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                            class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white"
+                                            title="ลบ">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
                                 @else
-                                    <a href="#"
-                                        class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-green-600 hover:text-white">
-                                        <i class="fa-solid fa-user-check"></i>
-                                    </a>
+                                    {{-- ปลดแบน --}}
+                                    <form method="POST" action="{{ route('admin.jobber.toggleBan', $row->id) }}"
+                                        class="inline-flex">
+                                        @csrf @method('PATCH')
+                                        <button type="submit"
+                                            class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-green-600 hover:text-white"
+                                            title="ปลดแบน">
+                                            <i class="fa-solid fa-user-check"></i>
+                                        </button>
+                                    </form>
                                 @endif
                             </div>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        {{-- ปรับจำนวน colspan ให้เท่ากับจำนวนคอลัมน์จริงของคุณ
+             เช่น มี: ไอดี, ชื่อ, อีเมล, โทร, (คอร์ส), สถานะ, การทำงาน => 6 หรือ 7 --}}
+                        <td colspan="6" class="py-10 text-center text-gray-500">
+                            @if (request()->filled('q'))
+                                ไม่พบผู้ใช้ที่เป็น <b>ผู้หางาน</b> ที่ตรงกับ
+                                “<span class="font-semibold">{{ e(request('q')) }}</span>”
+                                <a href="{{ url()->current() }}" class="ml-2 link">ล้างการค้นหา</a>
+                            @else
+                                ไม่มีผู้ใช้ที่เป็น <b>ผู้หางาน</b> ในระบบ
+                            @endif
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
