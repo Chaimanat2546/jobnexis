@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EducationProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CompaniesProfileController;
@@ -46,6 +47,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('admin.certificates.store');
         Route::get('/edit-jobber/{userId?}', [ProfileDetailController::class, 'edit'])->name('profile-details.edit');
         Route::post('/edit-jobber/{userId?}/store', [ProfileDetailController::class, 'store'])->name('profile-details.store');
+        Route::get('/edit-education/{userId?}', [EducationProfileController::class, 'edit'])
+->name('admin.profile-education.edit');
+Route::post('/edit-education/{userId?}/store', [EducationProfileController::class, 'store'])
+->name('admin.profile-education.store');
     });
 
     /** ---------------- Provider Routes ---------------- */
@@ -56,6 +61,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /** ---------------- Education Routes ---------------- */
     Route::middleware('role:education')->prefix('education')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
+        Route::get('/edit-education', [EducationProfileController::class, 'edit'])
+->name('profile-education.edit');
+Route::post('/edit-education/store', [EducationProfileController::class, 'store'])
+->name('profile-education.store');
     });
 
     /** ---------------- Jobber Routes ---------------- */

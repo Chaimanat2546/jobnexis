@@ -100,4 +100,8 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->is_banned) return 'Active';
         return $this->email_verified_at ? 'Banned' : 'Pending';
     }
+    public function educationProfile()
+    {
+        return $this->hasOne(\App\Models\EducationProfile::class, 'e_u_id');
+    }
 }
