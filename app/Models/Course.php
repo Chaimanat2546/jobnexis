@@ -40,6 +40,6 @@ class Course extends Model
     }
     public function certificate()
     {
-        return $this->hasMany(Certificates::class, 'cer_c_id');
+        return $this->hasMany(Certificate::class, 'cer_c_id');
     }
 }
