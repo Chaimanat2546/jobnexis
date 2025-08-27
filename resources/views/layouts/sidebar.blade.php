@@ -39,7 +39,7 @@
                 </a>
             </li>
             <li>
-                <a href="{{ url('admin/provider') }}"
+                <a href="{{ url('admin/providers') }}"
                     class="flex items-center {{ request()->is('education/courses') ? 'text-blue-600' : '' }}">
                     <i
                         class="fa-solid fa-building w-5 text-blue-600 text-center mr-1 {{ request()->is('education/courses') ? 'text-blue-600' : '' }}"></i>
