@@ -24,7 +24,7 @@
     </style>
 </head>
 
-<body class="h-screen p-6 bg-gray-200">
+<body class="h-full min-h-screen p-6 bg-gray-200">
     <div class="flex">
         {{-- Sidebar --}}
         @include('layouts.sidebar')

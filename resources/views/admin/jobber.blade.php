@@ -3,6 +3,7 @@
 @section('title', 'ผู้สมัครงาน')
 
 @section('content')
+
     <div class="flex items-center justify-between p-4 overflow-x-auto border shadow bg-base-200 rounded-2xl">
         <table class="table">
             <thead>
@@ -21,8 +22,10 @@
                         <td>{{ $user->profile ? ($user->profile->up_prefix . ' ' . $user->profile->up_name) : '-' }}</td>
                         <td>{{ $user['email'] }}</td>
                         <td>
-                            @if ($user['is_banned'] === false)
+                            @if ($user['is_banned'] === false && $user['email_verified_at'] !== null)
                                 <span class="px-3 py-1 text-sm text-green-600 bg-green-200 rounded-full">ออนไลน์</span>
+                            @elseif ($user['email_verified_at'] === null)
+                                <span class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-full">รอยืนยัน</span>
                             @else
                                 <span class="px-3 py-1 text-sm text-red-600 bg-red-200 rounded-full">ถูกแบน</span>
                             @endif
@@ -33,12 +36,12 @@
                                     class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </a>
-                                @if ($user['status'] === 'Active')
+                                @if ($user['is_banned'] === 'Active' && $user['email_verified_at'] !== null)
                                     <a href="#"
                                         class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white">
                                         <i class="fa-solid fa-ban"></i>
                                     </a>
-                                @elseif ($user['status'] === 'Pending')
+                                @elseif ($user['email_verified_at'] === null)
                                     <a href="#"
                                         class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white">
                                         <i class="fa-solid fa-trash"></i>

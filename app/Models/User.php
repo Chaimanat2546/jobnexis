@@ -84,11 +84,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function recruitments()
     {
-        return $this->hasMany(\App\Models\Recruitment::class, 'rc_u_id');
+        return $this->hasMany(Recruitment::class, 'rc_u_id');
     }
     public function companyProfile()
     {
-        return $this->hasOne(\App\Models\CompaniesProfile::class, 'co_user_id');
+        return $this->hasOne(CompaniesProfile::class, 'co_user_id');
     }
     public function Certificate()
     {
@@ -99,5 +99,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         if ($this->is_banned) return 'Active';
         return $this->email_verified_at ? 'Banned' : 'Pending';
+    }
+    public function educationProfile()
+    {
+        return $this->hasOne(EducationProfile::class, 'e_u_id');
+    }
+    public function courses()
+    {
+        return $this->hasMany(Course::class, 'c_create_by_id', 'id');
     }
 }

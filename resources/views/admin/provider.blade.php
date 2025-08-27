@@ -23,12 +23,13 @@
                         <td>{{ $p->company_email ?? $p->email }}</td>
                         <td>{{ $p->open_recruitments_count }}</td>
                         <td>
-                            @if ($p->is_banned)
+                            @if ($p->is_banned && $p->email_verified_at === null)
                                 <span class="px-3 py-1 text-sm text-red-600 bg-red-200 rounded-full">ถูกแบน</span>
-                            @elseif ($p->email_verified_at)
-                                <span class="px-3 py-1 text-sm text-green-600 bg-green-200 rounded-full">Active</span>
+                            @elseif ($p->email_verified_at === null)
+                                <span class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-full">รอยืนยัน</span>
                             @else
-                                <span class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-full">Pending</span>
+                                <span class="px-3 py-1 text-sm text-green-600 bg-green-200 rounded-full">ออนไลน์</span>
+
                             @endif
                         </td>
                         @php
