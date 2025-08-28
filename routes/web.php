@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\EducationProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
@@ -41,6 +42,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /** ---------------- Admin Routes ---------------- */
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'userStats'])
+        ->name('admin.userStats');
+    Route::get('/dashboard/data', [AdminDashboardController::class, 'userStatsData'])
+        ->name('admin.userStats.data');
+
         Route::get('/jobber', [ProfileDetailController::class, 'index'])->name('admin.jobber.index');
         Route::get('/education', [EducationProfileController::class, 'index'])->name('admin.educations.index');
         Route::post('/edit-jobber/{userId}/certificate', [CertificateController::class, 'store'])
