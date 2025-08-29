@@ -9,27 +9,20 @@ class UserProfile extends Model
 {
     use HasFactory;
 
+    protected $table = 'user_profiles';
     protected $primaryKey = 'up_id';
 
     protected $fillable = [
         'up_prefix',
-        'up_first_name',
-        'up_last_name',
-        'up_address',
+        'up_name',
         'up_city',
-        'up_country',
         'up_birth_date',
         'up_gender',
-        'up_nationality',
         'up_phone',
-        'up_u_id', // FK ไปยัง users
+        'up_u_id',
     ];
 
-    protected $casts = [
-        'up_birth_date' => 'date',
-    ];
-
-    // ความสัมพันธ์: UserProfile -> User
+    // ความสัมพันธ์กับ User
     public function user()
     {
         return $this->belongsTo(User::class, 'up_u_id');

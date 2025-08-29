@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('media', function (Blueprint $table) {
-            $table->id('m_id');
+            $table->bigIncrements('m_id');
             $table->string('m_name');
             $table->text('m_desc')->nullable();
             $table->integer('m_index');

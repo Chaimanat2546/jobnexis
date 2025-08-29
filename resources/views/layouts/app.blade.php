@@ -28,7 +28,8 @@
     </style>
 </head>
 
-<body class="p-6 bg-gray-200 min-h-screen">
+
+<body class="h-full min-h-screen p-6 bg-gray-200">
     <div class="flex">
         {{-- Sidebar --}}
         @include('layouts.sidebar')
@@ -39,7 +40,7 @@
             @include('layouts.header')
 
             {{-- Content --}}
-            <main class="ml-6 py-6">
+            <main class="px-6 pt-6 text-md">
                 @yield('content')
             </main>
         </div>

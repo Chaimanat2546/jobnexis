@@ -31,7 +31,15 @@ class AuthenticatedSessionController extends Controller
             $user = Auth::user();
 
             if ($user && $user->email_verified_at) {
-                return redirect('/');
+                if ($user->role === 'admin') {
+                    return redirect('/admin/dashboard');
+                } elseif ($user->role === 'education') {
+                    return redirect('/education/dashboard');
+                } elseif ($user->role === 'provider') {
+                    return redirect('/provider/dashboard');
+                } else {
+                    return redirect('/');
+                }
             }
 
             return redirect('/')->with([

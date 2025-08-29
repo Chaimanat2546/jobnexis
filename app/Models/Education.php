@@ -8,20 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Education extends Model
 {
     use HasFactory;
-    protected $primaryKey = 'ed_id';
+
     protected $table = 'educations';
+    protected $primaryKey = 'ed_id';
+
     protected $fillable = [
         'ed_name',
-        'ed_description',
         'ed_start_date',
         'ed_end_date',
-        'ed_degree',
-        'ed_u_id', // FK ไปยัง users
+        'ed_u_id',
     ];
-    protected $casts = [
-        'e_start_date' => 'date',
-        'e_end_date' => 'date',
-    ];
+
+    // ความสัมพันธ์กับ User
     public function user()
     {
         return $this->belongsTo(User::class, 'ed_u_id');

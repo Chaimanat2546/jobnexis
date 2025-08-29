@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Recruitment extends Model
 {
-    use HasFactory;
+     protected $table = 'recruitments';
     protected $primaryKey = 'rc_id';
+
     protected $fillable = [
         'rc_title',
         'r_description',
@@ -19,15 +20,10 @@ class Recruitment extends Model
         'rc_status',
         'rc_posted_at',
         'rc_expire_at',
-        'rc_co_id',
-        'rc_user_id',
+        'rc_u_id',
     ];
-    public function companies()
+   public function user()
     {
-        return $this->belongsTo(CompaniesProfile::class, 'rc_co_id');
-    }
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'rc_user_id');
+        return $this->belongsTo(User::class, 'rc_u_id');
     }
 }

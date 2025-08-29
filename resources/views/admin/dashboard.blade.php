@@ -1,33 +1,41 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            {{ __('Admin Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h3 class="mb-4 text-lg font-semibold">ยินดีต้อนรับ Admin!</h3>
-                    <p class="mb-4">นี่คือหน้า Admin Dashboard ที่เฉพาะ Admin เท่านั้นที่เข้าถึงได้</p>
+@section('title', 'แดชบอร์ด')
 
-                    <div class="grid grid-cols-1 gap-4 mt-6 md:grid-cols-3">
-                        <div class="p-4 bg-blue-100 rounded-lg">
-                            <h4 class="font-semibold text-blue-800">จัดการผู้ใช้</h4>
-                            <p class="text-sm text-blue-600">ดูรายชื่อและจัดการผู้ใช้ทั้งหมด</p>
-                        </div>
-                        <div class="p-4 bg-green-100 rounded-lg">
-                            <h4 class="font-semibold text-green-800">รายงาน</h4>
-                            <p class="text-sm text-green-600">ดูรายงานและสถิติต่างๆ</p>
-                        </div>
-                        <div class="p-4 bg-purple-100 rounded-lg">
-                            <h4 class="font-semibold text-purple-800">ตั้งค่าระบบ</h4>
-                            <p class="text-sm text-purple-600">จัดการการตั้งค่าของระบบ</p>
-                        </div>
-                    </div>
-                </div>
+@section('content')
+    <div class="flex justify-between gap-24">
+        <div class="w-full shadow stat bg-base-100 stats rounded-xl">
+            <div class="text-2xl text-blue-600 stat-figure">
+                <i class="fa-solid fa-users"></i>
             </div>
+            <div class="stat-title">ผู้ใช้งานทั้งหมด</div>
+            <div class="stat-value">{{ number_format($totalUsers) }} คน</div>
+            <div class="stat-desc">ผู้หางาน+ผู้ประกอบการ+สถานศึกษา</div>
+        </div>
+        <div class="w-full shadow stat bg-base-100 stats rounded-xl">
+            <div class="text-2xl text-teal-600 stat-figure">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+            <div class="stat-title">คอร์สอบรมทั้งหมด</div>
+            <div class="stat-value">56 คอร์ส</div>
+            <div class="stat-desc">จำนวนคอร์สที่มีในระบบ</div>
+        </div>
+        <div class="w-full shadow stat bg-base-100 stats rounded-xl">
+            <div class="text-2xl stat-figure text-sky-600">
+                <i class="fa-solid fa-scroll"></i>
+            </div>
+            <div class="stat-title">งานที่เปิดรับ</div>
+            <div class="stat-value">78 ตำแหน่ง</div>
+            <div class="stat-desc">จำนวนตำแหน่งที่ยังเปิดรับสมัคร</div>
         </div>
     </div>
-</x-app-layout>
+    <div class="mt-4">
+        <x-user-stats-board
+    :endpoint="route('admin.userStats.data')"
+    :roles="['jobber','provider','education']"
+    :labels="['jobber'=>'ผู้หางาน','provider'=>'ผู้ประกอบการ','education'=>'สถานศึกษา']"
+    :palette="['jobber'=>'#2563eb','provider'=>'#14b8a6','education'=>'#8b5cf6']"
+    title="สถิติผู้ใช้งาน"
+/>
+    </div>
+@endsection

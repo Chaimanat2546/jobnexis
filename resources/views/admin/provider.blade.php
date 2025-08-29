@@ -1,0 +1,142 @@
+@extends('layouts.app')
+
+@section('title', 'ผู้ประกอบการ')
+
+@section('content')
+    <div class="flex flex-col items-center justify-center p-4 overflow-x-auto border shadow bg-base-200 rounded-2xl">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ชื่อบริษัท</th>
+                    <th>เลขผู้ประกอบการ</th>
+                    <th>อีเมล</th>
+                    <th>ประกาศงาน</th>
+                    <th>สถานะ</th>
+                    <th>การทำงาน</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($providers as $p)
+                    <tr>
+                        <td>{{ $p->co_name ?? '-' }}</td>
+                        <td>{{ $p->co_number ?? '-' }}</td>
+                        <td>{{ $p->company_email ?? $p->email }}</td>
+                        <td>{{ $p->open_recruitments_count }}</td>
+                        <td>
+                            @if ($p->is_banned && $p->email_verified_at === null)
+                                <span class="px-3 py-1 text-sm text-red-600 bg-red-200 rounded-full">ถูกแบน</span>
+                            @elseif ($p->email_verified_at === null)
+                                <span class="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-full">รอยืนยัน</span>
+                            @else
+                                <span class="px-3 py-1 text-sm text-green-600 bg-green-200 rounded-full">ออนไลน์</span>
+                            @endif
+                        </td>
+                        @php
+                            $status = $p->is_banned
+                                ? 'Banned'
+                                : (is_null($p->email_verified_at)
+                                    ? 'Pending'
+                                    : 'Active');
+                        @endphp
+                        <td>
+                            <div class="gap-4 join">
+                                {{-- ไปหน้าแก้ไข --}}
+                                <a href="{{ route('provider.profile.edit', $p->id) }}"
+                                    class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white" title="แก้ไข">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                @if ($status === 'Active')
+                                    {{-- แบน --}}
+                                    <form method="POST" action="{{ route('admin.providers.toggleBan', $p->id) }}">
+                                        @csrf @method('PATCH')
+                                        <button type="submit"
+                                            class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white"
+                                            title="แบน">
+                                            <i class="fa-solid fa-ban"></i>
+                                        </button>
+                                    </form>
+                                @elseif ($status === 'Pending')
+                                    {{-- ลบ --}}
+                                    <form method="POST" action="{{ route('admin.providers.destroy', $p->id) }}"
+                                        onsubmit="return confirm('ยืนยันลบผู้ใช้ #{{ $p->id }} ?');">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                            class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white"
+                                            title="ลบ">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @else
+                                    {{-- ปลดแบน --}}
+                                    <form method="POST" action="{{ route('admin.providers.toggleBan', $p->id) }}">
+                                        @csrf @method('PATCH')
+                                        <button type="submit"
+                                            class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-green-600 hover:text-white"
+                                            title="ปลดแบน">
+                                            <i class="fa-solid fa-user-check"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        {{-- ปรับจำนวน colspan ให้เท่ากับจำนวนคอลัมน์จริงของคุณ
+             เช่น มี: ไอดี, ชื่อ, อีเมล, โทร, (คอร์ส), สถานะ, การทำงาน => 6 หรือ 7 --}}
+                        <td colspan="6" class="py-10 text-center text-gray-500">
+                            @if (request()->filled('q'))
+                                ไม่พบผู้ใช้ที่เป็น <b>ผู้ประกอบการ</b> ที่ตรงกับ
+                                “<span class="font-semibold">{{ e(request('q')) }}</span>”
+                                <a href="{{ url()->current() }}" class="ml-2 link">ล้างการค้นหา</a>
+                            @else
+                                ไม่มีผู้ใช้ที่เป็น <b>ผู้ประกอบการ</b> ในระบบ
+                            @endif
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+        <div class="flex justify-center mt-4">
+            @if ($providers->lastPage() > 1)
+                <div class="join">
+                    @php
+                        $current = $providers->currentPage();
+                        $last = $providers->lastPage();
+                        $start = max(1, $current - 2);
+                        $end = min($last, $current + 2);
+                    @endphp
+
+                    {{-- ปุ่มหน้าแรก --}}
+                    @if ($start > 1)
+                        <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                            class="join-item btn btn-sm {{ $current == 1 ? 'btn-active' : '' }}">1</a>
+                        @if ($start > 2)
+                            <span class="join-item btn btn-sm btn-disabled">...</span>
+                        @endif
+                    @endif
+
+                    {{-- ปุ่มช่วงกลาง --}}
+                    @for ($i = $start; $i <= $end; $i++)
+                        <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                            class="join-item btn btn-sm {{ $i == $current ? 'btn-active' : '' }}">
+                            {{ $i }}
+                        </a>
+                    @endfor
+
+                    {{-- ปุ่มหน้าสุดท้าย --}}
+                    @if ($end < $last)
+                        @if ($end < $last - 1)
+                            <span class="join-item btn btn-sm btn-disabled">...</span>
+                        @endif
+                        <a href="{{ request()->fullUrlWithQuery(['page' => $last]) }}"
+                            class="join-item btn btn-sm {{ $current == $last ? 'btn-active' : '' }}">
+                            {{ $last }}
+                        </a>
+                    @endif
+                </div>
+            @endif
+
+        </div>
+    @endsection

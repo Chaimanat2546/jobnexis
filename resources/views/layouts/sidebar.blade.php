@@ -1,4 +1,4 @@
-<aside class="bg-base-200 w-[230px] p-4 flex flex-col items-center shadow border-r border-gray-300 rounded-2xl">
+<aside class="bg-base-200 w-[230px] p-4 flex flex-col items-center shadow border-r border-gray-300 min-h-[calc(100vh-4rem)]">
     <a href="/">
         <img src="{{ asset('image/web-image/logo.png') }}" alt="logo" class="w-auto h-12 mb-6">
     </a>
@@ -39,7 +39,7 @@
                 </a>
             </li>
             <li>
-                <a href="{{ url('admin/provider') }}"
+                <a href="{{ url('admin/providers') }}"
                     class="flex items-center {{ request()->is('education/courses') ? 'text-blue-600' : '' }}">
                     <i
                         class="fa-solid fa-building w-5 text-blue-600 text-center mr-1 {{ request()->is('education/courses') ? 'text-blue-600' : '' }}"></i>
