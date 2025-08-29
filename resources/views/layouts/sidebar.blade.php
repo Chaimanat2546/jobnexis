@@ -61,6 +61,18 @@
                 </a>
             </li>
         @elseif (Auth::check() && Auth::user()->role === 'education')
+             <li>
+                <a href="{{ url('education/dashboard') }}" class="flex items-center {{ request()->is('education/dashboard') ? 'text-blue-600' : '' }}">
+                    <i class="fa-solid fa-tachometer-alt w-5 text-blue-600 text-center mr-1 {{ request()->is('education/dashboard') ? 'text-blue-600' : '' }}"></i>
+                    แดชบอร์ด
+                </a>
+            </li>
+            <li>
+                <a href="{{ url('/education/courses') }}" class="flex items-center {{ request()->is('education/courses') ? 'text-blue-600' : '' }}">
+                    <i class="fa-solid fa-graduation-cap w-5 text-blue-600 text-center mr-1 {{ request()->is('education/courses') ? 'text-blue-600' : '' }}"></i>
+                    คอร์สอบรม
+                </a>
+            </li>
             <li>
                 <a href="{{ url('/logout') }}" class="flex items-center">
                     <i class="w-5 mr-1 text-center text-blue-600 fa-solid fa-sign-out-alt"></i>

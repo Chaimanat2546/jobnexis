@@ -8,38 +8,88 @@ use Illuminate\Database\Eloquent\Model;
 class Course extends Model
 {
     use HasFactory;
+
     protected $primaryKey = 'c_id';
+
     protected $fillable = [
         'c_name',
         'c_description',
-        'c_create_by_id',
-        'c_number',
-        'c_create_at',
-        'c_end_at',
         'c_status',
+        'c_image',
+        'c_code',
     ];
+
+    // ตรวจสอบสถานะ
     public function isPubliced()
     {
         return $this->getAttribute('c_status') === 'open';
     }
+
     public function isClosed()
     {
         return $this->getAttribute('c_status') === 'closed';
     }
+
     public function isDraft()
     {
         return $this->getAttribute('c_status') === 'draft';
     }
+
+    public function isPending()
+    {
+        return $this->getAttribute('c_status') === 'pending';
+    }
+
+    // ความสัมพันธ์
     public function coursesMember()
     {
         return $this->hasMany(CourseMember::class, 'cm_c_id');
     }
+
     public function lessons()
     {
         return $this->hasMany(Lesson::class, 'l_c_id');
     }
+
     public function certificate()
     {
         return $this->hasMany(Certificate::class, 'cer_c_id');
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(
+            Skill::class,
+            'course_skill',  // ชื่อตาราง pivot
+            'course_id',     // foreign key ของ Course ใน pivot
+            'skill_id'       // foreign key ของ Skill ใน pivot
+        );
+    }
+
+    // ฟังก์ชันช่วยนับสมาชิก (participants)
+    public function getParticipantsAttribute()
+    {
+        return $this->coursesMember()->count();
+    }
+
+    // Accessor สำหรับรูปภาพ
+    public function getImageAttribute()
+    {
+        return $this->c_image
+            ? asset('storage/' . $this->c_image)
+            : asset('image/wed-image/ai-robot.jpg');
+    }
+
+    // Accessor สำหรับแสดงสถานะเป็นข้อความภาษาไทย
+    public function getStatusTextAttribute()
+    {
+        $map = [
+            'open'   => 'เผยแพร่',
+            'draft'  => 'ยังไม่ส่งคำขออนุมัติ',
+            'closed' => 'ไม่เผยแพร่',
+            'pending'=> 'รออนุมัติ',
+        ];
+
+        return $map[$this->c_status] ?? 'ไม่ทราบสถานะ';
     }
 }

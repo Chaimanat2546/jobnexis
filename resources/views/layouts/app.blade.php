@@ -19,10 +19,15 @@
     {{-- AlpineJS --}}
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    {{-- Tom Select --}}
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
     <style>
         body { font-family: 'Kanit', sans-serif; }
     </style>
 </head>
+
 
 <body class="h-full min-h-screen p-6 bg-gray-200">
     <div class="flex">
