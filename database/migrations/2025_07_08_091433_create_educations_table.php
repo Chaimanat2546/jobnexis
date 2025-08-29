@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('educations', function (Blueprint $table) {
-            $table->id('ed_id');
+            $table->bigIncrements('ed_id');
             $table->string('ed_name');
             $table->date('ed_start_date')->nullable(false);
             $table->date('ed_end_date')->nullable(false);

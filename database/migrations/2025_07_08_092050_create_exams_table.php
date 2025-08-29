@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('exams', function (Blueprint $table) {
-            $table->id('e_id');
+            $table->bigIncrements('e_id');
             $table->string('e_name');
             $table->string('e_description')->nullable();
             $table->foreignId('e_l_id')->references('l_id')->on('lessons')->onDelete('cascade');
