@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('certificates', function (Blueprint $table) {
-            $table->increments('cer_id');
+            $table->bigIncrements('cer_id');
             $table->string('cer_name'); // ชื่อคอร์ส/ใบประกาศ
             $table->string('cer_image_path'); // path ของรูป
             $table->string('cer_institute_name'); // สถาบันที่ออกให้

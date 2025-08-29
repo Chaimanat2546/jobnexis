@@ -13,7 +13,7 @@ class EducationProfile extends Model
     protected $table = 'education_profiles';
     protected $primaryKey = 'e_id';
     public $incrementing = true;
-
+    protected $keyType = 'int';
 
     protected $fillable = [
         'e_name',

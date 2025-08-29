@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('courses', function (Blueprint $table) {
-            $table->id('c_id');
+            $table->bigIncrements('c_id');
             $table->string('c_name');
             $table->text('c_description')->nullable();
             $table->foreignId('c_create_by_id')->constrained('users')->onDelete('cascade');
