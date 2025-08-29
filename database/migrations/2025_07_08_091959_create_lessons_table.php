@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('lessons', function (Blueprint $table) {
-            $table->id('l_id');
+            $table->bigIncrements('l_id');
             $table->string('l_name');
             $table->string('l_description')->nullable();
             $table->enum('l_status', ['open', 'closed', 'draft'])->default('draft');

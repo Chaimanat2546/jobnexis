@@ -13,6 +13,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
+
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'is_banned'
     ];
 
     /**
@@ -46,7 +49,18 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
-
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class, 'up_u_id', 'id');
+    }
+    public function educations()
+    {
+        return $this->hasMany(Education::class, 'ed_u_id', 'id');
+    }
+    public function workExperiences()
+    {
+        return $this->hasMany(WorkExperience::class, 'we_u_id', 'id');
+    }
     public function isAdmin()
     {
         return $this->role === 'admin';
@@ -64,33 +78,34 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role === 'jobber';
     }
-    // Relationship: User -> UserProfile (One to One)
-    public function userProfile()
-    {
-        return $this->hasOne(UserProfile::class, 'up_u_id');
-    }
     public function courseMembers()
     {
         return $this->hasMany(CourseMember::class, 'cm_u_id');
     }
-    public function educations()
+    public function recruitments()
     {
-        return $this->hasMany(Education::class, 'ed_u_id');
+        return $this->hasMany(Recruitment::class, 'rc_u_id');
     }
-    public function workExpreriences()
+    public function companyProfile()
     {
-        return $this->hasMany(WorkExperiences::class, 'we_u_id');
-    }
-    public function recruitment()
-    {
-        return $this->hasMany(Recruitment::class, 'rc_user_id');
-    }
-    public function user()
-    {
-        return $this->belongsTo(CompaniesProfile::class, 'co_user_id');
+        return $this->hasOne(CompaniesProfile::class, 'co_user_id');
     }
     public function Certificate()
     {
-        return $this->hasMany(Certificates::class, 'cer_u_id');
+        return $this->hasMany(Certificate::class, 'cer_u_id');
+    }
+
+    public function getStatusLabelAttribute()
+    {
+        if ($this->is_banned) return 'Active';
+        return $this->email_verified_at ? 'Banned' : 'Pending';
+    }
+    public function educationProfile()
+    {
+        return $this->hasOne(EducationProfile::class, 'e_u_id');
+    }
+    public function courses()
+    {
+        return $this->hasMany(Course::class, 'c_create_by_id', 'id');
     }
 }
