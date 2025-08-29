@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CertificateController;
@@ -15,9 +13,9 @@ use App\Http\Controllers\Education\PersonController;
 use App\Http\Controllers\Education\MediaController;
 use App\Http\Controllers\Education\LessonController;
 use App\Http\Controllers\ProfileDetailController;
+
 Route::get('/', fn () => view('welcome'))->name('/');
 Route::middleware(['auth', 'verified'])->group(function () {
-
     /** ---------------- Common Dashboard ---------------- */
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -80,7 +78,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Dashboard ของ Education
         Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
 
-        // Course routes 
+        // Course routes
         Route::prefix('education/courses')->name('courses.')->group(function () {
             Route::get('/', [CourseController::class, 'index'])->name('index');       // คอร์สทั้งหมด
             Route::get('/create', [CourseController::class, 'create'])->name('create'); // สร้างคอร์ส
@@ -107,7 +105,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/{id}', [MediaController::class, 'update'])->name('update');                     // อัพเดทสื่อ
             Route::delete('/{id}', [MediaController::class, 'destroy'])->name('destroy');                // ลบสื่อ
         });
-
+});
     /** ---------------- Provider Routes ---------------- */
     Route::middleware('role:provider')->prefix('provider')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'provider'])->name('provider.dashboard');
