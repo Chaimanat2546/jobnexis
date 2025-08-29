@@ -1,0 +1,22 @@
+<header class="ml-6 flex items-center justify-between p-4 border-r border-gray-400 shadow bg-base-200 rounded-2xl">
+    <!-- ซ้าย: แสดงชื่อหน้า -->
+    <div class="text-4xl font-bold text-base-content">
+        @yield('title', 'หน้าหลัก')
+    </div>
+
+    <!-- ขวา: Avatar + ชื่อผู้ใช้งาน -->
+    <div class="flex items-center gap-3">
+        @auth
+            <div class="avatar">
+                <div class="w-10 rounded-full">
+                    <img src="{{ Auth::user()->profile_image ?? 'https://i.pravatar.cc/150?u=default' }}" alt="Profile">
+                </div>
+            </div>
+            <span class="font-medium text-base-content">
+                {{ Auth::user()->name ?? 'ตั้งค่าผู้ใช้งาน' }}
+            </span>
+        @else
+            <a href="{{ route('login') }}" class="text-lg font-bold text-white bg-blue-600 rounded-xl btn">เข้าสู่ระบบ</a>
+        @endauth
+    </div>
+</header>
