@@ -14,7 +14,7 @@
                 </a>
             </li>
             <li>
-                <a href="{{ url('#') }}"
+                <a href="{{ url('/education/courses') }}"
                     class="flex items-center {{ request()->is('education/courses') ? 'text-blue-600' : '' }}">
                     <i
                         class="fa-solid fa-graduation-cap w-5 text-blue-600 text-center mr-1 {{ request()->is('education/courses') ? 'text-blue-600' : '' }}"></i>

@@ -117,7 +117,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('profile-education.store');
     });
     // Education routes
-    Route::middleware('role:education')->group(function () {
+    Route::middleware('role:education,admin')->group(function () {
 
         // Dashboard ของ Education
         Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');

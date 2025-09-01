@@ -15,13 +15,11 @@ return new class extends Migration
             $table->bigIncrements('c_id');
             $table->string('c_name');
             $table->text('c_description')->nullable();
-            $table->foreignId('c_create_by_id')->constrained('users')->onDelete('cascade');
             $table->string('c_code')->unique();
-            $table->date('c_create_at');
-            $table->date('c_end_at');
             $table->enum('c_status', ['open','draft','closed','pending'])->default('draft');
             $table->string('c_image')->nullable();
             $table->timestamps();
+            $table->foreignId('c_create_by_id')->constrained('users')->onDelete('cascade');
         });
     }
 

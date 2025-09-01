@@ -25,7 +25,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($pagedData as $course)
+                @foreach ($pagedData as $index => $course)
                     <tr class="hover:bg-gray-50 transition">
                         <td>
                             <div class="flex items-center gap-3">
@@ -53,26 +53,25 @@
                         </td>
                         <td>
                             <div class="flex gap-2">
-                                {{-- ปุ่มดูรายละเอียด --}}
-                                <a href="{{ route('courses.show', $course['c_id']) }}" 
-                                   class="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-2xl bg-base-100 text-gray-700 hover:bg-blue-600 hover:text-white transition">
+                                {{-- ปุ่มดูรายละเอียด - ใช้ $course['id'] แทน --}}
+                                <a href="{{ route('courses.show', $course['id']) }}" 
+                                class="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-2xl bg-base-100 text-gray-700 hover:bg-blue-600 hover:text-white transition">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
-                                {{-- ปุ่มลบเปิด Modal --}}
-                                <label for="delete-modal-{{ $loop->index }}" 
+                                {{-- ปุ่มลบเปิด Modal - ใช้ $course['id'] แทน --}}
+                                <label for="delete-modal-{{ $index }}" 
                                     class="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-2xl bg-base-100 text-gray-700 hover:bg-red-600 hover:text-white cursor-pointer transition">
                                     <i class="fa-solid fa-trash"></i>
                                 </label>
 
                                 {{-- Modal --}}
-                                <input type="checkbox" id="delete-modal-{{ $loop->index }}" class="modal-toggle">
+                                <input type="checkbox" id="delete-modal-{{ $index }}" class="modal-toggle">
                                 <div class="modal">
                                     <div class="modal-box text-center max-w-xs w-full rounded-2xl">
                                         <h3 class="font-bold text-lg">ยืนยันการลบคอร์สอบรมนี้หรือไม่?</h3>
                                         <div class="modal-action justify-center gap-4">
-
-                                            <form action="{{ route('courses.destroy', $course['c_id']) }}" method="POST">
+                                            <form action="{{ route('courses.destroy', $course['id']) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
@@ -81,7 +80,7 @@
                                                 </button>
                                             </form>
 
-                                            <label for="delete-modal-{{ $loop->index }}" 
+                                            <label for="delete-modal-{{ $index }}" 
                                                 class="hover:bg-gray-200 text-base-content font-normal rounded-lg px-6 py-3">
                                                 ยกเลิก
                                             </label>
