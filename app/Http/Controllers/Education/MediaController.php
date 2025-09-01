@@ -8,33 +8,19 @@ use App\Models\Lesson;
 use App\Models\Media;
 use App\Models\MediaFile;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Course;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class MediaController extends Controller
 {
-    use AuthorizesRequests;
-
     // แสดงฟอร์มสร้างสื่อการสอน
     public function create($courseId = null)
     {
-        if ($courseId) {
-        $course = Course::findOrFail($courseId);
-        $this->authorize('manageContent', $course);
-    }
-    
-    $lessons = Lesson::where('l_c_id', $courseId)->get();
-    return view('education.medias.create', compact('lessons', 'courseId'));
+        $lessons = Lesson::all();
+        return view('education.medias.create', compact('lessons', 'courseId'));
     }
 
     // บันทึกสื่อการสอน พร้อมรองรับหลายไฟล์
     public function store(Request $request)
     {
-        if ($request->course_id) {
-            $course = Course::findOrFail($request->course_id);
-            $this->authorize('manageContent', $course);
-        }
-
         $request->validate([
             'm_name' => 'required|string|max:255',
             'm_l_id' => 'nullable|exists:lessons,l_id',
@@ -79,11 +65,6 @@ class MediaController extends Controller
     // สร้างบทเรียนใหม่ (สำหรับ modal)
     public function storeLesson(Request $request)
     {
-        if ($request->l_c_id) {
-            $course = Course::findOrFail($request->l_c_id);
-            $this->authorize('manageContent', $course);
-        }
-
         $request->validate([
             'l_name' => 'required|string|max:255',
             'l_c_id' => 'nullable|exists:courses,c_id',
@@ -115,8 +96,6 @@ class MediaController extends Controller
         $courseId = $media->m_c_id ?? ($media->lesson->l_c_id ?? null);
 
         if (!$courseId) {
-            $course = Course::findOrFail($courseId);
-            $this->authorize('manageContent', $course);
             // fallback ถ้าไม่มี courseId
             return redirect()->route('courses.index')
                             ->with('error', 'ไม่พบรหัสคอร์ส');
@@ -131,14 +110,6 @@ class MediaController extends Controller
     public function update(Request $request, $id)
     {
         $media = Media::findOrFail($id);
-
-        $courseId = $media->m_c_id ?? ($media->lesson->l_c_id ?? null);
-
-        if ($courseId) {
-            $course = Course::findOrFail($courseId);
-            $this->authorize('manageContent', $course);
-        }
-
         $media->m_name = $request->m_name;
         $media->m_desc = $request->m_desc;
         $media->m_l_id = $request->m_l_id ?: null;
@@ -180,12 +151,6 @@ class MediaController extends Controller
     public function destroy($id)
     {
         $media = Media::with('files')->findOrFail($id);
-
-        $courseId = $media->m_c_id ?? ($media->lesson->l_c_id ?? null);
-        if ($courseId) {
-            $course = Course::findOrFail($courseId);
-            $this->authorize('manageContent', $course);
-        }
 
         // ลบไฟล์จริงจาก storage
         foreach ($media->files as $file) {

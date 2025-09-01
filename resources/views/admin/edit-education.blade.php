@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'แก้ไขโปรไฟล์ (Education)')
+@section('title', 'แก้ไขโปรไฟล์สถานศึกษา')
 
 @section('content')
     <div class="p-4 border shadow bg-base-200 rounded-2xl">
@@ -25,49 +25,49 @@
             @csrf
 
             <fieldset class="fieldset">
-                <legend class="mb-1 fieldset-legend">ชื่อหน่วยงาน/สถาบัน (e_name) *</legend>
+                <legend class="mb-1 fieldset-legend">ชื่อหน่วยงาน/สถาบัน *</legend>
                 <input name="e_name" type="text" class="w-full pl-2 border border-gray-300 input"
                     value="{{ old('e_name', $profile->e_name ?? '') }}" required />
             </fieldset>
 
             <fieldset class="fieldset">
-                <legend class="mb-1 fieldset-legend">อีเมล (e_email) *</legend>
+                <legend class="mb-1 fieldset-legend">อีเมล *</legend>
                 <input name="e_email" type="email" class="w-full pl-2 border border-gray-300 input"
                     value="{{ old('e_email', $profile->e_email ?? '') }}" required />
             </fieldset>
 
             <fieldset class="fieldset">
-                <legend class="mb-1 fieldset-legend">เบอร์โทร (e_phone)</legend>
+                <legend class="mb-1 fieldset-legend">เบอร์โทร</legend>
                 <input name="e_phone" type="text" class="w-full pl-2 border border-gray-300 input"
                     value="{{ old('e_phone', $profile->e_phone ?? '') }}" />
             </fieldset>
 
             <fieldset class="fieldset">
-                <legend class="mb-1 fieldset-legend">เว็บไซต์ (e_website)</legend>
+                <legend class="mb-1 fieldset-legend">เว็บไซต์</legend>
                 <input name="e_website" type="url" class="w-full pl-2 border border-gray-300 input"
                     placeholder="https://example.ac.th" value="{{ old('e_website', $profile->e_website ?? '') }}" />
             </fieldset>
 
             <fieldset class="fieldset">
-                <legend class="mb-1 fieldset-legend">วันก่อตั้ง/วันสำคัญ (e_birthday)</legend>
+                <legend class="mb-1 fieldset-legend">วันก่อตั้ง/วันสำคัญ</legend>
                 <input name="e_birthday" type="date" class="w-full pl-2 border border-gray-300 input"
                     value="{{ old('e_birthday', $profile && $profile->e_birthday ? \Illuminate\Support\Carbon::parse($profile->e_birthday)->format('Y-m-d') : '') }}" />
             </fieldset>
 
             <fieldset class="fieldset">
-                <legend class="mb-1 fieldset-legend">เลขที่ใบอนุญาต/รหัส (e_number)</legend>
+                <legend class="mb-1 fieldset-legend">เลขที่ใบอนุญาต/รหัส</legend>
                 <input name="e_number" type="text" class="w-full pl-2 border border-gray-300 input"
                     value="{{ old('e_number', $profile->e_number ?? '') }}" />
             </fieldset>
 
             <fieldset class="fieldset md:col-span-2">
-                <legend class="mb-1 fieldset-legend">ที่อยู่ (e_address)</legend>
+                <legend class="mb-1 fieldset-legend">ที่อยู่</legend>
                 <input name="e_address" type="text" class="w-full pl-2 border border-gray-300 input"
                     value="{{ old('e_address', $profile->e_address ?? '') }}" />
             </fieldset>
 
             <fieldset class="fieldset">
-                <legend class="mb-1 fieldset-legend">จังหวัด (e_province)</legend>
+                <legend class="mb-1 fieldset-legend">จังหวัด</legend>
                 <select name="e_province" class="pl-2 border border-gray-300 select w-72">
                     <option value="">-- เลือกจังหวัด --</option>
                     @foreach ($provinces as $prov)
@@ -80,7 +80,7 @@
             </fieldset>
 
             <fieldset class="fieldset md:col-span-2">
-                <legend class="mb-1 fieldset-legend">รายละเอียด (e_detail)</legend>
+                <legend class="mb-1 fieldset-legend">รายละเอียด</legend>
                 <textarea name="e_detail" rows="4" class="w-full pl-2 border border-gray-300 textarea" placeholder="รายละเอียดเพิ่มเติม">{{ old('e_detail', $profile->e_detail ?? '') }}</textarea>
             </fieldset>
 

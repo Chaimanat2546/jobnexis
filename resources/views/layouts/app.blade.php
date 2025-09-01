@@ -28,22 +28,36 @@
     </style>
 </head>
 
+@if (Auth::check() && Auth::user()->role === 'jobber')
 
-<body class="h-full min-h-screen p-6 bg-gray-200">
+<body class="h-full min-h-screen bg-[linear-gradient(to_bottom,_theme('colors.sky.100')_20%,_theme('colors.blue.300')_100%)] px-28">
     <div class="flex">
         {{-- Sidebar --}}
         @include('layouts.sidebar')
-
         {{-- Main Content --}}
         <div class="flex flex-col flex-1">
             {{-- Header --}}
             @include('layouts.header')
-
-            {{-- Content --}}
+            <main class="px-6 pt-4 text-md">
+                @yield('content')
+            </main>
+        </div>
+    </div>
+</body>
+@else
+<body class="h-full min-h-screen p-6 bg-gray-200">
+    <div class="flex">
+        {{-- Sidebar --}}
+        @include('layouts.sidebar')
+        {{-- Main Content --}}
+        <div class="flex flex-col flex-1">
+            {{-- Header --}}
+            @include('layouts.header')
             <main class="px-6 pt-6 text-md">
                 @yield('content')
             </main>
         </div>
     </div>
 </body>
+@endif
 </html>

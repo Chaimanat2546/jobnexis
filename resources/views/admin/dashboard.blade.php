@@ -17,7 +17,7 @@
                 <i class="fa-solid fa-briefcase"></i>
             </div>
             <div class="stat-title">คอร์สอบรมทั้งหมด</div>
-            <div class="stat-value">56 คอร์ส</div>
+            <div class="stat-value">{{ number_format($totalCourses) }} คอร์ส</div>
             <div class="stat-desc">จำนวนคอร์สที่มีในระบบ</div>
         </div>
         <div class="w-full shadow stat bg-base-100 stats rounded-xl">
@@ -25,7 +25,7 @@
                 <i class="fa-solid fa-scroll"></i>
             </div>
             <div class="stat-title">งานที่เปิดรับ</div>
-            <div class="stat-value">78 ตำแหน่ง</div>
+            <div class="stat-value">{{ number_format($openRecruitments) }} ตำแหน่ง</div>
             <div class="stat-desc">จำนวนตำแหน่งที่ยังเปิดรับสมัคร</div>
         </div>
     </div>

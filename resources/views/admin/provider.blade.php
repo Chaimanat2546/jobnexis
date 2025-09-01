@@ -40,9 +40,15 @@
                         @endphp
                         <td>
                             <div class="gap-4 join">
+                                <a href="{{ route('admin.providers.recruitments.index', $p->id) }}"
+                                    class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-purple-600 hover:text-white"
+                                    title="ประกาศงาน">
+                                    <i class="fa-solid fa-briefcase"></i>
+                                </a>
                                 {{-- ไปหน้าแก้ไข --}}
                                 <a href="{{ route('provider.profile.edit', $p->id) }}"
-                                    class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white" title="แก้ไข">
+                                    class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white"
+                                    title="แก้ไข">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
                                 @if ($status === 'Active')
@@ -98,45 +104,45 @@
             </tbody>
         </table>
     </div>
-        <div class="flex justify-center mt-4">
-            @if ($providers->lastPage() > 1)
-                <div class="join">
-                    @php
-                        $current = $providers->currentPage();
-                        $last = $providers->lastPage();
-                        $start = max(1, $current - 2);
-                        $end = min($last, $current + 2);
-                    @endphp
+    <div class="flex justify-center mt-4">
+        @if ($providers->lastPage() > 1)
+            <div class="join">
+                @php
+                    $current = $providers->currentPage();
+                    $last = $providers->lastPage();
+                    $start = max(1, $current - 2);
+                    $end = min($last, $current + 2);
+                @endphp
 
-                    {{-- ปุ่มหน้าแรก --}}
-                    @if ($start > 1)
-                        <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
-                            class="join-item btn btn-sm {{ $current == 1 ? 'btn-active' : '' }}">1</a>
-                        @if ($start > 2)
-                            <span class="join-item btn btn-sm btn-disabled">...</span>
-                        @endif
+                {{-- ปุ่มหน้าแรก --}}
+                @if ($start > 1)
+                    <a href="{{ request()->fullUrlWithQuery(['page' => 1]) }}"
+                        class="join-item btn btn-sm {{ $current == 1 ? 'btn-active' : '' }}">1</a>
+                    @if ($start > 2)
+                        <span class="join-item btn btn-sm btn-disabled">...</span>
                     @endif
+                @endif
 
-                    {{-- ปุ่มช่วงกลาง --}}
-                    @for ($i = $start; $i <= $end; $i++)
-                        <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
-                            class="join-item btn btn-sm {{ $i == $current ? 'btn-active' : '' }}">
-                            {{ $i }}
-                        </a>
-                    @endfor
+                {{-- ปุ่มช่วงกลาง --}}
+                @for ($i = $start; $i <= $end; $i++)
+                    <a href="{{ request()->fullUrlWithQuery(['page' => $i]) }}"
+                        class="join-item btn btn-sm {{ $i == $current ? 'btn-active' : '' }}">
+                        {{ $i }}
+                    </a>
+                @endfor
 
-                    {{-- ปุ่มหน้าสุดท้าย --}}
-                    @if ($end < $last)
-                        @if ($end < $last - 1)
-                            <span class="join-item btn btn-sm btn-disabled">...</span>
-                        @endif
-                        <a href="{{ request()->fullUrlWithQuery(['page' => $last]) }}"
-                            class="join-item btn btn-sm {{ $current == $last ? 'btn-active' : '' }}">
-                            {{ $last }}
-                        </a>
+                {{-- ปุ่มหน้าสุดท้าย --}}
+                @if ($end < $last)
+                    @if ($end < $last - 1)
+                        <span class="join-item btn btn-sm btn-disabled">...</span>
                     @endif
-                </div>
-            @endif
+                    <a href="{{ request()->fullUrlWithQuery(['page' => $last]) }}"
+                        class="join-item btn btn-sm {{ $current == $last ? 'btn-active' : '' }}">
+                        {{ $last }}
+                    </a>
+                @endif
+            </div>
+        @endif
 
-        </div>
-    @endsection
+    </div>
+@endsection

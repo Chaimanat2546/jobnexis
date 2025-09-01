@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Education;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Lesson;
-use App\Models\Course;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class LessonController extends Controller
 {
@@ -19,12 +17,6 @@ class LessonController extends Controller
             ]);
 
             $lesson = Lesson::findOrFail($id);
-
-            // ตรวจสอบสิทธิ์ผ่าน course
-            if ($lesson->l_c_id) {
-                $course = Course::findOrFail($lesson->l_c_id);
-                $this->authorize('manageContent', $course);
-            }
             $lesson->l_name = $request->l_name;
             $lesson->save();
 
@@ -59,12 +51,6 @@ class LessonController extends Controller
     {
         try {
             $lesson = Lesson::findOrFail($id);
-            
-            // ตรวจสอบสิทธิ์ผ่าน course
-            if ($lesson->l_c_id) {
-                $course = Course::findOrFail($lesson->l_c_id);
-                $this->authorize('manageContent', $course);
-            }
             $courseId = $lesson->l_c_id;
             $lesson->delete();
 
