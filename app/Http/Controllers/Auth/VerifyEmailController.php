@@ -30,7 +30,7 @@ class VerifyEmailController extends Controller
     private function redirectByRole($user)
     {
         return match ($user->role) {
-            'admin'   => route('admin.dashboard'),
+            'admin'   => route('admin.userStats'),
             'provider' => route('provider.dashboard'),
             'education' => route('education.dashboard'),
             default   => route('/'),

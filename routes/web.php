@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\Education\CourseController;
+use App\Http\Controllers\Education\LessonController;
+use App\Http\Controllers\Education\MediaController;
+use App\Http\Controllers\Education\PersonController;
 use App\Http\Controllers\EducationProfileController;
 use App\Http\Controllers\RecruitmentController;
 use Illuminate\Support\Facades\Route;
@@ -22,9 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/providers/{userId}/recruitments', [RecruitmentController::class, 'adminIndex'])
         ->name('admin.providers.recruitments.index');
     Route::get('/admin/providers/{userId}/recruitments/create', [RecruitmentController::class, 'createForAdmin'])
-    ->name('admin.providers.recruitments.create');
+        ->name('admin.providers.recruitments.create');
     Route::post('/admin/providers/{userId}/recruitments', [RecruitmentController::class, 'storeForAdmin'])
-    ->name('admin.providers.recruitments.store');
+        ->name('admin.providers.recruitments.store');
     Route::get('/admin/recruitments/{rcId}/edit', [RecruitmentController::class, 'edit'])
         ->name('admin.recruitments.edit');
     Route::patch('/admin/recruitments/{rcId}', [RecruitmentController::class, 'update'])
@@ -35,8 +39,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /** -------- Provider: จัดการงานของตัวเอง -------- */
     Route::get('/my/recruitments', [RecruitmentController::class, 'providerIndex'])
         ->name('provider.recruitments.index');
+    Route::post('/my/recruitments', [RecruitmentController::class, 'storeForProvider'])
+        ->name('provider.recruitments.store');
     Route::get('/my/recruitments/create', [RecruitmentController::class, 'createForProvider'])
-    ->name('provider.recruitments.create');
+        ->name('provider.recruitments.create');
     Route::get('/my/recruitments/{rcId}/edit', [RecruitmentController::class, 'edit'])
         ->name('provider.recruitments.edit');
     Route::patch('/my/recruitments/{rcId}', [RecruitmentController::class, 'update'])
@@ -73,9 +79,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/dashboard', [AdminDashboardController::class, 'userStats'])
-        ->name('admin.userStats');
-    Route::get('/dashboard/data', [AdminDashboardController::class, 'userStatsData'])
-        ->name('admin.userStats.data');
+            ->name('admin.userStats');
+        Route::get('/dashboard/data', [AdminDashboardController::class, 'userStatsData'])
+            ->name('admin.userStats.data');
 
         Route::get('/jobber', [ProfileDetailController::class, 'index'])->name('admin.jobber.index');
         Route::get('/education', [EducationProfileController::class, 'index'])->name('admin.educations.index');
@@ -109,6 +115,40 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('profile-education.edit');
         Route::post('/edit-education/store', [EducationProfileController::class, 'store'])
             ->name('profile-education.store');
+    });
+    // Education routes
+    Route::middleware('role:education')->group(function () {
+
+        // Dashboard ของ Education
+        Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
+
+        // Course routes
+        Route::prefix('education/courses')->name('courses.')->group(function () {
+            Route::get('/', [CourseController::class, 'index'])->name('index');       // คอร์สทั้งหมด
+            Route::get('/create', [CourseController::class, 'create'])->name('create'); // สร้างคอร์ส
+            Route::post('/', [CourseController::class, 'store'])->name('store');      // บันทึกคอร์ส
+            Route::get('/{id}', [CourseController::class, 'show'])->name('show');     // รายละเอียดคอร์ส
+            Route::get('/person/{id}', [PersonController::class, 'show'])->name('person.show');      // บุคคล
+            Route::delete('/{id}', [CourseController::class, 'destroy'])->name('destroy');      // ลบคอร์ส
+            Route::get('/{id}/edit', [CourseController::class, 'edit'])->name('edit');      // แก้ไขคอร์ส
+            Route::put('/{id}', [CourseController::class, 'update'])->name('update');      // อัพเดทคอร์ส
+        });
+
+        // Lesson routes
+        Route::prefix('education/lesson')->group(function () {
+            Route::put('/{id}', [LessonController::class, 'update'])->name('lesson.update');   // แก้ไขชื่อบทเรียน
+            Route::delete('/{id}', [LessonController::class, 'destroyLesson'])->name('lesson.destroyLesson'); // ลบบทเรียน
+        });
+
+        // Media routes
+        Route::prefix('education/medias')->name('medias.')->group(function () {
+            Route::get('/create/{courseId?}', [MediaController::class, 'create'])->name('create');      // ฟอร์มสร้างสื่อ
+            Route::post('/', [MediaController::class, 'store'])->name('store');       // บันทึกสื่อ
+            Route::post('/lesson', [MediaController::class, 'storeLesson'])->name('lesson.store');      // สร้างบทเรียนใหม่
+            Route::get('/{id}/edit', [MediaController::class, 'edit'])->name('edit');                    // หน้าแก้ไขสื่อ
+            Route::put('/{id}', [MediaController::class, 'update'])->name('update');                     // อัพเดทสื่อ
+            Route::delete('/{id}', [MediaController::class, 'destroy'])->name('destroy');                // ลบสื่อ
+        });
     });
 
     /** ---------------- Jobber Routes ---------------- */

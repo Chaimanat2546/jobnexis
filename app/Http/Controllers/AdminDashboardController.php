@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Recruitment;
+use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -15,11 +17,23 @@ class AdminDashboardController extends Controller
         $totalUsers = Cache::remember('stats.total_users', now()->addMinutes(5), function () {
         return User::whereIn('role', ['jobber','provider','education'])->count();
     });
+        $totalCourses = Cache::remember('stats.total_courses', now()->addMinutes(5), function () {
+            return Course::count();
+        });
+        $openRecruitments = Cache::remember('stats.open_recruitments', now()->addMinutes(5), function () {
+            return Recruitment::open()->count();
+        });
+        $totalRecruitments = Cache::remember('stats.total_recruitments', now()->addMinutes(5), function () {
+            return Recruitment::count();
+        });
         // ค่าตั้งต้นหน้า UI
         return view('admin.dashboard', [
             'defaultFrom' => now('Asia/Bangkok')->startOfMonth()->toDateString(),
             'defaultTo'   => now('Asia/Bangkok')->toDateString(),
             'totalUsers'  => $totalUsers,
+            'totalCourses' => $totalCourses,
+            'openRecruitments' => $openRecruitments,
+            'totalRecruitments' => $totalRecruitments,
         ]);
     }
 
