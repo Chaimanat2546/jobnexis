@@ -61,11 +61,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(WorkExperience::class, 'we_u_id', 'id');
     }
+    public function hasRole($role)
+    {
+        return $this->role === $role;
+    }
     public function isAdmin()
     {
         return $this->role === 'admin';
     }
-
     public function isEducation()
     {
         return $this->role === 'education';

@@ -17,7 +17,10 @@ return new class extends Migration
             $table->text('m_desc')->nullable();
             $table->integer('m_index');
             $table->string('m_path')->nullable();
-            $table->foreignId('m_l_id')->nullable()->constrained('lessons')->onDelete('cascade');
+            $table->unsignedBigInteger('m_l_id')->nullable();
+            $table->foreign('m_l_id')
+                ->references('l_id')->on('lessons')
+                ->onDelete('cascade');
             $table->unsignedBigInteger('m_c_id')->nullable();
             $table->timestamps();
         });
