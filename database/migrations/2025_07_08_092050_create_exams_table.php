@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('exams', function (Blueprint $table) {
             $table->bigIncrements('e_id');
             $table->string('e_name');
-            $table->string('e_description')->nullable();
-            $table->foreignId('e_l_id')->references('l_id')->on('lessons')->onDelete('cascade');
+            $table->text('e_description')->nullable(); // เปลี่ยนจาก string เป็น text
+            $table->foreignId('e_l_id')->nullable()->references('l_id')->on('lessons')->onDelete('cascade'); // เพิ่ม nullable()
+            $table->foreignId('e_c_id')->references('c_id')->on('courses')->onDelete('cascade'); // เพิ่ม FK คอร์ส
+            $table->integer('e_index')->default(0); // เพิ่มลำดับ
             $table->timestamps();
         });
     }

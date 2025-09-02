@@ -76,7 +76,7 @@
         </div>
 
         {{-- ไฟล์แนบ --}}
-        <div class="flex flex-col gap-1" x-data="fileUpload()">
+        <div class="flex flex-col gap-1">
             <label class="block text-base-content mb-1">ไฟล์แนบ</label>
 
             <!-- กล่องอัปโหลด -->
@@ -85,7 +85,7 @@
                 @dragover.prevent
                 @drop.prevent="handleDrop($event)">
                 <p class="text-gray-600">ลากไฟล์มาวางที่นี่ หรือ <span class="text-blue-600 underline">เลือกไฟล์</span></p>
-                <p class="text-xs text-gray-400 mt-1">รองรับหลายไฟล์ (PDF, DOCX, PNG, JPG)</p>
+                <p class="text-xs text-gray-400 mt-1">รองรับหลายไฟล์ (PDF, DOCX, PNG, JPG, MP4, MOV, AVI และอื่นๆ)</p>
             </div>
 
             <!-- input file จริง แต่ซ่อน -->
@@ -93,17 +93,50 @@
                 x-ref="fileInput" @change="handleFiles($event)">
 
             <!-- แสดงรายการไฟล์ -->
-            <div x-show="files.length > 0" class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div x-show="files.length > 0" class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <template x-for="(file, index) in files" :key="index">
-                    <div class="flex items-center justify-between p-2 border border-gray-300 rounded-lg bg-white shadow-sm">
-                        <div class="flex items-center gap-2 flex-1 min-w-0">
-                            <!-- ไอคอนตามนามสกุล -->
-                            <i :class="getFileIcon(file.name) + ' text-lg flex-shrink-0'"></i>
-                            <!-- ชื่อไฟล์ truncate -->
-                            <span x-text="file.name" class="truncate"></span>
+                    <div class="bg-white border border-gray-300 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+                        
+                        <!-- Header ไฟล์ -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 border-b border-gray-100">
+                            <div class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer" 
+                                @click="openFile(file)">
+                                <i :class="getFileIcon(file.name) + ' text-lg flex-shrink-0'"></i>
+                                <span x-text="file.name" class="truncate text-sm font-medium text-gray-700 hover:text-blue-600"></span>
+                            </div>
+                            <button type="button" @click.stop="removeFile(index)" 
+                                    class="ml-2 w-6 h-6 rounded-full bg-red-100 text-red-600 hover:bg-red-200 flex items-center justify-center text-sm font-bold transition-colors">
+                                ×
+                            </button>
                         </div>
-                        <button type="button" @click="removeFile(index)" 
-                                class="ml-2 text-red-500 hover:text-red-700 font-bold flex-shrink-0">&times;</button>
+                        
+                        <!-- Preview Area -->
+                        <div class="p-3">
+                            <!-- Image preview - แก้ไขให้ใช้ URL.createObjectURL -->
+                            <div x-show="isImage(file.name)" @click="openFile(file)" class="cursor-pointer group">
+                                <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                                    <img :src="URL.createObjectURL(file)" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Preview">
+                                </div>
+                            </div>
+                            
+                            <!-- Video preview - แก้ไขให้ใช้ URL.createObjectURL -->
+                            <div x-show="isVideo(file.name)" class="cursor-pointer group">
+                                <div class="aspect-video bg-gray-900 rounded-lg overflow-hidden">
+                                    <video class="w-full h-full object-cover" controls preload="metadata">
+                                        <source :src="URL.createObjectURL(file)" :type="file.type">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>
+                            
+                            <!-- Document files -->
+                            <div x-show="!isImage(file.name) && !isVideo(file.name)" @click="openFile(file)" class="py-4 text-center cursor-pointer group">
+                                <div class="w-16 h-16 mx-auto bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center mb-2 group-hover:bg-gray-200 transition-colors">
+                                    <i :class="getFileIcon(file.name) + ' text-2xl'"></i>
+                                </div>
+                                <p class="text-xs text-gray-500 group-hover:text-blue-600">คลิกเพื่อเปิดไฟล์</p>
+                            </div>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -133,6 +166,64 @@ function mediaForm() {
         mediaNameError: false,
         files: [],
 
+        openFile(file) {
+            if (this.isImage(file.name)) {
+                // สำหรับรูปภาพ แสดง modal
+                this.openImageModal(URL.createObjectURL(file), file.name);
+            } else {
+                // สำหรับไฟล์อื่นๆ เปิดใน tab ใหม่
+                const fileUrl = URL.createObjectURL(file);
+                window.open(fileUrl, '_blank');
+            }
+        },
+
+        openImageModal(src, title) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="max-w-4xl max-h-full p-4 relative">
+                    <img src="${src}" alt="${title}" class="max-w-full max-h-full object-contain rounded">
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="absolute top-2 right-2 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-200 z-10">
+                        ×
+                    </button>
+                    <p class="text-white text-center mt-2 absolute bottom-2 left-1/2 transform -translate-x-1/2">${title}</p>
+                </div>
+            `;
+            modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
+            document.body.appendChild(modal);
+        },
+
+        validateFileType(file) {
+            const allowedTypes = [
+                // Documents
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                // Images
+                'image/jpeg',
+                'image/png',
+                'image/gif',
+                'image/svg+xml',
+                'image/webp',
+                // Videos
+                'video/mp4',
+                'video/quicktime',
+                'video/x-msvideo',
+                'video/x-ms-wmv',
+                'video/webm',
+                'video/x-flv',
+                'video/3gpp',
+                'video/mp4v-es'
+            ];
+            
+            return allowedTypes.includes(file.type);
+        },
+
         // ฟังก์ชันตรวจสอบไอคอนตามนามสกุล
         getFileIcon(filename) {
             const ext = filename.split('.').pop().toLowerCase();
@@ -151,9 +242,25 @@ function mediaForm() {
                 case 'svg': return 'fas fa-file-image text-purple-500';
                 case 'mp4':
                 case 'mov':
+                case 'mkv':
+                case 'webm':
+                case 'wmv':
+                case 'flv':
+                case '3gp':
+                case 'm4v':    
                 case 'avi': return 'fas fa-file-video text-pink-500';
                 default: return 'fas fa-file text-gray-500';
             }
+        },
+
+        isVideo(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            return ['mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv', 'flv', '3gp', 'm4v'].includes(ext);
+        },
+
+        isImage(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            return ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(ext);
         },
 
         validateForm() {
@@ -176,16 +283,39 @@ function mediaForm() {
             this.$el.submit();
         },
 
-        handleFiles(event) {
-            this.files = [...this.files, ...Array.from(event.target.files)];
+         handleFiles(event) {
+            const newFiles = Array.from(event.target.files).filter(file => {
+                if (!this.validateFileType(file)) {
+                    alert(`ไฟล์ ${file.name} ไม่รองรับ กรุณาเลือกไฟล์ประเภท PDF, DOCX, รูปภาพ หรือวีดีโอ`);
+                    return false;
+                }
+                if (file.size > 102400 * 1024) { // 100MB
+                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
+                    return false;
+                }
+                return true;
+            });
+            
+            this.files = [...this.files, ...newFiles];
             const dt = new DataTransfer();
             this.files.forEach(f => dt.items.add(f));
             this.$refs.fileInput.files = dt.files;
         },
 
         handleDrop(event) {
-            const dropped = Array.from(event.dataTransfer.files);
-            this.files = [...this.files, ...dropped];
+            const droppedFiles = Array.from(event.dataTransfer.files).filter(file => {
+                if (!this.validateFileType(file)) {
+                    alert(`ไฟล์ ${file.name} ไม่รองรับ กรุณาเลือกไฟล์ประเภท PDF, DOCX, รูปภาพ หรือวีดีโอ`);
+                    return false;
+                }
+                if (file.size > 102400 * 1024) { // 100MB
+                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
+                    return false;
+                }
+                return true;
+            });
+            
+            this.files = [...this.files, ...droppedFiles];
             const dt = new DataTransfer();
             this.files.forEach(f => dt.items.add(f));
             this.$refs.fileInput.files = dt.files;

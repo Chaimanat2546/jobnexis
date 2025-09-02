@@ -141,4 +141,9 @@ class Course extends Model
         $this->delete();
     }
 
+    public function exams()
+    {
+        return $this->hasMany(Exam::class, 'e_c_id', 'c_id');
+    }
+
 }
