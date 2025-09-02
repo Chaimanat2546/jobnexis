@@ -16,7 +16,7 @@
                 <legend class="mb-1 fieldset-legend">ค้นหา</legend>
                 <input type="text" name="q" value="{{ $filters['q'] ?? '' }}"
                        class="w-full border border-gray-300 input input-bordered"
-                       placeholder="ชื่องาน / รายละเอียด / คุณสมบัติ">
+                       placeholder=" ชื่องาน / รายละเอียด / คุณสมบัติ">
             </fieldset>
             <fieldset class="fieldset">
                 <legend class="mb-1 fieldset-legend">ประเภท</legend>
@@ -36,7 +36,7 @@
                     @endforeach
                 </select>
             </fieldset>
-            <div class="flex gap-2 md:col-span-5">
+            <div class="flex gap-2 md:col-span-1">
                 <button class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">ค้นหา</button>
                 <a href="{{ url()->current() }}" class="btn">ล้าง</a>
             </div>
@@ -45,7 +45,7 @@
         <div class="grid grid-cols-1 gap-4 mt-6 md:grid-cols-2 lg:grid-cols-3">
             @forelse ($recs as $r)
                 @php $company = $companies[$r->rc_u_id] ?? null; @endphp
-                <div class="p-4 bg-white rounded-xl shadow">
+                <div class="p-4 bg-white shadow rounded-xl">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 overflow-hidden bg-gray-100 rounded-full">
                             @if($company && $company->co_profile_img)
@@ -65,13 +65,13 @@
                     <p class="mt-3 text-sm text-gray-700 line-clamp-3">{{ $r->rc_description }}</p>
 
                     <div class="flex flex-wrap gap-2 mt-3 text-xs">
-                        <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-700">{{ ucfirst($r->rc_type) }}</span>
+                        <span class="px-2 py-1 text-blue-700 bg-blue-100 rounded-full">{{ ucfirst($r->rc_type) }}</span>
                         <span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">{{ ucfirst($r->rc_work_mode) }}</span>
                         @if($r->rc_salary)
-                            <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-700">เงินเดือน: {{ $r->rc_salary }}</span>
+                            <span class="px-2 py-1 text-gray-700 bg-gray-100 rounded-full">เงินเดือน: {{ $r->rc_salary }}</span>
                         @endif
                         @if($r->rc_location_text)
-                            <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-700">สถานที่: {{ $r->rc_location_text }}</span>
+                            <span class="px-2 py-1 text-gray-700 bg-gray-100 rounded-full">สถานที่: {{ $r->rc_location_text }}</span>
                         @endif
                     </div>
 
@@ -91,7 +91,7 @@
                     </div>
                 </div>
             @empty
-                <div class="p-8 text-center bg-white rounded-xl shadow text-gray-500 md:col-span-3">ไม่พบงานที่ตรงกับเงื่อนไข</div>
+                <div class="p-8 text-center text-gray-500 bg-white shadow rounded-xl md:col-span-3">ไม่พบงานที่ตรงกับเงื่อนไข</div>
             @endforelse
         </div>
 

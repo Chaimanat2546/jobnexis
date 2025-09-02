@@ -14,7 +14,7 @@
         <form method="GET" class="grid items-end grid-cols-1 gap-4 md:grid-cols-5">
             <fieldset class="fieldset md:col-span-2">
                 <legend class="mb-1 fieldset-legend">ค้นหาบริษัท</legend>
-                <input type="text" name="q" value="{{ $q }}" class="w-full border border-gray-300 input input-bordered" placeholder="ชื่อบริษัท / อีเมล">
+                <input type="text" name="q" value="{{ $q }}" class="w-full border border-gray-300 input input-bordered" placeholder=" ชื่อบริษัท / อีเมล">
             </fieldset>
             <fieldset class="fieldset">
                 <legend class="mb-1 fieldset-legend">จังหวัด</legend>
@@ -25,7 +25,7 @@
                     @endforeach
                 </select>
             </fieldset>
-            <div class="flex gap-2 md:col-span-5">
+            <div class="flex gap-2">
                 <button class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">ค้นหา</button>
                 <a href="{{ url()->current() }}" class="btn">ล้าง</a>
             </div>
@@ -33,7 +33,7 @@
 
         <div class="grid grid-cols-1 gap-4 mt-6 md:grid-cols-2 lg:grid-cols-3">
             @forelse($providers as $p)
-                <div class="overflow-hidden bg-white rounded-xl shadow">
+                <div class="overflow-hidden bg-white shadow rounded-xl">
                     @php
                         $banner = $p->co_banner_img ? asset('storage/'.$p->co_banner_img) : asset('image/web-image/work-group.jpg');
                         $logo   = $p->co_profile_img ? asset('storage/'.$p->co_profile_img) : asset('image/web-image/logo.png');
@@ -54,7 +54,7 @@
                     </div>
                 </div>
             @empty
-                <div class="p-8 text-center bg-white rounded-xl shadow text-gray-500 md:col-span-3">ไม่พบบริษัท</div>
+                <div class="p-8 text-center text-gray-500 bg-white shadow rounded-xl md:col-span-3">ไม่พบบริษัท</div>
             @endforelse
         </div>
 
