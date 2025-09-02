@@ -113,13 +113,32 @@
                                             'draft' => 'text-yellow-700 bg-yellow-200',
                                         ][$r->rc_status] ?? 'bg-gray-200';
                                 @endphp
-                                <span class="px-3 py-1 text-sm rounded-full {{ $statusColor }}">
-                                    {{ $r->rc_status === 'open' ? 'เปิดรับ' : ($r->rc_status === 'closed' ? 'ปิดรับ' : 'ฉบับร่าง') }}
-                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-3 py-1 text-sm rounded-full {{ $statusColor }}">
+                                        {{ $r->rc_status === 'open' ? 'เปิดรับ' : ($r->rc_status === 'closed' ? 'ปิดรับ' : 'ฉบับร่าง') }}
+                                    </span>
+                                    {{-- Toggle publish/draft --}}
+
+                                </div>
                             </td>
                             <td>
-                                <div class="gap-4 join">
+                                <div class="gap-2 join">
+                                    {{-- Toggle eye open/closed --}}
+                                    @php
+                                        $toVal = $r->rc_status === 'open' ? 'draft' : 'open';
+                                        $isOpen = $r->rc_status === 'open';
+                                    @endphp
                                     @if ($isAdmin)
+                                        <form method="POST" action="{{ route('admin.recruitments.status', $r->rc_id) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="to" value="{{ $toVal }}">
+                                            <button type="submit"
+                                                class="flex items-center justify-center w-10 h-10 transition border border-gray-400 rounded-2xl bg-base-100 {{ $isOpen ? 'hover:bg-blue-600' : 'hover:bg-blue-600' }}"
+                                                title="{{ $isOpen ? 'ตั้งเป็นฉบับร่าง' : 'เผยแพร่' }}">
+                                                <i class="fa-solid {{ $isOpen ? 'fa-eye' : 'fa-eye-slash' }} {{ $isOpen ? 'text-gray-600' : 'text-gray-600' }}"></i>
+                                            </button>
+                                        </form>
                                         <a href="{{ route('admin.recruitments.edit', $r->rc_id) }}"
                                            class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white"
                                            title="แก้ไข">
@@ -135,6 +154,16 @@
                                             </button>
                                         </form>
                                     @else
+                                        <form method="POST" action="{{ route('provider.recruitments.status', $r->rc_id) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="to" value="{{ $toVal }}">
+                                            <button type="submit"
+                                                class="flex items-center justify-center w-10 h-10 transition border border-gray-400 rounded-2xl bg-base-100 {{ $isOpen ? 'hover:bg-yellow-200' : 'hover:bg-green-200' }}"
+                                                title="{{ $isOpen ? 'ตั้งเป็นฉบับร่าง' : 'เผยแพร่' }}">
+                                                <i class="fa-solid {{ $isOpen ? 'fa-eye' : 'fa-eye-slash' }} {{ $isOpen ? 'text-blue-600' : 'text-gray-600' }}"></i>
+                                            </button>
+                                        </form>
                                         <a href="{{ route('provider.recruitments.edit', $r->rc_id) }}"
                                            class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white"
                                            title="แก้ไข">

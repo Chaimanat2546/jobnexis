@@ -9,6 +9,68 @@ use Illuminate\Support\Facades\DB;
 
 class RecruitmentController extends Controller
 {
+    /** Jobber: ค้นหา/หางาน (เฉพาะประกาศเปิดรับ) */
+    public function jobberIndex(Request $request)
+    {
+        if (!Auth::check() || Auth::user()->role !== 'jobber') abort(403);
+
+        [$q, $type, $mode] = [
+            $request->string('q')->toString(),
+            $request->string('type')->toString(),
+            $request->string('work_mode')->toString(),
+        ];
+
+        $recs = Recruitment::query()->open()
+            ->when($q, function ($qq) use ($q) {
+                $qq->where(function ($w) use ($q) {
+                    $w->where('rc_title', 'ilike', "%{$q}%")
+                      ->orWhere('rc_description', 'ilike', "%{$q}%")
+                      ->orWhere('rc_requirements', 'ilike', "%{$q}%");
+                });
+            })
+            ->when($type, fn($qq) => $qq->where('rc_type', $type))
+            ->when($mode, fn($qq) => $qq->where('rc_work_mode', $mode))
+            ->orderByDesc('rc_posted_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        // ดึงข้อมูลบริษัทของเจ้าของประกาศ เพื่อแสดงชื่อ/โลโก้
+        $ownerIds = $recs->pluck('rc_u_id')->unique()->values();
+        $companies = \Illuminate\Support\Facades\DB::table('companies_profiles')
+            ->whereIn('co_user_id', $ownerIds)
+            ->get()
+            ->keyBy('co_user_id');
+
+        return view('jobber.recruitments.index', [
+            'recs' => $recs,
+            'companies' => $companies,
+            'filters' => [
+                'q' => $q,
+                'type' => $type,
+                'work_mode' => $mode,
+            ],
+        ]);
+    }
+    
+    /** Jobber: ดูรายละเอียดงาน (เฉพาะประกาศเปิดรับ) */
+    public function jobberShow($rcId)
+    {
+        if (!Auth::check() || Auth::user()->role !== 'jobber') abort(403);
+
+        $rec = Recruitment::open()->findOrFail($rcId);
+
+        $company = DB::table('companies_profiles')->where('co_user_id', $rec->rc_u_id)->first();
+
+        // เพิ่มยอดเข้าชมอย่างง่าย (ไม่ซีเรียสเรื่อง race)
+        try {
+            $rec->increment('rc_views');
+        } catch (\Throwable $e) {}
+
+        return view('jobber.recruitments.show', [
+            'rec' => $rec,
+            'company' => $company,
+        ]);
+    }
     /** Admin: รายการงานของ provider คนที่ระบุ */
     public function adminIndex(Request $request, $userId)
     {
@@ -47,7 +109,12 @@ class RecruitmentController extends Controller
             'provider' => $provider,
             'company'  => $company,
             'recs'     => $recs,
-            'filters'  => compact('q','status','type','mode'),
+            'filters'  => [
+                'q' => $q,
+                'status' => $status,
+                'type' => $type,
+                'work_mode' => $mode,
+            ],
         ]);
     }
 
@@ -87,7 +154,12 @@ class RecruitmentController extends Controller
             'provider' => Auth::user(),
             'company'  => $company,
             'recs'     => $recs,
-            'filters'  => compact('q','status','type','mode'),
+            'filters'  => [
+                'q' => $q,
+                'status' => $status,
+                'type' => $type,
+                'work_mode' => $mode,
+            ],
         ]);
     }
 
@@ -151,6 +223,31 @@ class RecruitmentController extends Controller
             ->route('provider.recruitments.index')
             ->with('status', 'อัปเดตประกาศงานเรียบร้อย');
     }
+
+    /** เปลี่ยนสถานะประกาศงานเป็น เผยแพร่(open) หรือ ฉบับร่าง(draft) */
+    public function updateStatus(Request $request, $rcId)
+    {
+        $rec = Recruitment::findOrFail($rcId);
+
+        $user = Auth::user();
+        $isOwner = $rec->rc_u_id === $user->id;
+        if (!($user->role === 'admin' || ($user->role === 'provider' && $isOwner))) {
+            abort(403);
+        }
+
+        $to = $request->string('to')->toString();
+        if (!in_array($to, ['open', 'draft'], true)) {
+            return back()->with('error', 'ค่าสถานะไม่ถูกต้อง');
+        }
+
+        $rec->rc_status = $to;
+        if ($to === 'open' && empty($rec->rc_posted_at)) {
+            $rec->rc_posted_at = now();
+        }
+        $rec->save();
+
+        return back()->with('status', $to === 'open' ? 'เผยแพร่ประกาศงานแล้ว' : 'บันทึกเป็นฉบับร่างแล้ว');
+    }
     public function createForAdmin($userId)
 {
     if (Auth::user()->role !== 'admin') abort(403);
@@ -176,6 +273,15 @@ public function storeForAdmin(Request $request, $userId)
 
     // ตั้งค่า posted_at เป็นตอนนี้ ถ้าไม่ส่งมา
     if (empty($data['rc_posted_at'])) {
+        $data['rc_posted_at'] = now();
+    }
+
+    // Override status by quick action buttons
+    $quick = $request->string('publish_action')->toString();
+    if (in_array($quick, ['open','draft'], true)) {
+        $data['rc_status'] = $quick;
+    }
+    if (($data['rc_status'] ?? null) === 'open' && empty($data['rc_posted_at'])) {
         $data['rc_posted_at'] = now();
     }
 
@@ -209,6 +315,15 @@ public function createForProvider()
     $data['rc_u_id'] = auth::id();
 
     if (empty($data['rc_posted_at'])) {
+        $data['rc_posted_at'] = now();
+    }
+
+    // Override status by quick action buttons
+    $quick = $request->string('publish_action')->toString();
+    if (in_array($quick, ['open','draft'], true)) {
+        $data['rc_status'] = $quick;
+    }
+    if (($data['rc_status'] ?? null) === 'open' && empty($data['rc_posted_at'])) {
         $data['rc_posted_at'] = now();
     }
 

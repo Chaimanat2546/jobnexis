@@ -3,36 +3,36 @@
 @section('title', 'สร้างคอร์สอบรม')
 
 @section('content')
-<div class="bg-base-200 p-6 rounded-lg shadow max-w-5xl mx-auto">
-    <h1 class="text-2xl text-base-content font-bold mb-6 text-center">สร้างคอร์สอบรม</h1>
+<div class="max-w-5xl p-6 mx-auto rounded-lg shadow bg-base-200">
+    <h1 class="mb-6 text-2xl font-bold text-center text-base-content">สร้างคอร์สอบรม</h1>
 
-    <form action="{{ route('courses.store') }}" 
-          method="POST" 
+    <form action="{{ route('courses.store') }}"
+          method="POST"
           enctype="multipart/form-data"
-          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+          class="grid grid-cols-1 gap-6 md:grid-cols-2"
           x-data="courseForm()"
           @submit.prevent="validateForm()">
 
         @csrf
 
         <!-- ซ้าย: อัปโหลดรูปภาพ -->
-        <div class="flex flex-col gap-4 justify-center items-center w-full">
+        <div class="flex flex-col items-center justify-center w-full gap-4">
             <div class="border-2 border-dashed border-gray-400 rounded-lg bg-gray-200 overflow-hidden aspect-[16/10] w-full">
                 <template x-if="!previewUrl">
-                    <img src="{{ asset('image/web-image/ai-robot.jpg') }}" 
-                         alt="Placeholder" 
-                         class="w-full h-full object-cover">
+                    <img src="{{ asset('image/web-image/ai-robot.jpg') }}"
+                         alt="Placeholder"
+                         class="object-cover w-full h-full">
                 </template>
                 <template x-if="previewUrl">
-                    <img :src="previewUrl" 
-                         class="w-full h-full object-cover">
+                    <img :src="previewUrl"
+                         class="object-cover w-full h-full">
                 </template>
             </div>
 
-            <label class="border-2 border-dashed border-blue-600 rounded-lg px-4 py-2 text-center cursor-pointer hover:border-blue-700">
+            <label class="px-4 py-2 text-center border-2 border-blue-600 border-dashed rounded-lg cursor-pointer hover:border-blue-700">
                 เลือกรูปภาพจากคอมพิวเตอร์ของคุณ
-                <input type="file" 
-                       class="hidden" 
+                <input type="file"
+                       class="hidden"
                        name="c_image"
                        @change="previewUrl = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null">
             </label>
@@ -43,19 +43,19 @@
 
             <!-- ชื่อคอร์ส -->
             <div class="relative gap-1">
-                <label class="block text-base-content mb-1">ชื่อคอร์สอบรม</label>
+                <label class="block mb-1 text-base-content">ชื่อคอร์สอบรม</label>
                 <div class="relative">
-                    <input type="text" 
-                           name="c_name" 
-                           x-model="courseName" 
+                    <input type="text"
+                           name="c_name"
+                           x-model="courseName"
                            maxlength="50"
                            @input="courseNameError = false"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 pr-14 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100">
-                    
-                    <span class="absolute top-1/2 right-3 -translate-y-1/2 text-sm text-gray-500" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md pr-14 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100">
+
+                    <span class="absolute text-sm text-gray-500 -translate-y-1/2 top-1/2 right-3"
                           x-text="`${courseName.length} / 50`"></span>
 
-                    <span class="absolute -bottom-5 left-0 text-red-600 text-sm" 
+                    <span class="absolute left-0 text-sm text-red-600 -bottom-5"
                           x-show="courseNameError">
                           กรุณากรอกชื่อคอร์ส
                     </span>
@@ -64,44 +64,44 @@
 
             <!-- คำอธิบาย -->
             <div class="relative gap-1">
-                <label class="block text-base-content mb-1">คำอธิบายคอร์สอบรม</label>
+                <label class="block mb-1 text-base-content">คำอธิบายคอร์สอบรม</label>
                 <div class="relative">
-                    <textarea name="c_description" 
-                              x-model="desc" 
-                              rows="4" 
+                    <textarea name="c_description"
+                              x-model="desc"
+                              rows="4"
                               maxlength="200"
-                              class="w-full border border-gray-300 rounded-md px-3 py-2 pr-14 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100 resize-none"></textarea>
-                    
-                    <span class="absolute bottom-2 right-3 text-sm text-gray-500" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md resize-none pr-14 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100"></textarea>
+
+                    <span class="absolute text-sm text-gray-500 bottom-2 right-3"
                           x-text="`${desc.length} / 200`"></span>
                 </div>
             </div>
 
             <!-- เลือกทักษะ -->
             <div class="relative gap-1">
-                <label class="block text-base-content font-normal mb-1">ประเภททักษะ</label>
+                <label class="block mb-1 font-normal text-base-content">ประเภททักษะ</label>
 
                 <div class="flex flex-wrap gap-1 mb-2">
                     <template x-for="(skill,index) in selectedSkills" :key="index">
-                        <span class="px-3 py-1 rounded-full text-base-content border border-gray-400"
+                        <span class="px-3 py-1 border border-gray-400 rounded-full text-base-content"
                               :class="index % 2 === 0 ? 'bg-blue-200' : 'bg-base-200'">
                             <span x-text="skill"></span>
-                            <button type="button" 
-                                    @click="removeSkill(index)" 
+                            <button type="button"
+                                    @click="removeSkill(index)"
                                     class="ml-1">✕</button>
                         </span>
                     </template>
 
                     <template x-if="selectedSkills.length === 0">
-                        <span class="px-3 py-1 rounded-full bg-base-200 text-base-content border border-gray-400">
+                        <span class="px-3 py-1 border border-gray-400 rounded-full bg-base-200 text-base-content">
                             ยังไม่มีข้อมูล
                         </span>
                     </template>
                 </div>
 
-                <select x-model="currentSkill" 
+                <select x-model="currentSkill"
                         @change="addSkill"
-                        class="font-normal w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100">
+                        class="w-full px-3 py-2 font-normal border border-gray-300 rounded-md focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100">
                     <option value="">เลือกทักษะ</option>
                     @foreach($skills as $skill)
                         <option value="{{ $skill->name }}">{{ $skill->name }}</option>
@@ -110,7 +110,7 @@
 
                 <input type="hidden" name="skills" :value="selectedSkills.join(',')">
 
-                <span class="absolute -bottom-5 left-0 text-red-600 text-sm" 
+                <span class="absolute left-0 text-sm text-red-600 -bottom-5"
                       x-show="skillError">
                       กรุณาเลือกอย่างน้อย 1 ทักษะ
                 </span>
@@ -121,29 +121,29 @@
 
                 <!-- รหัสคอร์ส -->
                 <div class="flex flex-col w-1/2 gap-1">
-                    <label class="block text-base-content mb-1">รหัสคอร์สอบรม</label>
-                    <input type="text" 
-                           name="c_code" 
+                    <label class="block mb-1 text-base-content">รหัสคอร์สอบรม</label>
+                    <input type="text"
+                           name="c_code"
                            x-model="courseCode"
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-300 text-gray-600 cursor-not-allowed focus:outline-none"
+                           class="w-full px-3 py-2 text-gray-600 bg-gray-300 border border-gray-300 rounded-md cursor-not-allowed focus:outline-none"
                            readonly>
                 </div>
 
                 <!-- Toggle เผยแพร่คอร์สอบรม -->
                 <div class="flex flex-col w-1/2 gap-1">
-                    <label class="text-base-content mb-1">ขออนุมัติเผยแพร่คอร์สอบรม</label>
+                    <label class="mb-1 text-base-content">เผยแพร่คอร์สอบรม</label>
                     <div class="flex items-center h-full">
-                        <div x-data="{ published: false }" 
+                        <div x-data="{ published: false }"
                              @click="published = !published"
                              :class="published ? 'bg-blue-600' : 'bg-gray-300'"
-                             class="w-14 h-7 rounded-full relative cursor-pointer transition-colors">
-                            
-                            <span class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform"
+                             class="relative transition-colors rounded-full cursor-pointer w-14 h-7">
+
+                            <span class="absolute w-5 h-5 transition-transform bg-white rounded-full shadow-md left-1 top-1"
                                   :class="published ? 'translate-x-7' : 'translate-x-0'"></span>
 
-                            <input type="hidden" 
-                                   name="c_status" 
-                                   :value="published ? 'pending' : 'draft'">
+                            <input type="hidden"
+                                   name="c_status"
+                                   :value="published ? 'open' : 'draft'">
                         </div>
                     </div>
                 </div>
@@ -151,13 +151,13 @@
         </div>
 
         <!-- ปุ่ม Action -->
-        <div class="col-span-1 md:col-span-2 flex justify-center gap-4 mt-10">
-            <button type="submit" 
-                    class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">
+        <div class="flex justify-center col-span-1 gap-4 mt-10 md:col-span-2">
+            <button type="submit"
+                    class="px-6 py-3 text-white bg-blue-600 rounded-lg btn hover:bg-blue-700">
                 สร้าง
             </button>
-            <a href="{{ route('courses.index') }}" 
-               class="btn btn-outline text-base-content rounded-lg px-6 py-3">
+            <a href="{{ route('courses.index') }}"
+               class="px-6 py-3 rounded-lg btn btn-outline text-base-content">
                 ยกเลิก
             </a>
         </div>

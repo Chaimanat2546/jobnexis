@@ -127,16 +127,20 @@
                         : null;
                 @endphp
 
-                @if ($profileImg)
-                    <img src="{{ $profileImg }}" alt="company profile" class="object-cover w-48 h-48 mb-2 rounded-xl" />
-                @endif
+                <div id="dropProfile" class="flex flex-col items-start w-full max-w-xl gap-2 p-3 border-2 border-dashed rounded-xl bg-base-100 hover:border-blue-400">
+                    <div class="text-xs text-gray-500">คำแนะนำ: ใช้รูปสัดส่วน 1:1 (เช่น 400x400 พิกเซล) เพื่อให้พอดีและคมชัด</div>
+                    @if ($profileImg)
+                        <img src="{{ $profileImg }}" alt="company profile" class="object-cover w-48 h-48 rounded-xl" />
+                    @endif
 
-                <input name="co_profile_img" type="file" accept="image/*"
-                       class="w-full max-w-md file-input file-input-bordered"
-                       onchange="previewImage(event, 'previewProfileImg')" />
-                @error('co_profile_img') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    <input id="inputProfile" name="co_profile_img" type="file" accept="image/*"
+                           class="w-full max-w-md file-input file-input-bordered"
+                           onchange="previewImage(event, 'previewProfileImg')" />
+                    @error('co_profile_img') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
 
-                <img id="previewProfileImg" class="hidden object-cover w-48 h-48 mt-2 rounded-xl" />
+                    <img id="previewProfileImg" class="hidden object-cover w-48 h-48 rounded-xl" />
+                    <div class="text-xs text-gray-400">สามารถลากและวางไฟล์รูปมาวางในกรอบนี้ได้ (Drag & Drop)</div>
+                </div>
             </fieldset>
 
             <fieldset class="fieldset">
@@ -148,16 +152,20 @@
                         : null;
                 @endphp
 
-                @if ($bannerImg)
-                    <img src="{{ $bannerImg }}" alt="company banner" class="object-cover w-full h-40 max-w-xl mb-2 rounded-xl" />
-                @endif
+                <div id="dropBanner" class="flex flex-col items-start w-full max-w-2xl gap-2 p-3 border-2 border-dashed rounded-xl bg-base-100 hover:border-blue-400">
+                    <div class="text-xs text-gray-500">คำแนะนำ: ใช้รูปแนวนอนอัตราส่วนประมาณ 4:1 (เช่น 1600x400 พิกเซล) เพื่อให้เต็มแบนเนอร์สวยงาม</div>
+                    @if ($bannerImg)
+                        <img src="{{ $bannerImg }}" alt="company banner" class="object-cover w-full max-w-2xl h-40 rounded-xl" />
+                    @endif
 
-                <input name="co_banner_img" type="file" accept="image/*"
-                       class="w-full max-w-md file-input file-input-bordered"
-                       onchange="previewImage(event, 'previewBannerImg')" />
-                @error('co_banner_img') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    <input id="inputBanner" name="co_banner_img" type="file" accept="image/*"
+                           class="w-full max-w-md file-input file-input-bordered"
+                           onchange="previewImage(event, 'previewBannerImg')" />
+                    @error('co_banner_img') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
 
-                <img id="previewBannerImg" class="hidden object-cover w-full h-40 max-w-xl mt-2 rounded-xl" />
+                    <img id="previewBannerImg" class="hidden object-cover w-full max-w-2xl h-40 rounded-xl" />
+                    <div class="text-xs text-gray-400">สามารถลากและวางไฟล์รูปมาวางในกรอบนี้ได้ (Drag & Drop)</div>
+                </div>
             </fieldset>
         </div>
         {{-- ============================================================ --}}
@@ -169,7 +177,7 @@
     </form>
 </div>
 
-{{-- Preview script --}}
+{{-- Preview & Drag-Drop script --}}
 <script>
 function previewImage(evt, previewId) {
     const input = evt.target;
@@ -183,5 +191,31 @@ function previewImage(evt, previewId) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+function bindDropZone(zoneId, inputId, previewId) {
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    if (!zone || !input) return;
+    const prevent = e => { e.preventDefault(); e.stopPropagation(); };
+    ['dragenter','dragover','dragleave','drop'].forEach(ev => zone.addEventListener(ev, prevent));
+    zone.addEventListener('dragover', () => zone.classList.add('ring','ring-blue-400'));
+    zone.addEventListener('dragleave', () => zone.classList.remove('ring','ring-blue-400'));
+    zone.addEventListener('drop', (e) => {
+        zone.classList.remove('ring','ring-blue-400');
+        const files = e.dataTransfer.files;
+        if (!files || !files.length) return;
+        const f = files[0];
+        if (!f.type.startsWith('image/')) return;
+        const dt = new DataTransfer();
+        dt.items.add(f);
+        input.files = dt.files;
+        previewImage({ target: input }, previewId);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    bindDropZone('dropProfile', 'inputProfile', 'previewProfileImg');
+    bindDropZone('dropBanner', 'inputBanner', 'previewBannerImg');
+});
 </script>
 @endsection

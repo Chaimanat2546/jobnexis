@@ -126,36 +126,15 @@
                                readonly>
                     </div>
 
-                    <!-- Toggle Publish -->
-                    <div class="flex flex-col w-1/2 gap-1" x-data="{ 
-                            status: '{{ $course->c_status }}', 
-                            tempStatus: '{{ $course->c_status }}', 
-                        }">
-                        
-                        <label class="text-base-content mb-1" 
-                            x-text="status === 'pending' ? 'รออนุมัติ ไม่สามารถแก้ไขได้' 
-                                : status === 'draft' ? 'ขออนุมัติเผยแพร่คอร์สอบรม'
-                                : status === 'open' ? 'เผยแพร่คอร์สอบรม' 
-                                : 'เผยแพร่คอร์สอบรม'">
-                        </label>
+                    <!-- Toggle Publish (no approval, open/draft) -->
+                    <div class="flex flex-col w-1/2 gap-1" x-data="{ tempStatus: '{{ $course->c_status }}' }">
+                        <label class="mb-1 text-base-content">เผยแพร่คอร์สอบรม</label>
                         <div class="flex items-center h-full">
-                            <div @click="if(status !== 'pending') {
-                                            // toggle draft ↔ open ↔ closed
-                                            if(tempStatus === 'draft') tempStatus = 'pending';
-                                            else if(tempStatus === 'pending') tempStatus = 'draft';
-                                            else if(tempStatus === 'open') tempStatus = 'closed';
-                                            else if(tempStatus === 'closed') tempStatus = 'open';
-                                        }"
-                                :class="tempStatus === 'open' ? 'bg-blue-600' 
-                                        : (tempStatus === 'pending' ? 'bg-blue-600' 
-                                        : 'bg-gray-300')"
-                                class="w-14 h-7 rounded-full relative cursor-pointer transition-colors"
-                                :title="status === 'pending' ? 'รออนุมัติ ไม่สามารถแก้ไขได้' : ''">
-
-                                <span class="absolute left-1 top-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform"
-                                    :class="(tempStatus === 'open' || tempStatus === 'pending') ? 'translate-x-7' : 'translate-x-0'"></span>
-
-                                <!-- hidden input จะเก็บค่าจริงตอน submit -->
+                            <div @click="tempStatus = (tempStatus === 'open') ? 'draft' : 'open'"
+                                 :class="tempStatus === 'open' ? 'bg-blue-600' : 'bg-gray-300'"
+                                 class="relative transition-colors rounded-full cursor-pointer w-14 h-7">
+                                <span class="absolute w-5 h-5 transition-transform bg-white rounded-full shadow-md left-1 top-1"
+                                      :class="tempStatus === 'open' ? 'translate-x-7' : 'translate-x-0'"></span>
                                 <input type="hidden" name="c_status" :value="tempStatus">
                             </div>
                         </div>

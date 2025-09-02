@@ -77,7 +77,7 @@
         </a>
         <ul class="w-full gap-2 menu menu-vertical text-base-content">
             <li>
-                <a href="{{ url('education/dashboard') }}"
+                <a href="{{ route('education.dashboard') }}"
                     class="flex items-center {{ request()->is('education/dashboard') ? 'text-blue-600' : '' }}">
                     <i
                         class="fa-solid fa-tachometer-alt w-5 text-blue-600 text-center mr-1 {{ request()->is('education/dashboard') ? 'text-blue-600' : '' }}"></i>
@@ -85,7 +85,7 @@
                 </a>
             </li>
             <li>
-                <a href="{{ url('/education/courses') }}"
+                <a href="{{ url('education/courses') }}"
                     class="flex items-center {{ request()->is('education/courses') ? 'text-blue-600' : '' }}">
                     <i
                         class="fa-solid fa-graduation-cap w-5 text-blue-600 text-center mr-1 {{ request()->is('education/courses') ? 'text-blue-600' : '' }}"></i>

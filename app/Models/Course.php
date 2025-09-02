@@ -17,6 +17,9 @@ class Course extends Model
         'c_status',
         'c_image',
         'c_code',
+        'c_create_by_id',
+        'c_create_at',
+        'c_end_at',
     ];
 
     // ตรวจสอบสถานะ
@@ -85,7 +88,7 @@ class Course extends Model
     {
         $map = [
             'open'   => 'เผยแพร่',
-            'draft'  => 'ยังไม่ส่งคำขออนุมัติ',
+            'draft'  => 'ฉบับร่าง',
             'closed' => 'ไม่เผยแพร่',
             'pending'=> 'รออนุมัติ',
         ];

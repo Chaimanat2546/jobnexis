@@ -34,10 +34,16 @@
                     </div>
                 </a>
                 <ul class="px-1 text-lg font-bold menu menu-horizontal ">
-                    <li class="transition-transform duration-200 hover:scale-105"><a>เรียนรู้ทักษะ</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a>หางาน</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a>ผู้ประกอบการ</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a>ติดต่อเรา</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105">
+                        @auth
+                            <a href="{{ route('courses.catalog') }}">เรียนรู้ทักษะ</a>
+                        @else
+                            <a href="javascript:void(0)" @click="openModal('login')">เรียนรู้ทักษะ</a>
+                        @endauth
+                    </li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a href="{{ route('jobber.jobs.index') }}">หางาน</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a href="{{ route('jobber.companies.index') }}">ผู้ประกอบการ</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a href="https://esp.informatics.buu.ac.th/2025/" target="_blank">ติดต่อเรา</a></li>
                 </ul>
                 @guest <a href="javascript:void(0);"
                         class="text-lg font-bold bg-blue-600 rounded-xl btn text-base-100"
@@ -57,9 +63,9 @@
                                 @php
                                     $user = Auth::user();
                                     $displayName = match ($user->role) {
-                                        'jobber' || 'admin' => $user->profile->up_name ?? 'ไม่มีโปรไฟล์',
-                                        'provider' => $user->companyProfile->co_name ?? 'ไม่มีโปรไฟล์บริษัท',
-                                        'education' => $user->educationProfile->e_name ?? 'ไม่มีโปรไฟล์สถานศึกษา',
+                                        'jobber', 'admin' => $user->profile?->up_name ?? 'ไม่มีโปรไฟล์',
+                                        'provider' => $user->companyProfile?->co_name ?? 'ไม่มีโปรไฟล์บริษัท',
+                                        'education' => $user->educationProfile?->e_name ?? 'ไม่มีโปรไฟล์สถานศึกษา',
                                         default => $user->name ?? 'ไม่มีโปรไฟล์',
                                     };
                                 @endphp
@@ -90,17 +96,21 @@
                             <li>
                                 @php
                                     $isAdmin = Auth::user()->role === 'admin';
+                                    $isJobber = Auth::user()->role === 'jobber';
 
                                     $profileRoute = match (Auth::user()->role) {
                                         'admin' => route('admin.dashboard'),
                                         'provider' => route('provider.dashboard'),
                                         'education' => route('education.dashboard'),
+                                        'jobber' => route('jobber.dashboard'),
+                                        default => route('dashboard'),
                                     };
                                 @endphp
 
                                 @if ($isAdmin)
                                     <span>ESP BUU</span>
-                                @else
+                                @endif
+                                 @if (!$isJobber)
                                     <a href="{{ $profileRoute }}">แดชบอร์ด</a>
                                 @endif
                             </li>
