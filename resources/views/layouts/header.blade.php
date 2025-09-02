@@ -9,10 +9,10 @@
                     </div>
                 </a>
                 <ul class="px-1 text-lg font-bold menu menu-horizontal ">
-                    <li class="transition-transform duration-200 hover:scale-105"><a>เรียนรู้ทักษะ</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a>หางาน</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a>ผู้ประกอบการ</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a>ติดต่อเรา</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a href="{{ route('courses.catalog') }}">เรียนรู้ทักษะ</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a href="{{ route('jobber.jobs.index') }}">หางาน</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a href="{{ route('jobber.companies.index') }}">ผู้ประกอบการ</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a href="https://esp.informatics.buu.ac.th/2025/" target="_blank">ติดต่อเรา</a></li>
                 </ul>
 
                 <div class="dropdown dropdown-hover rounded-xl ">
@@ -29,7 +29,7 @@
                                     </div>
                                 </div>
                                 <span class="font-medium text-base-content">
-                                    {{ Auth::user()->profile->up_name ?? 'ไม่มีโปรไฟล์' }}
+                                    {{ Auth::user()->profile?->up_name ?? 'ไม่มีโปรไฟล์' }}
                                 </span>
                             @endauth
                         </div>
@@ -72,9 +72,9 @@
                         @php
                             $user = Auth::user();
                             $displayName = match ($user->role) {
-                                'jobber' || 'admin' => $user->profile->up_name ?? 'ไม่มีโปรไฟล์',
-                                'provider' => $user->companyProfile->co_name ?? 'ไม่มีโปรไฟล์บริษัท',
-                                'education' => $user->educationProfile->e_name ?? 'ไม่มีโปรไฟล์สถานศึกษา',
+                                'jobber', 'admin' => $user->profile?->up_name ?? 'ไม่มีโปรไฟล์',
+                                'provider' => $user->companyProfile?->co_name ?? 'ไม่มีโปรไฟล์บริษัท',
+                                'education' => $user->educationProfile?->e_name ?? 'ไม่มีโปรไฟล์สถานศึกษา',
                                 default => $user->name ?? 'ไม่มีโปรไฟล์',
                             };
                         @endphp

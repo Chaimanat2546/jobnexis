@@ -86,7 +86,7 @@
 
             <div class="flex items-center gap-2">
                 <button type="submit" class="px-6 py-2 text-white bg-blue-600 rounded-lg shadow hover:bg-blue-700">บันทึก</button>
-                <a href="{{ url()->previous() }}" class="px-6 py-2 btn">ยกเลิก</a>
+                <a href="{{ route('education.dashboard') }}" class="px-6 py-2 btn">ยกเลิก</a>
             </div>
         </form>
     </div>

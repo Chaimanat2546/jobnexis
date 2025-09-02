@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CompaniesProfile;
 use App\Models\User;
+use App\Models\Recruitment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -141,5 +142,59 @@ class CompaniesProfileController extends Controller
         return redirect()
             ->route('provider.profile.edit', $routeParams) // provider => /edit-provider | admin => /edit-provider/{userId}
             ->with('success', 'บันทึกโปรไฟล์เรียบร้อยแล้ว');
+    }
+
+    /** Directory: รายชื่อผู้ประกอบการ (สำหรับ Jobber) */
+    public function publicIndex(Request $request)
+    {
+        $auth = Auth::user();
+        if (!$auth || $auth->role !== 'jobber') abort(403);
+
+        $q = trim((string) $request->query('q', ''));
+        $province = trim((string) $request->query('province', ''));
+
+        $providers = User::query()
+            ->where('role', 'provider')
+            ->leftJoin('companies_profiles as cp', 'cp.co_user_id', '=', 'users.id')
+            ->select([
+                'users.id', 'users.email', 'users.is_banned',
+                'cp.co_name', 'cp.co_profile_img', 'cp.co_banner_img', 'cp.co_province', 'cp.co_type',
+            ])
+            ->withCount(['recruitments as open_jobs' => function ($q) {
+                $q->where('rc_status', 'open')
+                  ->where(function($w){ $w->whereNull('rc_expire_at')->orWhereDate('rc_expire_at', '>=', now()->toDateString()); });
+            }])
+            ->when($q, function ($qq) use ($q) {
+                $qq->where(function ($w) use ($q) {
+                    $w->where('cp.co_name', 'ilike', "%{$q}%")
+                      ->orWhere('users.email', 'ilike', "%{$q}%");
+                });
+            })
+            ->when($province, fn($qq) => $qq->where('cp.co_province', $province))
+            ->orderByDesc('open_jobs')
+            ->orderBy('cp.co_name')
+            ->paginate(12)
+            ->withQueryString();
+
+        $provinces = array_values(array_unique(array_filter(DB::table('companies_profiles')->pluck('co_province')->toArray())));
+
+        return view('jobber.companies.index', compact('providers', 'q', 'province', 'provinces'));
+    }
+
+    /** รายละเอียดผู้ประกอบการ + งานที่เปิดรับ (สำหรับ Jobber) */
+    public function publicShow($userId)
+    {
+        $auth = Auth::user();
+        if (!$auth || $auth->role !== 'jobber') abort(403);
+
+        $user = User::where('id', $userId)->where('role', 'provider')->firstOrFail();
+        $company = CompaniesProfile::where('co_user_id', $user->id)->first();
+
+        $openJobs = Recruitment::open()->where('rc_u_id', $user->id)
+            ->orderByDesc('rc_posted_at')
+            ->paginate(6)
+            ->withQueryString();
+
+        return view('jobber.companies.show', compact('user', 'company', 'openJobs'));
     }
 }

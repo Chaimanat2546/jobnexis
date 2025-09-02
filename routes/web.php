@@ -35,6 +35,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('admin.recruitments.update');
     Route::delete('/admin/recruitments/{rcId}', [RecruitmentController::class, 'destroy'])
         ->name('admin.recruitments.destroy');
+    Route::patch('/admin/recruitments/{rcId}/status', [RecruitmentController::class, 'updateStatus'])
+        ->name('admin.recruitments.status');
 
     /** -------- Provider: จัดการงานของตัวเอง -------- */
     Route::get('/my/recruitments', [RecruitmentController::class, 'providerIndex'])
@@ -49,6 +51,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('provider.recruitments.update');
     Route::delete('/my/recruitments/{rcId}', [RecruitmentController::class, 'destroy'])
         ->name('provider.recruitments.destroy');
+    Route::patch('/my/recruitments/{rcId}/status', [RecruitmentController::class, 'updateStatus'])
+        ->name('provider.recruitments.status');
     //----------------
 
 
@@ -66,6 +70,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('admin.providers.toggleBan');
         Route::delete('/admin/providers/{user}', [CompaniesProfileController::class, 'destroy'])
             ->name('admin.providers.destroy');
+    });
+
+    // Catalog: รายการคอร์สสำหรับผู้ใช้ที่ล็อกอิน (ทุก role)
+    Route::get('/courses', [CourseController::class, 'catalog'])->name('courses.catalog');
+
+    // ดูรายละเอียดคอร์ส (ทุก role)
+    Route::get('/courses/{id}', [CourseController::class, 'publicShow'])->name('courses.view');
+
+    // สมัคร/ยกเลิกสมัครคอร์ส (เฉพาะ Jobber) - ไม่มี prefix เส้นทาง
+    Route::middleware('role:jobber')->group(function () {
+        Route::post('/courses/{id}/enroll', [CourseController::class, 'enroll'])->name('courses.enroll');
+        Route::delete('/courses/{id}/enroll', [CourseController::class, 'unenroll'])->name('courses.unenroll');
     });
 
     /** ---------------- Profile Details ---------------- */
@@ -116,8 +132,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/edit-education/store', [EducationProfileController::class, 'store'])
             ->name('profile-education.store');
     });
-    // Education routes
-    Route::middleware('role:education')->group(function () {
+    // Education routes (ให้ admin เข้าถึงได้ด้วย)
+    Route::middleware('role:education,admin')->group(function () {
 
         // Dashboard ของ Education
         Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
@@ -129,6 +145,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/', [CourseController::class, 'store'])->name('store');      // บันทึกคอร์ส
             Route::get('/{id}', [CourseController::class, 'show'])->name('show');     // รายละเอียดคอร์ส
             Route::get('/person/{id}', [PersonController::class, 'show'])->name('person.show');      // บุคคล
+            // ออกประกาศนียบัตรให้สมาชิกในคอร์ส
+            Route::post('/{id}/members/{userId}/certificate', [PersonController::class, 'issueCertificate'])->name('members.certificate.issue');
+            Route::post('/{id}/members/certificates/issue-all', [PersonController::class, 'issueCertificatesAll'])->name('members.certificate.issueAll');
             Route::delete('/{id}', [CourseController::class, 'destroy'])->name('destroy');      // ลบคอร์ส
             Route::get('/{id}/edit', [CourseController::class, 'edit'])->name('edit');      // แก้ไขคอร์ส
             Route::put('/{id}', [CourseController::class, 'update'])->name('update');      // อัพเดทคอร์ส
@@ -178,6 +197,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /** ---------------- Jobber Routes ---------------- */
     Route::middleware('role:jobber')->prefix('jobber')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'jobber'])->name('jobber.dashboard');
+        Route::get('/jobs', [RecruitmentController::class, 'jobberIndex'])->name('jobber.jobs.index');
+        Route::get('/jobs/{rcId}', [RecruitmentController::class, 'jobberShow'])->name('jobber.jobs.show');
+        // Companies directory for jobbers
+        Route::get('/companies', [CompaniesProfileController::class, 'publicIndex'])->name('jobber.companies.index');
+        Route::get('/companies/{userId}', [CompaniesProfileController::class, 'publicShow'])->name('jobber.companies.show');
         Route::post('/jobber/edit-profile/certificate', [CertificateController::class, 'store'])->name('certificates.store');
         Route::get('/edit-profile', [ProfileDetailController::class, 'edit'])->name('profile-jobber.edit');
         Route::post('/edit-profile/store', [ProfileDetailController::class, 'store'])->name('profile-jobber.store');

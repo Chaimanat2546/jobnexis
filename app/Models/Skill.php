@@ -14,7 +14,7 @@ class Skill extends Model
             Course::class,
             'course_skill', // ชื่อตาราง pivot
             'skill_id',     // foreign key ของ Skill ใน pivot
-            'c_id'          // foreign key ของ Course ใน pivot
+            'course_id'     // foreign key ของ Course ใน pivot
         );
     }
 }

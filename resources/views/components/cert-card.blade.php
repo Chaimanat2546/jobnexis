@@ -1,9 +1,14 @@
 @props(['certificate'])
-@php use Illuminate\Support\Facades\Storage; @endphp
+@php
+    use Illuminate\Support\Facades\Storage;
+    $raw = $certificate->cer_image_path;
+    $isUrl = filter_var($raw, FILTER_VALIDATE_URL);
+    $fileUrl = $isUrl ? $raw : Storage::url($raw);
+@endphp
 
 <div class="shadow-xl card card-side bg-base-100">
     <figure>
-        <img src="{{ Storage::url($certificate->cer_image_path) }}" class="w-[247px] h-[147px] object-cover" />
+        <img src="{{ $fileUrl }}" class="w-[247px] h-[147px] object-cover" />
     </figure>
     <div class="card-body">
         <h1 class="card-title">{{ $certificate->cer_name }}</h1>
@@ -26,7 +31,7 @@
                 </button>
             </form>
 
-            <a href="{{ $certificate->cer_image_path }}" download
+            <a href="{{ $fileUrl }}" download target="_blank" rel="noopener"
                 class="flex items-center justify-center w-10 h-10 border rounded-2xl hover:bg-blue-600 hover:text-white">
                 <i class="fa-solid fa-download"></i>
             </a>
