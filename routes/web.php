@@ -168,6 +168,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/{id}', [MediaController::class, 'update'])->name('update');                     // อัพเดทสื่อ
             Route::delete('/{id}', [MediaController::class, 'destroy'])->name('destroy');                // ลบสื่อ
         });
+        // Exam routes
+        Route::prefix('education/exams')->name('exams.')->group(function () {
+            Route::get('/create/{courseId?}', [ExamController::class, 'create'])->name('create');
+            Route::post('/', [ExamController::class, 'store'])->name('store');
+            Route::get('/{id}', [ExamController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [ExamController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [ExamController::class, 'update'])->name('update');
+            Route::delete('/{id}', [ExamController::class, 'destroy'])->name('destroy');
+            Route::post('/lesson', [ExamController::class, 'storeLesson'])->name('lesson.store');
+        });
+    });
+    /** ---------------- Provider Routes ---------------- */
+    Route::middleware('role:provider')->prefix('provider')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'provider'])->name('provider.dashboard');
+        Route::get('/edit-profile', [CompaniesProfileController::class, 'edit'])->name('provider.profile.edit.self');
+        Route::post('/edit-profile/store', [CompaniesProfileController::class, 'store'])->name('provider.profile.store.self');
+    });
+
+    /** ---------------- Education Routes ---------------- */
+    Route::middleware('role:education')->prefix('education')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
+        Route::get('/edit-education', [EducationProfileController::class, 'edit'])->name('profile-education.edit.self');
+        Route::post('/edit-education/store', [EducationProfileController::class, 'store'])->name('profile-education.store.self');
+
     });
 
     /** ---------------- Jobber Routes ---------------- */

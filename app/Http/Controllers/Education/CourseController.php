@@ -9,6 +9,9 @@ use App\Models\Course;
 use App\Models\User;
 use App\Models\Skill;
 use App\Models\Media;
+use App\Models\Exam;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CourseMember;
@@ -160,7 +163,7 @@ class CourseController extends Controller
        $course = Course::with('skills')->where('c_id', $id)->firstOrFail();
 
         // ดึงบทเรียนพร้อมสื่อและไฟล์
-        $lessons = \App\Models\Lesson::with(['medias.files'])
+        $lessons = \App\Models\Lesson::with(['medias.files', 'exams'])
             ->where('l_c_id', $id)
             ->orderBy('l_index')
             ->get();
@@ -171,6 +174,13 @@ class CourseController extends Controller
             ->where('m_c_id', $id)
             ->get();
 
+//         // เพิ่มแบบทดสอบเดี่ยว
+//         $soloExams = Exam::whereNull('e_l_id')
+//             ->where('e_c_id', $id)
+//             ->orderBy('e_index')
+//             ->get();
+
+//         return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams'));
         // จำนวนแบบทดสอบในคอร์สนี้ (ผ่านบทเรียน)
         $examCount = DB::table('exams')
             ->join('lessons', 'exams.e_l_id', '=', 'lessons.l_id')

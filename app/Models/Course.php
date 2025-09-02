@@ -95,4 +95,57 @@ class Course extends Model
 
         return $map[$this->c_status] ?? 'ไม่ทราบสถานะ';
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'c_create_by_id');
+    }
+
+    public function medias()
+    {
+        return $this->hasMany(Media::class, 'm_c_id', 'c_id');
+    }
+
+    // Method สำหรับลบคอร์สพร้อมข้อมูลที่เกี่ยวข้อง
+    public function deleteWithRelated()
+    {
+        // ลบรูปภาพของคอร์ส
+        if ($this->c_image && \Storage::disk('public')->exists($this->c_image)) {
+            \Storage::disk('public')->delete($this->c_image);
+        }
+
+        // ลบสื่อการสอนทั้งหมด (รวม solo media)
+        foreach ($this->medias as $media) {
+            foreach ($media->files as $file) {
+                if ($file->mf_path && \Storage::disk('public')->exists($file->mf_path)) {
+                    \Storage::disk('public')->delete($file->mf_path);
+                }
+            }
+            $media->files()->delete();
+            $media->delete();
+        }
+
+        // ลบบทเรียนและสื่อในบทเรียน
+        foreach ($this->lessons as $lesson) {
+            foreach ($lesson->medias as $lessonMedia) {
+                foreach ($lessonMedia->files as $file) {
+                    if ($file->mf_path && \Storage::disk('public')->exists($file->mf_path)) {
+                        \Storage::disk('public')->delete($file->mf_path);
+                    }
+                }
+                $lessonMedia->files()->delete();
+                $lessonMedia->delete();
+            }
+            $lesson->delete();
+        }
+
+        // ลบคอร์ส
+        $this->delete();
+    }
+
+    public function exams()
+    {
+        return $this->hasMany(Exam::class, 'e_c_id', 'c_id');
+    }
+
 }
