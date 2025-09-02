@@ -39,21 +39,84 @@
                     <li class="transition-transform duration-200 hover:scale-105"><a>ผู้ประกอบการ</a></li>
                     <li class="transition-transform duration-200 hover:scale-105"><a>ติดต่อเรา</a></li>
                 </ul>
-                <div class="transition-transform duration-200 hover:scale-105">
+                @guest <a href="javascript:void(0);"
+                        class="text-lg font-bold bg-blue-600 rounded-xl btn text-base-100"
+                        @click="openModal('login')">เข้าสู่ระบบ</a>
+                @endguest
+                @auth
+                    <div class="dropdown dropdown-hover rounded-xl">
+                        <div tabindex="0" role="button"
+                            class="m-1 bg-transparent border-gray-300 rounded-xl btn border-1">
+                            <div class="flex items-center w-full gap-3">
 
-                    @guest <a href="javascript:void(0);"
-                            class="text-lg font-bold bg-blue-600 rounded-xl btn text-base-100 "
-                        @click="openModal('login')">เข้าสู่ระบบ</a> @endguest
-                    @auth
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-lg font-bold bg-error rounded-xl btn text-base-100">
-                                Logout
-                            </button>
-                        </form>
-                        <a href="{{ route('profile-jobber.edit') }}" class="btn btn-info">แก้โปรไฟล์ของฉัน</a>
-                    @endauth
-                </div>
+                                <div class="avatar placeholder">
+                                    <div class="flex items-end justify-end w-10 h-10 text-neutral-content">
+                                        <i class="mt-3 fa-regular fa-user" style="color: #383839;"></i>
+                                    </div>
+                                </div>
+                                @php
+                                    $user = Auth::user();
+                                    $displayName = match ($user->role) {
+                                        'jobber' || 'admin' => $user->profile->up_name ?? 'ไม่มีโปรไฟล์',
+                                        'provider' => $user->companyProfile->co_name ?? 'ไม่มีโปรไฟล์บริษัท',
+                                        'education' => $user->educationProfile->e_name ?? 'ไม่มีโปรไฟล์สถานศึกษา',
+                                        default => $user->name ?? 'ไม่มีโปรไฟล์',
+                                    };
+                                @endphp
+
+                                <span class="font-medium text-base-content">
+                                    {{ $displayName }}
+                                </span>
+                            </div>
+                        </div>
+                        <ul tabindex="0" class="p-2 shadow-sm dropdown-content menu bg-base-100 rounded-box z-1 w-52">
+                            <li>
+                                @php
+                                    $isAdmin = Auth::user()->role === 'admin';
+
+                                    $profileRoute = match (Auth::user()->role) {
+                                        'provider' => route('provider.profile.edit'),
+                                        'education' => route('profile-education.edit'),
+                                        default => route('profile-jobber.edit'),
+                                    };
+                                @endphp
+
+                                @if ($isAdmin)
+                                    <span>ESP BUU</span>
+                                @else
+                                    <a href="{{ $profileRoute }}">โปรไฟล์</a>
+                                @endif
+                            </li>
+                            <li>
+                                @php
+                                    $isAdmin = Auth::user()->role === 'admin';
+
+                                    $profileRoute = match (Auth::user()->role) {
+                                        'admin' => route('admin.dashboard'),
+                                        'provider' => route('provider.dashboard'),
+                                        'education' => route('education.dashboard'),
+                                    };
+                                @endphp
+
+                                @if ($isAdmin)
+                                    <span>ESP BUU</span>
+                                @else
+                                    <a href="{{ $profileRoute }}">แดชบอร์ด</a>
+                                @endif
+                            </li>
+                            <li>
+                                <a href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                    class="p-2 ">
+                                    ออกจากระบบ
+                                </a>
+                            </li>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                                @csrf
+                            </form>
+                        </ul>
+                    </div>
+                @endauth
             </div>
             <div class="navbar-end"></div>
         </div>
@@ -120,7 +183,8 @@
                                                 @if (session('status') === 'password-updated')
                                                     <div
                                                         class="p-4 mb-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
-                                                        รหัสผ่านของคุณได้รับการเปลี่ยนแปลงเรียบร้อยแล้ว! คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้ทันที
+                                                        รหัสผ่านของคุณได้รับการเปลี่ยนแปลงเรียบร้อยแล้ว!
+                                                        คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้ทันที
                                                     </div>
                                                 @endif
 
@@ -244,8 +308,10 @@
                                         <!-- Forgot Password Form -->
                                         <template x-if="currentModal === 'forgot'">
                                             <div>
-                                                <h2 class="mb-2 text-2xl font-bold text-center text-base-content">กู้คืนรหัสผ่านของคุณ</h2>
-                                                <h3  class="mb-6 text-xl font-bold text-center text-base-content/60">กรอกอีเมลที่ลงทะเบียนไว้เพื่อรับการกู้คืนรหัสผ่าน</h3>
+                                                <h2 class="mb-2 text-2xl font-bold text-center text-base-content">
+                                                    กู้คืนรหัสผ่านของคุณ</h2>
+                                                <h3 class="mb-6 text-xl font-bold text-center text-base-content/60">
+                                                    กรอกอีเมลที่ลงทะเบียนไว้เพื่อรับการกู้คืนรหัสผ่าน</h3>
                                                 @if (session('status'))
                                                     <div
                                                         class="p-4 mb-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
@@ -298,7 +364,8 @@
                                         <!-- Email Verification -->
                                         <template x-if="currentModal === 'verify'">
                                             <div>
-                                                <h2 class="mb-6 text-2xl font-bold text-center text-indigo-700">ยืนยันอีเมลของคุณ
+                                                <h2 class="mb-6 text-2xl font-bold text-center text-indigo-700">
+                                                    ยืนยันอีเมลของคุณ
                                                 </h2>
 
                                                 @if (session('status') === 'verification-link-sent')
@@ -332,7 +399,7 @@
                                                     </div>
                                                     <p class="mb-6 text-gray-600">
                                                         กรุณาตรวจสอบอีเมลของคุณเพื่อคลิกลิงก์ยืนยัน
-หากคุณยังไม่ได้รับอีเมล เราสามารถส่งให้คุณอีกครั้งได้
+                                                        หากคุณยังไม่ได้รับอีเมล เราสามารถส่งให้คุณอีกครั้งได้
                                                     </p>
 
                                                     <form method="POST" action="{{ route('verification.send') }}"
@@ -360,8 +427,10 @@
                                         <!-- Reset Password Form -->
                                         <template x-if="currentModal === 'reset'">
                                             <div>
-                                                <h2 class="mb-2 text-2xl font-bold text-center text-base-content">รีเซ็ตรหัสผ่านใหม่</h2>
-                                                <h3 class="mb-6 text-xl font-bold text-center text-base-content/60">สร้างรหัสผ่านใหม่สำหรับบัญชีของคุณ</h3>
+                                                <h2 class="mb-2 text-2xl font-bold text-center text-base-content">
+                                                    รีเซ็ตรหัสผ่านใหม่</h2>
+                                                <h3 class="mb-6 text-xl font-bold text-center text-base-content/60">
+                                                    สร้างรหัสผ่านใหม่สำหรับบัญชีของคุณ</h3>
 
                                                 <!-- General Error Message for Reset Password -->
                                                 @if ($errors->any() && request()->routeIs('password.store'))

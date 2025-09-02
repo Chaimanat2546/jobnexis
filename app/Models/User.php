@@ -49,10 +49,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
-    public function profile()
-    {
-        return $this->hasOne(UserProfile::class, 'up_u_id', 'id');
-    }
     public function educations()
     {
         return $this->hasMany(Education::class, 'ed_u_id', 'id');
@@ -61,14 +57,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(WorkExperience::class, 'we_u_id', 'id');
     }
-    public function hasRole($role)
-    {
-        return $this->role === $role;
-    }
     public function isAdmin()
     {
         return $this->role === 'admin';
     }
+
     public function isEducation()
     {
         return $this->role === 'education';
@@ -89,10 +82,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Recruitment::class, 'rc_u_id');
     }
-    public function companyProfile()
-    {
-        return $this->hasOne(CompaniesProfile::class, 'co_user_id');
-    }
     public function Certificate()
     {
         return $this->hasMany(Certificate::class, 'cer_u_id');
@@ -103,12 +92,22 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->is_banned) return 'Active';
         return $this->email_verified_at ? 'Banned' : 'Pending';
     }
-    public function educationProfile()
-    {
-        return $this->hasOne(EducationProfile::class, 'e_u_id');
-    }
     public function courses()
     {
         return $this->hasMany(Course::class, 'c_create_by_id', 'id');
+    }
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class, 'up_u_id', 'id');
+    }
+
+    public function companyProfile()
+    {
+        return $this->hasOne(CompaniesProfile::class, 'co_user_id', 'id');
+    }
+
+    public function educationProfile()
+    {
+        return $this->hasOne(EducationProfile::class, 'e_u_id', 'id');
     }
 }

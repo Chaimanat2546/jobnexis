@@ -12,10 +12,9 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Course;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
+
 class MediaController extends Controller
 {
-    use AuthorizesRequests;
-
     // แสดงฟอร์มสร้างสื่อการสอน
     public function create($courseId = null)
     {
@@ -106,7 +105,6 @@ class MediaController extends Controller
             $course = Course::findOrFail($request->l_c_id);
             $this->authorize('manageContent', $course);
         }
-
         $request->validate([
             'l_name' => 'required|string|max:50',
             'l_c_id' => 'nullable|exists:courses,c_id',
@@ -272,6 +270,7 @@ class MediaController extends Controller
                         'media_id' => $media->m_id,
                         'available_files' => $media->files()->pluck('mf_id')->toArray()
                     ]);
+
                 }
             }
             

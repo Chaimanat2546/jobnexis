@@ -27,7 +27,7 @@
                         <p>จัดการข้อมูลบัญชีและการตั้งค่าของคุณ</p>
                     </div>
                     <div class="flex flex-col justify-end w-full gap-4">
-                        <div class="flex gap-4">
+                        <div class="flex justify-end gap-4">
                             <fieldset class="fieldset">
                                 <legend class="mb-1 fieldset-legend">คำนำหน้า</legend>
                                 <select name="up_prefix" class="pl-2 border border-gray-300 select w-72">
@@ -62,7 +62,7 @@
                             </fieldset>
 
                         </div>
-                        <div class="flex gap-4">
+                        <div class="flex justify-end gap-4">
                             <fieldset class="fieldset">
                                 <legend class="mb-1 fieldset-legend">เบอร์โทรศัพท์</legend>
                                 <input value="{{ old('up_phone', $profile->up_phone ?? '') }}" type="text"
@@ -87,7 +87,7 @@
                                 </select>
                             </fieldset>
                         </div>
-                        <div class="flex gap-4">
+                        <div class="flex justify-end gap-4">
                             <fieldset class="fieldset">
                                 <legend class="mb-1 fieldset-legend">วันเกิด</legend>
                                 <input value="{{ old('up_birth_date', $profile->up_birth_date ?? '') }}" type="date"
@@ -105,7 +105,6 @@
                                     @endforeach
                                 </select>
                             </fieldset>
-
                         </div>
                     </div>
                 </div>

@@ -13,29 +13,18 @@ use App\Models\Exam;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
+
 class CourseController extends Controller
 {
-    use AuthorizesRequests;
-
     public function index(Request $request)
     {
-        // ดึงเฉพาะคอร์สที่ user มีสิทธิ์เข้าถึง
-        $coursesFromDB = Course::where(function($query) {
-            $user = auth()->user();
-            
-            if ($user->hasRole('admin')) {
-                // Admin เห็นทั้งหมด
-                $query->whereRaw('1=1');
-            } else {
-                // User ทั่วไปเห็นเฉพาะคอร์สของตัวเอง
-                $query->where('c_create_by_id', $user->id);
-            }
-        })->get();
+        // ดึงข้อมูลคอร์สจากฐานข้อมูล
+        $coursesFromDB = Course::all();
         
         // แปลงข้อมูลจาก DB ให้ตรงตามที่ View ต้องการ
         $allCourses = $coursesFromDB->map(function ($course) {
             return [
-                'id' => $course->c_id,
+                'c_id'         => $course->c_id,
                 'title'        => $course->c_name,
                 'participants' => $course->participants ?? 0, // ใช้ accessor จาก model
                 'status'       => $this->mapStatus($course->c_status),
@@ -79,7 +68,6 @@ class CourseController extends Controller
 
     public function create()
     {
-         $this->authorize('create', Course::class);
         $skills = Skill::orderBy('name', 'asc')->get(); // เรียง A-Z
         return view('education.courses.create', compact('skills'));
     }
@@ -98,6 +86,7 @@ class CourseController extends Controller
             'skills.*'     => 'string|exists:skills,name',
             'c_status'     => 'required|in:pending,draft',
             'c_image'      => 'nullable|image|max:2048',
+            'c_code'       => 'required|string|max:20|unique:courses,c_code',
         ]);
 
         // จัดการไฟล์ภาพ
@@ -106,27 +95,16 @@ class CourseController extends Controller
             $imagePath = $request->file('c_image')->store('courses', 'public');
         }
 
-        // สร้างรหัสคอร์สอัตโนมัติ
+        // Skill ที่เลือก
         $skillNames = $request->skills;
-        $firstSkillName = $skillNames[0];
-        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        
-        do {
-            $random = '';
-            for ($i = 0; $i < 6; $i++) {
-                $random .= $chars[rand(0, strlen($chars) - 1)];
-            }
-            $c_code = strtoupper(substr($firstSkillName, 0, 3)) . '-' . $random;
-        } while (Course::where('c_code', $c_code)->exists());
 
         // สร้าง Course
         $course = Course::create([
-            'c_name' => $request->c_name,
+            'c_name'        => $request->c_name,
             'c_description' => $request->c_description,
-            'c_code' => $c_code,               
-            'c_status' => $request->c_status,
-            'c_image' => $imagePath,
-            'c_create_by_id' => auth()->id(),
+            'c_code'        => $request->c_code, // ใช้จากฟอร์ม
+            'c_status'      => $request->c_status,
+            'c_image'       => $imagePath,
         ]);
 
         // เชื่อม Skills
@@ -140,9 +118,6 @@ class CourseController extends Controller
     {
         // ดึงคอร์สตาม id
        $course = Course::with('skills')->where('c_id', $id)->firstOrFail();
-
-       // ตรวจสอบสิทธิ์
-        $this->authorize('view', $course);
 
         // ดึงบทเรียนพร้อมสื่อและไฟล์
         $lessons = \App\Models\Lesson::with(['medias.files', 'exams'])
@@ -168,9 +143,13 @@ class CourseController extends Controller
     {
     $course = Course::findOrFail($id);
 
-    $this->authorize('delete', $course);
+    // ลบรูปภาพถ้ามี
+    if ($course->c_image && \Storage::disk('public')->exists($course->c_image)) {
+        \Storage::disk('public')->delete($course->c_image);
+    }
 
-    $course->deleteWithRelated();
+    // ลบคอร์ส
+    $course->delete();
 
     return redirect()->back()->with('success', 'ลบคอร์สเรียบร้อยแล้ว');
     }
@@ -178,8 +157,6 @@ class CourseController extends Controller
     public function update(Request $request, $id)
     {
     $course = Course::findOrFail($id);
-
-    $this->authorize('update', $course);
 
     $skillsArray = !empty($request->skills) ? explode(',', $request->skills) : [];
     $request->merge(['skills' => $skillsArray]);
@@ -227,7 +204,6 @@ class CourseController extends Controller
     public function edit($id)
     {
     $course = Course::with('skills')->findOrFail($id); // โหลด skills ด้วย
-    $this->authorize('update', $course); // ตรวจสอบสิทธิ์
     $skills = Skill::orderBy('name', 'asc')->get(); // ดึงทักษะทั้งหมดเรียง A-Z
     return view('education.courses.edit', compact('course', 'skills'));
     }

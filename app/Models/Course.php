@@ -17,7 +17,6 @@ class Course extends Model
         'c_status',
         'c_image',
         'c_code',
-        'c_create_by_id',
     ];
 
     // ตรวจสอบสถานะ
