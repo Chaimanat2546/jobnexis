@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AdminEditedYourData;
 use App\Mail\AccountStatusChanged;
+use Throwable;
 
 class ProfileDetailController extends Controller
 {
@@ -50,7 +51,7 @@ class ProfileDetailController extends Controller
             $certificates = Certificate::where('cer_u_id', $targetUserId)->get();
 
             return view('admin.edit-jobber', compact('profile', 'educations', 'works', 'targetUserId', 'certificates', 'provinces'));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Edit profile failed', [
                 'action' => 'edit',
                 'targetUserId' => $userId,
@@ -159,11 +160,11 @@ class ProfileDetailController extends Controller
                     if ($target) {
                         Mail::to($target->email)->send(new AdminEditedYourData('โปรไฟล์ผู้สมัครงาน (Jobber)', $user->email));
                     }
-                } catch (\\Throwable $e) {}
+                } catch (Throwable $e) {}
             }
 
             return redirect()->back()->with('success', 'บันทึกข้อมูลเรียบร้อย');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             DB::rollBack();
 
             Log::error('Store profile failed', [
@@ -194,7 +195,7 @@ class ProfileDetailController extends Controller
 
             $education->delete();
             return response()->json(['success' => true]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Delete education failed', ['id' => $id, 'error' => $e->getMessage()]);
             return response()->json(['error' => 'Server error'], 500);
         }
@@ -212,7 +213,7 @@ class ProfileDetailController extends Controller
 
             $work->delete();
             return response()->json(['success' => true]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::error('Delete work failed', ['id' => $id, 'error' => $e->getMessage()]);
             return response()->json(['error' => 'Server error'], 500);
         }
@@ -228,9 +229,9 @@ class ProfileDetailController extends Controller
         // notify user of status change
         try {
             $status = $user->is_banned ? 'แบน' : 'ใช้งานได้';
-            \Illuminate\Support\Facades\Mail::to($user->email)
-                ->send(new \App\Mail\AccountStatusChanged($status));
-        } catch (\\Throwable $e) {}
+            Mail::to($user->email)
+                ->send(new AccountStatusChanged($status));
+        } catch (Throwable $e) {}
 
         return back()->with('success', $user->is_banned ? 'แบนผู้ใช้แล้ว' : 'ปลดแบนผู้ใช้แล้ว');
     }

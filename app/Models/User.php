@@ -49,6 +49,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+    
+    /**
+     * Send the email verification notification (Thai version).
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new \App\Notifications\VerifyEmailThai());
+    }
     public function educations()
     {
         return $this->hasMany(Education::class, 'ed_u_id', 'id');
