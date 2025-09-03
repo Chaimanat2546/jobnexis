@@ -15,6 +15,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class MediaController extends Controller
 {
+    use AuthorizesRequests;
     // แสดงฟอร์มสร้างสื่อการสอน
     public function create($courseId = null)
     {
@@ -22,7 +23,7 @@ class MediaController extends Controller
             $course = Course::findOrFail($courseId);
             $this->authorize('manageContent', $course);
         }
-        
+
         $lessons = Lesson::where('l_c_id', $courseId)->get();
         return view('education.medias.create', compact('lessons', 'courseId'));
     }
@@ -226,16 +227,16 @@ class MediaController extends Controller
             'count' => count($deleteFiles),
             'array_values' => array_values($deleteFiles)
         ]);
-        
+
         if (!empty($deleteFiles)) {
             Log::info('Starting file deletion process...');
-            
+
             foreach ($deleteFiles as $index => $fileId) {
                 Log::info("Processing deletion for file {$index}:", ['file_id' => $fileId, 'type' => gettype($fileId)]);
-                
+
                 // ค้นหาไฟล์ที่ต้องลบ
                 $file = $media->files()->where('mf_id', $fileId)->first();
-                
+
                 if ($file) {
                     Log::info('File found for deletion:', [
                         'file_id' => $file->mf_id,
@@ -243,7 +244,7 @@ class MediaController extends Controller
                         'file_path' => $file->mf_path,
                         'media_id' => $file->mf_m_id
                     ]);
-                    
+
                     // ลบไฟล์จาก storage
                     if ($file->mf_path && Storage::disk('public')->exists($file->mf_path)) {
                         $deleteResult = Storage::disk('public')->delete($file->mf_path);
@@ -257,7 +258,7 @@ class MediaController extends Controller
                             'exists' => $file->mf_path ? Storage::disk('public')->exists($file->mf_path) : false
                         ]);
                     }
-                    
+
                     // ลบ record จากฐานข้อมูล
                     $deleteResult = $file->delete();
                     Log::info('File record deletion from database:', [
@@ -273,14 +274,14 @@ class MediaController extends Controller
 
                 }
             }
-            
+
             // ตรวจสอบไฟล์ที่เหลือหลังการลบ
             $remainingFiles = $media->files()->get();
             Log::info('Files remaining after deletion:', [
                 'count' => $remainingFiles->count(),
                 'file_ids' => $remainingFiles->pluck('mf_id')->toArray()
             ]);
-            
+
         } else {
             Log::info('No files marked for deletion');
         }
@@ -290,16 +291,16 @@ class MediaController extends Controller
             $newFiles = $request->file('files');
             $newFilesCount = count($newFiles);
             Log::info('Processing new file uploads:', ['count' => $newFilesCount]);
-            
+
             foreach ($newFiles as $index => $uploadedFile) {
                 Log::info("Uploading file {$index}:", [
                     'original_name' => $uploadedFile->getClientOriginalName(),
                     'size' => $uploadedFile->getSize(),
                     'mime_type' => $uploadedFile->getClientMimeType()
                 ]);
-                
+
                 $path = $uploadedFile->store('media', 'public');
-                
+
                 $mediaFile = $media->files()->create([
                     'mf_m_id' => $media->m_id,
                     'mf_original_name' => $uploadedFile->getClientOriginalName(),
@@ -307,7 +308,7 @@ class MediaController extends Controller
                     'mf_type' => $uploadedFile->getClientMimeType(),
                     'mf_size' => (int) ($uploadedFile->getSize() / 1024),
                 ]);
-                
+
                 Log::info("File {$index} uploaded successfully:", [
                     'file_name' => $uploadedFile->getClientOriginalName(),
                     'path' => $path,

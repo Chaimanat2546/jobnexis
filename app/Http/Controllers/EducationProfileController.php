@@ -109,7 +109,7 @@ class EducationProfileController extends Controller
         }
 
 
-        return redirect()->route('profile-education.edit')
+        return redirect()->route('profile-education.edit.self')
             ->with('success', 'บันทึกโปรไฟล์ (Education) สำเร็จ');
     }
     public function toggleBan(User $user)

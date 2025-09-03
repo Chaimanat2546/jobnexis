@@ -95,7 +95,7 @@
 
                         $profileRoute = match (Auth::user()->role) {
                             'provider' => route('provider.profile.edit'),
-                            'education' => route('profile-education.edit'),
+                            'education' => route('profile-education.edit.self'),
                             default => route('profile-jobber.edit'),
                         };
                     @endphp

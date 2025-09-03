@@ -33,7 +33,7 @@ class VerifyEmailController extends Controller
             // หลังยืนยันอีเมล พาไปหน้าแก้ไขโปรไฟล์ตาม role
             'jobber'     => route('profile-jobber.edit'),
             'provider'   => route('provider.profile.edit'),
-            'education'  => route('profile-education.edit'),
+            'education'  => route('profile-education.edit.self'),
             // แอดมินพาไปหน้ารวมผู้ประกอบการ (ปรับได้ตามต้องการ)
             'admin'      => route('admin.providers.index'),
             default      => route('profile-jobber.edit'),

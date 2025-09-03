@@ -20,7 +20,7 @@
         <form method="POST"
             action="{{ $isAdmin
                 ? route('admin.profile-education.store', ['userId' => $targetUserId])
-                : route('profile-education.store') }}"
+                : route('profile-education.store.self') }}"
             class="grid grid-cols-1 gap-4 md:grid-cols-2">
             @csrf
 

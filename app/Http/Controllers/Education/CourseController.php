@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Models\Skill;
 use App\Models\Media;
 use App\Models\Exam;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;

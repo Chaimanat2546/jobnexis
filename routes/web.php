@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Education\CourseController;
+use App\Http\Controllers\Education\ExamController;
 use App\Http\Controllers\Education\LessonController;
 use App\Http\Controllers\Education\MediaController;
 use App\Http\Controllers\Education\PersonController;
