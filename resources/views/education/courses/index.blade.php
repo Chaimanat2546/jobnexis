@@ -3,18 +3,15 @@
 @section('title', 'คอร์สอบรม')
 
 @section('content')
-    <!-- Container ปุ่มสร้างคอร์ส กว้างเต็ม -->
-    <div class="bg-gray-200 mb-6 w-full">
-        <div class="flex justify-end pr-6">
-            <a href="{{ route('courses.create') }}" 
-               class="btn bg-blue-600 hover:bg-blue-700 rounded-lg text-lg text-white">
-                <i class="fa-solid fa-plus mr-2 text-base-100"></i> สร้างคอร์สอบรม
-            </a>
-        </div>
-    </div>
 
     <!-- Container ตาราง กำหนด max-width และอยู่ตรงกลาง -->
-    <div class="bg-base-200 shadow w-full mx-auto px-4 md:px-8 border-r border-gray-400 rounded-2xl">
+    <div class="w-full p-6 shadow bg-base-200 rounded-2xl">
+        <div class="flex items-center justify-end pb-4 mb-6 border-b">
+            <a href="{{ route('courses.create') }}" 
+               class="btn px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                <i class="fa-solid fa-plus mr-2 text-base-100"></i> สร้างคอร์ส
+            </a>
+        </div>
         <table class="table w-full table-fixed bg-base-200">
             <thead class="bg-base-200">
                 <tr>
@@ -45,7 +42,7 @@
                                 <span class="px-3 py-1 rounded-full bg-green-200 text-green-600 text-sm">{{ $course['status'] }}</span>
                             @elseif ($course['status'] === 'รออนุมัติ')
                                 <span class="px-3 py-1 rounded-full bg-yellow-200 text-yellow-600 text-sm">{{ $course['status'] }}</span>
-                            @elseif ($course['status'] === 'ยังไม่ส่งคำขออนุมัติ')
+                            @elseif ($course['status'] === 'ฉบับร่าง')
                                 <span class="px-3 py-1 rounded-full bg-gray-300 text-gray-600 text-sm">{{ $course['status'] }}</span>
                             @elseif ($course['status'] === 'ไม่เผยแพร่')
                                 <span class="px-3 py-1 rounded-full bg-red-200 text-red-600 text-sm">{{ $course['status'] }}</span>
