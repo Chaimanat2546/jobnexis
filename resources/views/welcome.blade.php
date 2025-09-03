@@ -41,12 +41,14 @@
                             <a href="javascript:void(0)" @click="openModal('login')">เรียนรู้ทักษะ</a>
                         @endauth
                     </li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a href="{{ route('jobber.jobs.index') }}">หางาน</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a href="{{ route('jobber.companies.index') }}">ผู้ประกอบการ</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a href="https://esp.informatics.buu.ac.th/2025/" target="_blank">ติดต่อเรา</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a
+                            href="{{ route('jobber.jobs.index') }}">หางาน</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a
+                            href="{{ route('jobber.companies.index') }}">ผู้ประกอบการ</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a
+                            href="https://esp.informatics.buu.ac.th/2025/" target="_blank">ติดต่อเรา</a></li>
                 </ul>
-                @guest <a href="javascript:void(0);"
-                        class="text-lg font-bold bg-blue-600 rounded-xl btn text-base-100"
+                @guest <a href="javascript:void(0);" class="text-lg font-bold bg-blue-600 rounded-xl btn text-base-100"
                         @click="openModal('login')">เข้าสู่ระบบ</a>
                 @endguest
                 @auth
@@ -110,7 +112,7 @@
                                 @if ($isAdmin)
                                     <span>ESP BUU</span>
                                 @endif
-                                 @if (!$isJobber)
+                                @if (!$isJobber)
                                     <a href="{{ $profileRoute }}">แดชบอร์ด</a>
                                 @endif
                             </li>
@@ -268,6 +270,17 @@
                                                     @csrf
                                                     <input type="hidden" name="form_type" value="register">
                                                     <input type="hidden" name="role" :value="registerRole">
+
+                                                    <div>
+                                                        <x-input-label for="name"
+                                                            x-text="registerRole === 'jobber' ? 'ชื่อ-นามสกุล' : (registerRole === 'provider' ? 'ชื่อบริษัท/องค์กรของคุณ' : 'ชื่อสถานศึกษาของคุณ')">
+                                                        </x-input-label>
+                                                        <x-text-input id="name" name="name" type="text"
+                                                            placeholder="ใส่ชื่อของคุณ"
+                                                            class="block w-full mt-1 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 {{ session('errors') && old('form_type') === 'register' && session('errors')->has('name') ? 'border-red-500' : '' }}"
+                                                            :value="old('name')" required />
+                                                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                                                    </div>
 
                                                     <div>
                                                         <x-input-label for="email" :value="__('อีเมล')" />

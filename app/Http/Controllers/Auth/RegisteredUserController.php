@@ -31,6 +31,11 @@ class RegisteredUserController extends Controller
     {
         try {
             $request->validate([
+                'name' => [
+                    'required',
+                    'string',
+                    'max:255'
+                ],
                 'email' => [
                     'required',
                     'string',
@@ -70,6 +75,30 @@ class RegisteredUserController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => $request->role,
             ]);
+
+            // Create corresponding profile based on role
+            switch ($request->role) {
+                case 'jobber':
+                    \App\Models\UserProfile::create([
+                        'up_u_id' => $user->id,
+                        'up_name' => $request->name,
+                    ]);
+                    break;
+                case 'provider':
+                    \App\Models\CompaniesProfile::create([
+                        'co_user_id' => $user->id,
+                        'co_name'    => $request->name,
+                        'co_email'   => $request->email,
+                    ]);
+                    break;
+                case 'education':
+                    \App\Models\EducationProfile::create([
+                        'e_u_id'  => $user->id,
+                        'e_name'  => $request->name,
+                        'e_email' => $request->email,
+                    ]);
+                    break;
+            }
 
             event(new Registered($user));
 

@@ -8,6 +8,9 @@ use App\Models\Recruitment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AdminEditedYourData;
+use App\Mail\AccountStatusChanged;
 
 class CompaniesProfileController extends Controller
 {
@@ -53,6 +56,12 @@ class CompaniesProfileController extends Controller
         // ปรับสถานะแบน
         $user->is_banned = ! $user->is_banned;
         $user->save();
+
+        // notify user of status change
+        try {
+            $status = $user->is_banned ? 'แบน' : 'ใช้งานได้';
+            Mail::to($user->email)->send(new AccountStatusChanged($status));
+        } catch (\Throwable $e) {}
 
         return back()->with('success', $user->is_banned ? 'แบนผู้ใช้เรียบร้อย' : 'ปลดแบนผู้ใช้เรียบร้อย');
     }
@@ -137,6 +146,16 @@ class CompaniesProfileController extends Controller
         }
 
         $profile->save();
+
+        // If admin edited someone else's profile, notify that user
+        if ($auth->role === 'admin' && $effectiveUserId !== (int) $auth->id) {
+            try {
+                $target = User::find($effectiveUserId);
+                if ($target) {
+                    Mail::to($target->email)->send(new AdminEditedYourData('โปรไฟล์ผู้ให้บริการ (Provider)', $auth->email));
+                }
+            } catch (\Throwable $e) {}
+        }
 
         $routeParams = $auth->role === 'admin' ? ['userId' => $effectiveUserId] : [];
         return redirect()

@@ -89,8 +89,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getStatusLabelAttribute()
     {
-        if ($this->is_banned) return 'Active';
-        return $this->email_verified_at ? 'Banned' : 'Pending';
+        if ($this->is_banned) return 'Banned';
+        return $this->email_verified_at ? 'Active' : 'Pending';
     }
     public function courses()
     {

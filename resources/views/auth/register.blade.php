@@ -4,9 +4,20 @@
 
         <!-- Name -->
         <div>
-            <x-input-label for="username" :value="__('username')" />
-            <x-text-input id="username" class="block w-full mt-1" type="text" name="username" :value="old('username')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('username')" class="mt-2" />
+            <x-input-label for="name" :value="__('Name')" />
+            <x-text-input id="name" class="block w-full mt-1" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+        </div>
+
+        <!-- Role -->
+        <div class="mt-4">
+            <x-input-label for="role" :value="__('Role')" />
+            <select id="role" name="role" class="block w-full mt-1 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                <option value="jobber" {{ old('role') === 'jobber' ? 'selected' : '' }}>Jobber</option>
+                <option value="provider" {{ old('role') === 'provider' ? 'selected' : '' }}>Provider</option>
+                <option value="education" {{ old('role') === 'education' ? 'selected' : '' }}>Education</option>
+            </select>
+            <x-input-error :messages="$errors->get('role')" class="mt-2" />
         </div>
 
         <!-- Email Address -->

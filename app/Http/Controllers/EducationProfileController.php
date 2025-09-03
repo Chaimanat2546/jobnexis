@@ -101,6 +101,17 @@ class EducationProfileController extends Controller
         $profile->e_u_id = $targetUserId;
         $profile->save();
 
+        // If admin edited someone else's profile, notify that user
+        if ($auth->role === 'admin' && (int)$targetUserId !== (int)$auth->id) {
+            try {
+                $target = \App\Models\User::find($targetUserId);
+                if ($target) {
+                    \Illuminate\Support\Facades\Mail::to($target->email)
+                        ->send(new \App\Mail\AdminEditedYourData('โปรไฟล์สถาบันการศึกษา (Education)', $auth->email));
+                }
+            } catch (\Throwable $e) {}
+        }
+
 
         // Redirect back to the correct edit page
         if ($auth->role === 'admin') {
@@ -120,6 +131,13 @@ class EducationProfileController extends Controller
 
         $user->is_banned = !$user->is_banned;
         $user->save();
+
+        // notify user of status change
+        try {
+            $status = $user->is_banned ? 'แบน' : 'ใช้งานได้';
+            \Illuminate\Support\Facades\Mail::to($user->email)
+                ->send(new \App\Mail\AccountStatusChanged($status));
+        } catch (\Throwable $e) {}
 
         return back()->with('success', $user->is_banned ? 'แบนผู้ใช้แล้ว' : 'ปลดแบนผู้ใช้แล้ว');
     }
