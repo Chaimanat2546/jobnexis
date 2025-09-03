@@ -5,13 +5,14 @@
 @section('content')
     <div class="w-full p-6 shadow bg-base-200 rounded-2xl">
         <div class="flex items-center justify-end pb-4 mb-6 border-b">
-            <a href="{{ route('courses.create') }}" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">สร้างคอร์ส</a>
+            <a href="{{ route('courses.create') }}" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                <i class="fa-solid fa-plus mr-2 text-base-100"></i>สร้างคอร์ส</a>
         </div>
 
         <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
             <div class="p-4 bg-white shadow rounded-xl">
                 <div class="text-sm text-gray-500">คอร์สทั้งหมด</div>
-                <div class="mt-1 text-2xl font-bold">{{ $totals['all'] ?? 0 }}</div>
+                <div class="mt-1 text-2xl font-bold text-blue-600">{{ $totals['all'] ?? 0 }}</div>
             </div>
             <div class="p-4 bg-white shadow rounded-xl">
                 <div class="text-sm text-gray-500">เผยแพร่</div>
@@ -19,15 +20,15 @@
             </div>
             <div class="p-4 bg-white shadow rounded-xl">
                 <div class="text-sm text-gray-500">ฉบับร่าง</div>
-                <div class="mt-1 text-2xl font-bold text-yellow-600">{{ $totals['draft'] ?? 0 }}</div>
+                <div class="mt-1 text-2xl font-bold text-gray-600">{{ $totals['draft'] ?? 0 }}</div>
             </div>
             <div class="p-4 bg-white shadow rounded-xl">
                 <div class="text-sm text-gray-500">รออนุมัติ</div>
-                <div class="mt-1 text-2xl font-bold text-blue-600">{{ $totals['pending'] ?? 0 }}</div>
+                <div class="mt-1 text-2xl font-bold text-yellow-600">{{ $totals['pending'] ?? 0 }}</div>
             </div>
             <div class="p-4 bg-white shadow rounded-xl">
                 <div class="text-sm text-gray-500">ผู้เข้าร่วมทั้งหมด</div>
-                <div class="mt-1 text-2xl font-bold">{{ $participants ?? 0 }}</div>
+                <div class="mt-1 text-2xl font-bold text-violet-600">{{ $participants ?? 0 }}</div>
             </div>
         </div>
 
@@ -47,10 +48,10 @@
                         @forelse($recentCourses as $c)
                             @php
                                 $badge = [
-                                    'open' => 'bg-green-200 text-green-700',
-                                    'draft'=> 'bg-yellow-200 text-yellow-700',
-                                    'closed'=> 'bg-gray-200 text-gray-700',
-                                    'pending'=> 'bg-blue-200 text-blue-700',
+                                    'open' => 'bg-green-300 text-green-700',
+                                    'draft'=> 'bg-gray-300 text-gray-700',
+                                    'closed'=> 'bg-red-300 text-red-700',
+                                    'pending'=> 'bg-yellow-300 text-yellow-700',
                                 ][$c->c_status] ?? 'bg-gray-200';
                             @endphp
                             <tr>
