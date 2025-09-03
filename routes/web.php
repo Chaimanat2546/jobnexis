@@ -5,6 +5,7 @@ use App\Http\Controllers\Education\CourseController;
 use App\Http\Controllers\Education\ExamController;
 use App\Http\Controllers\Education\LessonController;
 use App\Http\Controllers\Education\MediaController;
+use App\Http\Controllers\Education\QuestionController;
 use App\Http\Controllers\Education\PersonController;
 use App\Http\Controllers\EducationProfileController;
 use App\Http\Controllers\RecruitmentController;
@@ -178,6 +179,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('/{id}', [ExamController::class, 'update'])->name('update');
             Route::delete('/{id}', [ExamController::class, 'destroy'])->name('destroy');
             Route::post('/lesson', [ExamController::class, 'storeLesson'])->name('lesson.store');
+        });
+        // Question routes
+        Route::prefix('education/questions')->name('questions.')->group(function () {
+            Route::get('/manage/{exam_id}', [QuestionController::class, 'manage'])->name('manage');
+            Route::post('/', [QuestionController::class, 'store'])->name('store');
+            Route::post('/batch-update', [QuestionController::class, 'updateBatch'])->name('updateBatch');
+            Route::put('/{id}', [QuestionController::class, 'update'])->name('update');
+            Route::delete('/{id}', [QuestionController::class, 'destroy'])->name('destroy');
         });
     });
     /** ---------------- Provider Routes ---------------- */

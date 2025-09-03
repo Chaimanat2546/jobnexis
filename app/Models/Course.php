@@ -145,7 +145,7 @@ class Course extends Model
 
     public function exams()
     {
-        return $this->hasMany(Exam::class, 'e_c_id', 'c_id');
+        return $this->hasMany(Exam::class, 'e_c_id');
     }
 
 }

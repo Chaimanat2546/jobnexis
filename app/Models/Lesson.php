@@ -62,6 +62,6 @@ class Lesson extends Model
 
     public function exams()
     {
-        return $this->hasMany(Exam::class, 'e_l_id', 'l_id');
+        return $this->hasMany(Exam::class, 'e_l_id');
     }
 }
