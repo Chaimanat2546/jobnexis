@@ -62,16 +62,19 @@
                         </div>
                     </div>
 
-                    <p class="mt-3 text-sm text-gray-700 line-clamp-3">{{ $r->rc_description }}</p>
+                    <p class="mt-3 text-sm text-gray-700 line-clamp-2">{{ $r->rc_description }}</p>
 
-                    <div class="flex flex-wrap gap-2 mt-3 text-xs">
-                        <span class="px-2 py-1 text-blue-700 bg-blue-100 rounded-full">{{ ucfirst($r->rc_type) }}</span>
+                    <div class="flex flex-col gap-2 mt-3 text-xs">
+                        <div class="flex flex-wrap gap-2 ">
+                            <span class="px-2 py-1 text-blue-700 bg-blue-100 rounded-full">{{ ucfirst($r->rc_type) }}</span>
                         <span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">{{ ucfirst($r->rc_work_mode) }}</span>
+                    </div>
+
                         @if($r->rc_salary)
-                            <span class="px-2 py-1 text-gray-700 bg-gray-100 rounded-full">เงินเดือน: {{ $r->rc_salary }}</span>
+                            <span class="px-2 py-1 text-gray-700 bg-gray-100 rounded-full ">เงินเดือน: {{ $r->rc_salary }}</span>
                         @endif
                         @if($r->rc_location_text)
-                            <span class="px-2 py-1 text-gray-700 bg-gray-100 rounded-full">สถานที่: {{ $r->rc_location_text }}</span>
+                            <span class="px-2 py-1 text-gray-700 bg-gray-100 rounded-full line-clamp-2">สถานที่: {{ $r->rc_location_text }}</span>
                         @endif
                     </div>
 

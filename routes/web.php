@@ -100,7 +100,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/certificates/{id}', [CertificateController::class, 'destroy'])->name('certificates.destroy');
     /** ---------------- Admin Routes ---------------- */
     Route::middleware('role:admin')->prefix('admin')->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        // Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/dashboard', [AdminDashboardController::class, 'userStats'])
             ->name('admin.userStats');
         Route::get('/dashboard/data', [AdminDashboardController::class, 'userStatsData'])

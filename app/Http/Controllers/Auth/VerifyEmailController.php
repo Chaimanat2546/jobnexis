@@ -35,7 +35,7 @@ class VerifyEmailController extends Controller
             'provider'   => route('provider.profile.edit'),
             'education'  => route('profile-education.edit.self'),
             // แอดมินพาไปหน้ารวมผู้ประกอบการ (ปรับได้ตามต้องการ)
-            'admin'      => route('admin.providers.index'),
+            'admin'      => route('admin.userStats'),
             default      => route('profile-jobber.edit'),
         };
     }

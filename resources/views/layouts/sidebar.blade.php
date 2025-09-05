@@ -13,7 +13,7 @@
                     แดชบอร์ด
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ url('#') }}"
                     class="flex items-center {{ request()->is('education/courses') ? 'text-blue-600' : '' }}">
                     <i
@@ -27,7 +27,7 @@
                     <i
                         class="fa-solid fa-clipboard-check w-5 text-blue-600 text-center mr-1 {{ request()->is('education/courses') ? 'text-blue-600' : '' }}"></i>
                     งาน
-                </a>
+                </a> --}}
             </li>
             <li>
                 <a href="{{ url('admin/jobber') }}"

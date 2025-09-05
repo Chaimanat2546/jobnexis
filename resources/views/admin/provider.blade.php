@@ -42,12 +42,12 @@
                             <div class="gap-4 join">
                                 <a href="{{ route('admin.providers.recruitments.index', $p->id) }}"
                                     class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-purple-600 hover:text-white"
-                                    title="à¸›à¸£à¸°à¸à¸²à¸¨à¸‡à¸²à¸™">
+                                    title="ประกาศงาน">
                                     <i class="fa-solid fa-briefcase"></i>
                                 </a>
                                 <a href="{{ route('provider.profile.edit', $p->id) }}"
                                     class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white"
-                                    title="à¹à¸à¹‰à¹„à¸‚">
+                                    title="แก้ไข">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
                                 @if ($status === 'Active')
@@ -55,17 +55,17 @@
                                         @csrf @method('PATCH')
                                         <button type="submit"
                                             class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white"
-                                            title="à¹à¸šà¸™">
+                                            title="แบน">
                                             <i class="fa-solid fa-ban"></i>
                                         </button>
                                     </form>
                                 @elseif ($status === 'Pending')
                                     <form method="POST" action="{{ route('admin.providers.destroy', $p->id) }}"
-                                        onsubmit="return confirm('à¸¢à¸·à¸™à¸¢à¸±à¸™à¸¥à¸šà¸œà¸¹à¹‰à¹ƒà¸Šà¹‰ #{{ $p->id }} ?');">
+                                        onsubmit="return confirm('ยืนยันลบผู้ใช้ {{ $p->id }} หรือไม่');">
                                         @csrf @method('DELETE')
                                         <button type="submit"
                                             class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-red-600 hover:text-white"
-                                            title="à¸¥à¸š">
+                                            title="ลบผู้ใช้">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -74,7 +74,7 @@
                                         @csrf @method('PATCH')
                                         <button type="submit"
                                             class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-green-600 hover:text-white"
-                                            title="à¸›à¸¥à¸”à¹à¸šà¸™">
+                                            title="ปลดแบน">
                                             <i class="fa-solid fa-user-check"></i>
                                         </button>
                                     </form>
@@ -86,12 +86,13 @@
                     <tr>
                         <td colspan="6" class="py-10 text-center text-gray-500">
                             @if (request()->filled('q'))
-                                à¹„à¸¡à¹ˆà¸žà¸šà¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¸—à¸µà¹ˆà¹€à¸›à¹‡à¸™ <b>à¸œà¸¹à¹‰à¸›à¸£à¸°à¸à¸­à¸šà¸à¸²à¸£</b> à¸—à¸µà¹ˆà¸•à¸£à¸‡à¸à¸±à¸š
-                                â€œ<span class="font-semibold">{{ e(request('q')) }}</span>â€
-                                <a href="{{ url()->current() }}" class="ml-2 link">à¸¥à¹‰à¸²à¸‡à¸à¸²à¸£à¸„à¹‰à¸™à¸«à¸²</a>
+                                ไม่พบผู้ใช้ที่เป็น <b>ผู้ประกอบการ</b> ที่ตรงกับ “<span
+                                    class="font-semibold">{{ e(request('q')) }}</span> ”
+                                <a href="{{ url()->current() }}" class="ml-2 link">ล้างการค้นหา</a>
                             @else
-                                à¹„à¸¡à¹ˆà¸¡à¸µà¸œà¸¹à¹‰à¹ƒà¸Šà¹‰à¸—à¸µà¹ˆà¹€à¸›à¹‡à¸™ <b>à¸œà¸¹à¹‰à¸›à¸£à¸°à¸à¸­à¸šà¸à¸²à¸£</b> à¹ƒà¸™à¸£à¸°à¸šà¸š
+                                ไม่มีผู้ใช้ที่เป็น <b>ผู้ประกอบการ</b> ในระบบ
                             @endif
+
                         </td>
                     </tr>
                 @endforelse
@@ -137,4 +138,3 @@
 
     </div>
 @endsection
-
