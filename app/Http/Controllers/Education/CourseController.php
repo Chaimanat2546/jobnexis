@@ -84,7 +84,7 @@ class CourseController extends Controller
         // สำหรับปุ่มสมัคร: หา course ที่ผู้ใช้ jobber สมัครอยู่
         $enrolledIds = [];
         if (Auth::check()) {
-            $enrolledIds = \App\Models\CourseMember::where('cm_u_id', Auth::id())
+            $enrolledIds = CourseMember::where('cm_u_id', Auth::id())
                 ->pluck('cm_c_id')
                 ->toArray();
         }
@@ -192,7 +192,21 @@ class CourseController extends Controller
     /** แสดงคอร์สสำหรับผู้ใช้ทั่วไป (เช่น Jobber) */
     public function publicShow($id)
     {
-        // ใช้ logic เดียวกับ show()
+        // ตรวจสิทธิ์เข้าดู: ต้องสมัครก่อน (ยกเว้นบทบาท education/admin)
+        $isEnrolled = false;
+        if (Auth::check()) {
+            $isEnrolled = CourseMember::where('cm_c_id', $id)
+                ->where('cm_u_id', Auth::id())
+                ->exists();
+
+            $role = Auth::user()->role;
+            if (!in_array($role, ['education', 'admin']) && !$isEnrolled) {
+                return redirect()->route('courses.catalog')
+                    ->with('error', 'กรุณาสมัครคอร์ส');
+            }
+        }
+
+        // โหลดข้อมูลคอร์สและเนื้อหา เมื่อผ่านการตรวจสิทธิ์แล้ว
         $course = Course::with('skills')->where('c_id', $id)->firstOrFail();
 
         $lessons = \App\Models\Lesson::with(['medias.files'])
@@ -204,13 +218,6 @@ class CourseController extends Controller
             ->whereNull('m_l_id')
             ->where('m_c_id', $id)
             ->get();
-
-        $isEnrolled = false;
-        if (Auth::check()) {
-            $isEnrolled = CourseMember::where('cm_c_id', $id)
-                ->where('cm_u_id', Auth::id())
-                ->exists();
-        }
 
         $examCount = DB::table('exams')
             ->join('lessons', 'exams.e_l_id', '=', 'lessons.l_id')

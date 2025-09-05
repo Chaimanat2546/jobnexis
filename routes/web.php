@@ -139,15 +139,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/edit-education/store', [EducationProfileController::class, 'store'])
             ->name('profile-education.store');
     });
+    // Course details (all authenticated roles)
+    Route::get('/courses/{id}', [CourseController::class, 'publicShow'])->name('courses.view');
+
     // Education routes (ให้ admin เข้าถึงได้ด้วย)
     Route::middleware('role:education,admin')->group(function () {
-        // Course details (all authenticated roles)
-        Route::get('/courses/{id}', [CourseController::class, 'publicShow'])->name('courses.view');
 
         // Dashboard ของ Education
         Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
 
-        // Course routes
+        // Course routes (สำหรับผู้สอน/แอดมิน)
         Route::prefix('education/courses')->name('courses.')->group(function () {
             Route::get('/', [CourseController::class, 'index'])->name('index');       // คอร์สทั้งหมด
             Route::get('/create', [CourseController::class, 'create'])->name('create'); // สร้างคอร์ส

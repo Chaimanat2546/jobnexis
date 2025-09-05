@@ -91,7 +91,8 @@
                             <fieldset class="fieldset">
                                 <legend class="mb-1 fieldset-legend">วันเกิด</legend>
                                 <input value="{{ old('up_birth_date', $profile->up_birth_date ?? '') }}" type="date"
-                                    name="up_birth_date" class="pl-2 border border-gray-300 input w-72" />
+                                    name="up_birth_date" max="{{ now()->toDateString() }}"
+                                    class="pl-2 border border-gray-300 input w-72" />
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend for="up_city" class="mb-1 fieldset-legend">จังหวัด</legend>
@@ -322,6 +323,52 @@
     </div>
 
     <script>
+        // Helper: attach validation between a start and end date inputs
+        function attachDatePairValidation(startInput, endInput) {
+            if (!startInput || !endInput) return;
+
+            const validate = () => {
+                if (startInput.value && endInput.value && endInput.value < startInput.value) {
+                    endInput.setCustomValidity('วันที่สิ้นสุดต้องไม่น้อยกว่าวันที่เริ่ม');
+                } else {
+                    endInput.setCustomValidity('');
+                }
+            };
+
+            const syncMin = () => {
+                if (startInput.value) {
+                    endInput.min = startInput.value;
+                } else {
+                    endInput.removeAttribute('min');
+                }
+                validate();
+            };
+
+            startInput.addEventListener('input', syncMin);
+            endInput.addEventListener('input', validate);
+
+            // Initialize constraints on load
+            syncMin();
+        }
+
+        // Initialize validation for existing rows on page load
+        function initExistingDateValidation() {
+            // Educations
+            document.querySelectorAll('#education-container .relative').forEach(row => {
+                const s = row.querySelector('input[name$="[ed_start_date]"]');
+                const e = row.querySelector('input[name$="[ed_end_date]"]');
+                attachDatePairValidation(s, e);
+            });
+            // Work experiences
+            document.querySelectorAll('#work-container .relative').forEach(row => {
+                const s = row.querySelector('input[name$="[we_start_date]"]');
+                const e = row.querySelector('input[name$="[we_end_date]"]');
+                attachDatePairValidation(s, e);
+            });
+        }
+
+        initExistingDateValidation();
+
         function createRow(type, index) {
             const row = document.createElement('div');
             row.classList.add('relative');
@@ -383,6 +430,18 @@
             }
 
             row.querySelector('.delete-row').addEventListener('click', () => row.remove());
+
+            // Attach date validation for the newly created row
+            if (type === 'education') {
+                const s = row.querySelector(`input[name="educations[${index}][ed_start_date]"]`);
+                const e = row.querySelector(`input[name="educations[${index}][ed_end_date]"]`);
+                attachDatePairValidation(s, e);
+            }
+            if (type === 'work') {
+                const s = row.querySelector(`input[name="work_experiences[${index}][we_start_date]"]`);
+                const e = row.querySelector(`input[name="work_experiences[${index}][we_end_date]"]`);
+                attachDatePairValidation(s, e);
+            }
             return row;
         }
 
