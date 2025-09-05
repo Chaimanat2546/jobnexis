@@ -19,7 +19,16 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileDetailController;
 use App\Http\Controllers\CertificateController;
 
-Route::get('/', fn() => view('welcome'))->name('/');
+Route::get('/', fn() => view('welcome'))->name('home');
+
+// Public catalog page (guest-friendly)
+Route::get('/courses', [CourseController::class, 'catalog'])->name('courses.catalog');
+
+// Public: หางาน + ผู้ประกอบการ (guest-friendly)
+Route::get('/jobs', [RecruitmentController::class, 'publicIndex'])->name('jobs.index');
+Route::get('/jobs/{rcId}', [RecruitmentController::class, 'publicShow'])->name('jobs.show');
+Route::get('/companies', [CompaniesProfileController::class, 'guestIndex'])->name('companies.index');
+Route::get('/companies/{userId}', [CompaniesProfileController::class, 'guestShow'])->name('companies.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -74,11 +83,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('admin.providers.destroy');
     });
 
-    // Catalog: รายการคอร์สสำหรับผู้ใช้ที่ล็อกอิน (ทุก role)
-    Route::get('/courses', [CourseController::class, 'catalog'])->name('courses.catalog');
 
-    // ดูรายละเอียดคอร์ส (ทุก role)
-    Route::get('/courses/{id}', [CourseController::class, 'publicShow'])->name('courses.view');
 
     // สมัคร/ยกเลิกสมัครคอร์ส (เฉพาะ Jobber) - ไม่มี prefix เส้นทาง
     Route::middleware('role:jobber')->group(function () {
@@ -136,6 +141,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     // Education routes (ให้ admin เข้าถึงได้ด้วย)
     Route::middleware('role:education,admin')->group(function () {
+        // Course details (all authenticated roles)
+        Route::get('/courses/{id}', [CourseController::class, 'publicShow'])->name('courses.view');
 
         // Dashboard ของ Education
         Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
@@ -201,7 +208,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
         Route::get('/edit-education', [EducationProfileController::class, 'edit'])->name('profile-education.edit.self');
         Route::post('/edit-education/store', [EducationProfileController::class, 'store'])->name('profile-education.store.self');
-
     });
 
     /** ---------------- Jobber Routes ---------------- */

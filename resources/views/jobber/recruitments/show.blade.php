@@ -6,7 +6,7 @@
     <div class="w-full p-6 shadow bg-base-200 rounded-2xl">
         <div class="flex items-center justify-between pb-4 mb-4 border-b">
             <div class="flex items-center gap-3">
-                <a href="{{ route('jobber.jobs.index') }}" class="text-blue-600 hover:underline">← กลับไปหน้าหางาน</a>
+                <a href="{{ (auth()->check() && auth()->user()->role==='jobber') ? route('jobber.jobs.index') : route('jobs.index') }}" class="text-blue-600 hover:underline">← กลับไปหน้าหางาน</a>
             </div>
         </div>
 
@@ -90,4 +90,3 @@
         </div>
     </div>
 @endsection
-

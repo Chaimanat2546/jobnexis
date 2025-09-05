@@ -14,7 +14,7 @@
         <form method="GET" class="grid items-end grid-cols-1 gap-4 md:grid-cols-5">
             <fieldset class="fieldset md:col-span-2">
                 <legend class="mb-1 fieldset-legend">ค้นหาบริษัท</legend>
-                <input type="text" name="q" value="{{ $q }}" class="w-full border border-gray-300 input input-bordered" placeholder=" ชื่อบริษัท / อีเมล">
+                <input type="text" name="q" value="{{ $q }}" class="w-full border border-gray-300 input input-bordered" placeholder="  ชื่อบริษัท / อีเมล">
             </fieldset>
             <fieldset class="fieldset">
                 <legend class="mb-1 fieldset-legend">จังหวัด</legend>
@@ -49,7 +49,7 @@
                         <p class="text-sm text-gray-500 line-clamp-1">{{ $p->co_type ?? 'ไม่ระบุประเภท' }} • {{ $p->co_province ?? 'ไม่ระบุจังหวัด' }}</p>
                         <div class="flex items-center justify-between mt-3">
                             <span class="px-2 py-1 text-xs text-blue-700 bg-blue-100 rounded-full">เปิดรับ {{ $p->open_jobs }} งาน</span>
-                            <a href="{{ route('jobber.companies.show', $p->id) }}" class="text-blue-600 hover:underline">ดูรายละเอียด</a>
+                            <a href="{{ (auth()->check() && auth()->user()->role==='jobber') ? route('jobber.companies.show', $p->id) : route('companies.show', $p->id) }}" class="text-blue-600 hover:underline">ดูรายละเอียด</a>
                         </div>
                     </div>
                 </div>
@@ -63,4 +63,3 @@
         </div>
     </div>
 @endsection
-

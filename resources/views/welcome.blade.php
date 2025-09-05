@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>JobNexis</title>
+    <link rel="icon" type="image/png" href="{{ asset('image/web-image/logo.png') }}">
+    <link rel="shortcut icon" href="{{ asset('image/web-image/logo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
@@ -34,19 +36,27 @@
                     </div>
                 </a>
                 <ul class="px-1 text-lg font-bold menu menu-horizontal ">
-                    <li class="transition-transform duration-200 hover:scale-105">
-                        @auth
+                    @auth
+                        <li class="transition-transform duration-200 hover:scale-105">
                             <a href="{{ route('courses.catalog') }}">เรียนรู้ทักษะ</a>
-                        @else
-                            <a href="javascript:void(0)" @click="openModal('login')">เรียนรู้ทักษะ</a>
-                        @endauth
+                        </li>
+                        <li class="transition-transform duration-200 hover:scale-105"><a
+                                href="{{ route('jobber.jobs.index') }}">หางาน</a></li>
+                        <li class="transition-transform duration-200 hover:scale-105"><a
+                                href="{{ route('jobber.companies.index') }}">ผู้ประกอบการ</a></li>
+                        <li class="transition-transform duration-200 hover:scale-105"><a
+                                href="https://esp.informatics.buu.ac.th/2025/" target="_blank">ติดต่อเรา</a></li>
+                    @else
+                        {{-- <a href="javascript:void(0)" @click="openModal('login')">เรียนรู้ทักษะ</a> --}}
+                         <li class="transition-transform duration-200 hover:scale-105"><a href="{{ route('courses.catalog') }}">เรียนรู้ทักษะ</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105">
+                        <a href="{{ auth()->check() && auth()->user()->role === 'jobber' ? route('jobber.jobs.index') : route('jobs.index') }}">หางาน</a>
                     </li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a
-                            href="{{ route('jobber.jobs.index') }}">หางาน</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a
-                            href="{{ route('jobber.companies.index') }}">ผู้ประกอบการ</a></li>
-                    <li class="transition-transform duration-200 hover:scale-105"><a
-                            href="https://esp.informatics.buu.ac.th/2025/" target="_blank">ติดต่อเรา</a></li>
+                    <li class="transition-transform duration-200 hover:scale-105">
+                        <a href="{{ auth()->check() && auth()->user()->role === 'jobber' ? route('jobber.companies.index') : route('companies.index') }}">ผู้ประกอบการ</a>
+                    </li>
+                    <li class="transition-transform duration-200 hover:scale-105"><a href="https://esp.informatics.buu.ac.th/2025/" target="_blank">ติดต่อเรา</a></li>
+                    @endauth
                 </ul>
                 @guest <a href="javascript:void(0);" class="text-lg font-bold bg-blue-600 rounded-xl btn text-base-100"
                         @click="openModal('login')">เข้าสู่ระบบ</a>
@@ -200,7 +210,8 @@
                                                     </div>
                                                 @endif
 
-                                                <form method="POST" action="{{ route('login') }}" class="space-y-4">
+                                                <form method="POST" action="{{ route('login') }}"
+                                                    class="space-y-4">
                                                     @csrf
                                                     <input type="hidden" name="form_type" value="login">
                                                     <div>
@@ -538,8 +549,9 @@
                         class="object-cover m-0 p-0 block w-full h-[600px]">
                 </div>
             </div>
-
+        {{-- content --}}
         </div>
+        <div>
         <div class="flex flex-col gap-10 py-20 px-28 ">
             <div class="flex flex-col items-start justify-start gap-4 ">
                 <h2 class="text-4xl font-bold ">พร้อมที่จะจินตนาการอาชีพของคุณใหม่หรือยัง?</h2>
@@ -703,6 +715,7 @@
                         target="_blank"></i> https://esp.informatics.buu.ac.th<a>
                         <p class="text-gray-500 ">SOCIAL MEDIA</p>
             </div>
+        </div>
         </div>
     </div>
 </body>

@@ -51,6 +51,46 @@ class RecruitmentController extends Controller
             ],
         ]);
     }
+
+    /** Public: ค้นหา/หางาน (เปิดสำหรับผู้ที่ยังไม่ล็อกอิน) */
+    public function publicIndex(Request $request)
+    {
+        [$q, $type, $mode] = [
+            $request->string('q')->toString(),
+            $request->string('type')->toString(),
+            $request->string('work_mode')->toString(),
+        ];
+
+        $recs = Recruitment::query()->open()
+            ->when($q, function ($qq) use ($q) {
+                $qq->where(function ($w) use ($q) {
+                    $w->where('rc_title', 'ilike', "%{$q}%")
+                      ->orWhere('rc_description', 'ilike', "%{$q}%")
+                      ->orWhere('rc_requirements', 'ilike', "%{$q}%");
+                });
+            })
+            ->when($type, fn($qq) => $qq->where('rc_type', $type))
+            ->when($mode, fn($qq) => $qq->where('rc_work_mode', $mode))
+            ->orderByDesc('rc_posted_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        $ownerIds = $recs->pluck('rc_u_id')->unique()->values();
+        $companies = \Illuminate\Support\Facades\DB::table('companies_profiles')
+            ->whereIn('co_user_id', $ownerIds)
+            ->get()
+            ->keyBy('co_user_id');
+
+        return view('jobber.recruitments.index', [
+            'recs' => $recs,
+            'companies' => $companies,
+            'filters' => [
+                'q' => $q,
+                'type' => $type,
+                'work_mode' => $mode,
+            ],
+        ]);
+    }
     
     /** Jobber: ดูรายละเอียดงาน (เฉพาะประกาศเปิดรับ) */
     public function jobberShow($rcId)
@@ -65,6 +105,21 @@ class RecruitmentController extends Controller
         try {
             $rec->increment('rc_views');
         } catch (\Throwable $e) {}
+
+        return view('jobber.recruitments.show', [
+            'rec' => $rec,
+            'company' => $company,
+        ]);
+    }
+
+    /** Public: ดูรายละเอียดงาน (เปิดสำหรับผู้ที่ยังไม่ล็อกอิน) */
+    public function publicShow($rcId)
+    {
+        $rec = Recruitment::open()->findOrFail($rcId);
+
+        $company = DB::table('companies_profiles')->where('co_user_id', $rec->rc_u_id)->first();
+
+        try { $rec->increment('rc_views'); } catch (\Throwable $e) {}
 
         return view('jobber.recruitments.show', [
             'rec' => $rec,

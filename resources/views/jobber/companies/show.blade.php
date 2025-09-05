@@ -5,7 +5,7 @@
 @section('content')
     <div class="w-full p-6 shadow bg-base-200 rounded-2xl">
         <div class="flex items-center justify-between pb-4 mb-4 border-b">
-            <a href="{{ route('jobber.companies.index') }}" class="text-blue-600 hover:underline">← ผู้ประกอบการทั้งหมด</a>
+            <a href="{{ (auth()->check() && auth()->user()->role==='jobber') ? route('jobber.companies.index') : route('companies.index') }}" class="text-blue-600 hover:underline">← ผู้ประกอบการทั้งหมด</a>
         </div>
 
         @php
@@ -91,7 +91,7 @@
                 @forelse($openJobs as $r)
                     <div class="p-4 bg-white rounded-xl shadow">
                         <h3 class="text-lg font-semibold line-clamp-1">
-                            <a href="{{ route('jobber.jobs.show', $r->rc_id) }}" class="hover:text-blue-600">{{ $r->rc_title }}</a>
+                            <a href="{{ (auth()->check() && auth()->user()->role==='jobber') ? route('jobber.jobs.show', $r->rc_id) : route('jobs.show', $r->rc_id) }}" class="hover:text-blue-600">{{ $r->rc_title }}</a>
                         </h3>
                         <p class="mt-2 text-sm text-gray-700 line-clamp-3">{{ $r->rc_description }}</p>
                         <div class="flex flex-wrap gap-2 mt-3 text-xs">

@@ -166,9 +166,6 @@ class CompaniesProfileController extends Controller
     /** Directory: รายชื่อผู้ประกอบการ (สำหรับ Jobber) */
     public function publicIndex(Request $request)
     {
-        $auth = Auth::user();
-        if (!$auth || $auth->role !== 'jobber') abort(403);
-
         $q = trim((string) $request->query('q', ''));
         $province = trim((string) $request->query('province', ''));
 
@@ -203,9 +200,6 @@ class CompaniesProfileController extends Controller
     /** รายละเอียดผู้ประกอบการ + งานที่เปิดรับ (สำหรับ Jobber) */
     public function publicShow($userId)
     {
-        $auth = Auth::user();
-        if (!$auth || $auth->role !== 'jobber') abort(403);
-
         $user = User::where('id', $userId)->where('role', 'provider')->firstOrFail();
         $company = CompaniesProfile::where('co_user_id', $user->id)->first();
 
@@ -215,5 +209,19 @@ class CompaniesProfileController extends Controller
             ->withQueryString();
 
         return view('jobber.companies.show', compact('user', 'company', 'openJobs'));
+    }
+
+    /** Guest: รายชื่อผู้ประกอบการ (เปิดสำหรับผู้ที่ยังไม่ล็อกอิน) */
+    public function guestIndex(Request $request)
+    {
+        // ใช้ logic เดียวกับ publicIndex แต่ปล่อย guest
+        return $this->publicIndex($request);
+    }
+
+    /** Guest: รายละเอียดผู้ประกอบการ (เปิดสำหรับผู้ที่ยังไม่ล็อกอิน) */
+    public function guestShow($userId)
+    {
+        // ใช้ logic เดียวกับ publicShow แต่ปล่อย guest
+        return $this->publicShow($userId);
     }
 }

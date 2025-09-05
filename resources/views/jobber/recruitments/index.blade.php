@@ -56,7 +56,7 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-semibold text-base-content line-clamp-1">
-                                <a href="{{ route('jobber.jobs.show', $r->rc_id) }}" class="hover:text-blue-600">{{ $r->rc_title }}</a>
+                                <a href="{{ (auth()->check() && auth()->user()->role==='jobber') ? route('jobber.jobs.show', $r->rc_id) : route('jobs.show', $r->rc_id) }}" class="hover:text-blue-600">{{ $r->rc_title }}</a>
                             </h2>
                             <p class="text-sm text-gray-500 line-clamp-1">{{ $company->co_name ?? 'ไม่ระบุบริษัท' }}</p>
                         </div>
@@ -79,12 +79,12 @@
                         <span class="text-xs text-gray-500">โพสต์เมื่อ {{ optional($r->rc_posted_at)->timezone('Asia/Bangkok')->format('Y-m-d H:i') }}</span>
                         @if($r->rc_application_url)
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('jobber.jobs.show', $r->rc_id) }}" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">ดูรายละเอียด</a>
+                                <a href="{{ (auth()->check() && auth()->user()->role==='jobber') ? route('jobber.jobs.show', $r->rc_id) : route('jobs.show', $r->rc_id) }}" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">ดูรายละเอียด</a>
                                 <a href="{{ $r->rc_application_url }}" target="_blank" rel="noopener" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">สมัคร</a>
                             </div>
                         @else
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('jobber.jobs.show', $r->rc_id) }}" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">ดูรายละเอียด</a>
+                                <a href="{{ (auth()->check() && auth()->user()->role==='jobber') ? route('jobber.jobs.show', $r->rc_id) : route('jobs.show', $r->rc_id) }}" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50">ดูรายละเอียด</a>
                                 <button class="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg cursor-not-allowed" disabled>สมัคร</button>
                             </div>
                         @endif
