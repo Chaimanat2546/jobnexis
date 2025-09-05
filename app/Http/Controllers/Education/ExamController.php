@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Exam;
 use App\Models\Lesson;
 use App\Models\Course;
+use App\Models\Question;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ExamController extends Controller
@@ -35,11 +36,19 @@ class ExamController extends Controller
         }
 
         $request->validate([
-            'e_name' => 'required|string|max:50',
+            'e_name' => 'required|string|max:255',
             'e_l_id' => 'nullable|exists:lessons,l_id',
-            'e_description' => 'nullable|string|max:200',
+            'e_description' => 'nullable|string',
+            'questions' => 'required|array|min:1',
+            'questions.*.q_question' => 'required|string',
+            'questions.*.q_answer1' => 'required|string',
+            'questions.*.q_answer2' => 'required|string', 
+            'questions.*.q_answer3' => 'required|string',
+            'questions.*.q_answer4' => 'required|string',
+            'questions.*.q_correct_answer' => 'required|integer|min:1|max:4',
         ]);
 
+        // สร้างแบบทดสอบ
         $exam = Exam::create([
             'e_name' => $request->e_name,
             'e_description' => $request->e_description,
@@ -48,8 +57,23 @@ class ExamController extends Controller
             'e_index' => 0,
         ]);
 
+        // บันทึกคำถาม
+        if ($request->has('questions') && is_array($request->questions)) {
+            foreach ($request->questions as $questionData) {
+                \App\Models\Question::create([
+                    'q_question' => $questionData['q_question'],
+                    'q_answer1' => $questionData['q_answer1'],
+                    'q_answer2' => $questionData['q_answer2'],
+                    'q_answer3' => $questionData['q_answer3'],
+                    'q_answer4' => $questionData['q_answer4'],
+                    'q_correct_answer' => (int)$questionData['q_correct_answer'],
+                    'q_e_id' => $exam->e_id,
+                ]);
+            }
+        }
+
         return redirect()->route('courses.show', ['id' => $request->course_id])
-                 ->with('success', 'บันทึกแบบทดสอบเรียบร้อยแล้ว');
+                ->with('success', 'บันทึกแบบทดสอบและคำถามเรียบร้อยแล้ว');
     }
 
     // สร้างบทเรียนใหม่ (สำหรับ AJAX)
@@ -109,9 +133,9 @@ class ExamController extends Controller
         }
 
         $request->validate([
-            'e_name' => 'required|string|max:50',
+            'e_name' => 'required|string|max:255',
             'e_l_id' => 'nullable|exists:lessons,l_id',
-            'e_description' => 'nullable|string|max:200',
+            'e_description' => 'nullable|string',
         ]);
 
         $exam->update([
@@ -127,7 +151,7 @@ class ExamController extends Controller
     // ดูรายละเอียดแบบทดสอบ
     public function show($id)
     {
-        $exam = Exam::with(['course', 'lesson'])->findOrFail($id);
+        $exam = Exam::with(['course', 'lesson', 'questions'])->findOrFail($id);
 
         // ตรวจสอบสิทธิ์
         $course = Course::findOrFail($exam->e_c_id);
@@ -151,5 +175,22 @@ class ExamController extends Controller
 
         return redirect()->route('courses.show', ['id' => $courseId])
                         ->with('success', 'ลบแบบทดสอบเรียบร้อยแล้ว');
+    }
+
+    // สำหรับ jobber ทำแบบทดสอบ
+    public function take($id)
+    {
+        $exam = Exam::with(['questions', 'course'])->findOrFail($id);
+
+        // ตรวจสอบว่า jobber สมัครคอร์สนี้แล้วหรือไม่
+        $course = $exam->course;
+        $isEnrolled = $course->enrolledUsers()->where('user_id', auth()->id())->exists();
+        
+        if (!$isEnrolled) {
+            return redirect()->route('courses.view', $course->c_id)
+                           ->with('error', 'คุณต้องสมัครเข้าเรียนก่อนทำแบบทดสอบ');
+        }
+
+        return view('education.exams.take', compact('exam'));
     }
 }

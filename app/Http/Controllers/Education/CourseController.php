@@ -173,18 +173,12 @@ class CourseController extends Controller
             ->where('m_c_id', $id)
             ->get();
 
-//         // เพิ่มแบบทดสอบเดี่ยว
-//         $soloExams = Exam::whereNull('e_l_id')
-//             ->where('e_c_id', $id)
-//             ->orderBy('e_index')
-//             ->get();
-
-//         return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams'));
-        // จำนวนแบบทดสอบในคอร์สนี้ (ผ่านบทเรียน)
-        $examCount = DB::table('exams')
-            ->join('lessons', 'exams.e_l_id', '=', 'lessons.l_id')
-            ->where('lessons.l_c_id', $id)
-            ->count();
+        // เพิ่มแบบทดสอบที่ไม่อยู่ในบทเรียนใด (ใช้ชื่อฟิลด์ตาม DB)
+        $soloExams = Exam::with('questions')
+            ->whereNull('e_l_id')
+            ->where('e_c_id', $id)
+            ->orderBy('e_index')
+            ->get();
 
         $isEnrolled = false;
         if (Auth::check()) {
@@ -193,7 +187,7 @@ class CourseController extends Controller
                 ->exists();
         }
 
-        return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'isEnrolled', 'examCount'));
+        return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams', 'isEnrolled'));
     }
     /** แสดงคอร์สสำหรับผู้ใช้ทั่วไป (เช่น Jobber) */
     public function publicShow($id)
