@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'สร้างแบบทดสอบ')
+@section('title', 'แก้ไขแบบทดสอบ')
 
 @section('content')
 <div class="bg-base-200 p-6 rounded-lg shadow max-w-2xl mx-auto">
-    <h2 class="text-2xl font-semibold mb-6 text-center">สร้างแบบทดสอบ</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-center">แก้ไขแบบทดสอบ</h2>
 
     {{-- แสดงข้อความสำเร็จ --}}
     @if(session('success'))
@@ -24,12 +24,13 @@
         </div>
     @endif
 
-    <form action="{{ route('exams.store') }}" method="POST"
+    <form action="{{ route('exams.update', $exam->e_id) }}" method="POST"
           class="flex flex-col gap-6"
           x-data="examForm()"
           @submit.prevent="validateForm()">
         <input type="hidden" name="course_id" value="{{ $courseId }}">
         @csrf
+        @method('PUT')
 
         {{-- ส่วนบทเรียน --}}
         <div class="flex flex-col gap-1">
@@ -38,7 +39,20 @@
 
             {{-- แสดงรายการบทเรียน (สำหรับแก้ไข/ลบ realtime) --}}
             <div class="lessons-list mb-2">
-                <div class="lesson-placeholder text-sm text-gray-400">ยังไม่ได้เลือกบทเรียน</div>
+                @if($exam->e_l_id && $exam->lesson)
+                    <div class="lesson-item flex items-center justify-between p-2 border rounded mb-1" data-id="{{ $exam->e_l_id }}">
+                        <div class="flex items-center gap-2">
+                            <span class="lesson-name">{{ $exam->lesson->l_name }}</span>
+                            <button type="button" class="text-red-500 hover:text-red-700 font-bold remove-from-list">&times;</button>
+                        </div>
+                        <div class="flex gap-2">
+                            <i class="fa-solid fa-pen text-blue-600 cursor-pointer edit-btn" data-value="{{ $exam->e_l_id }}"></i>
+                            <i class="fa-solid fa-trash text-red-600 cursor-pointer delete-btn" data-value="{{ $exam->e_l_id }}"></i>
+                        </div>
+                    </div>
+                @else
+                    <div class="lesson-placeholder text-sm text-gray-400">ยังไม่ได้เลือกบทเรียน</div>
+                @endif
             </div>
 
             {{-- เลือกบทเรียน --}}
@@ -46,7 +60,9 @@
                 <select id="lesson_select" name="e_l_id">
                     <option value="">-- เพิ่ม/เลือกบทเรียน --</option>
                     @foreach($lessons as $lesson)
-                        <option value="{{ $lesson->l_id }}">{{ $lesson->l_name }}</option>
+                        <option value="{{ $lesson->l_id }}" {{ $exam->e_l_id == $lesson->l_id ? 'selected' : '' }}>
+                            {{ $lesson->l_name }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -59,6 +75,7 @@
                 <input type="text" name="e_name"
                     x-model="examName"
                     maxlength="50"
+                    value="{{ old('e_name', $exam->e_name) }}"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100"
                     required>
                 <!-- ตัวนับตัวอักษร ลอยมุมขวาล่าง -->
@@ -78,110 +95,72 @@
         <div class="flex flex-col gap-1 relative">
             <label class="block text-base-content mb-1">คำอธิบายแบบทดสอบ</label>
             <textarea name="e_description" x-model="examDesc" rows="4" maxlength="200"
-                      class="w-full border border-gray-300 rounded-md px-3 py-2 pr-14 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100 resize-none"></textarea>
+                      class="w-full border border-gray-300 rounded-md px-3 py-2 pr-14 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100 resize-none">{{ old('e_description', $exam->e_description) }}</textarea>
             <span class="absolute bottom-2 right-3 text-sm text-gray-500"
                   x-text="`${examDesc.length} / 200`"></span>
         </div>
 
-        {{-- ส่วนคำถาม --}}
-        <div class="flex flex-col gap-4" x-data="questionManager()">
-            <div class="flex items-center justify-between">
-                <label class="block text-base-content mb-1">คำถาม</label>
-                <!-- ปุ่มเพิ่มคำถามเมื่อยังไม่มีคำถาม -->
-                <button type="button" @click="addQuestion()" 
-                        x-show="questions.length === 0"
-                        class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                    <i class="fa-solid fa-plus mr-1"></i>
-                    เพิ่มคำถาม
-                </button>
-            </div>
+        {{-- แสดงคำถามที่มีอยู่ --}}
+        @if($exam->questions && $exam->questions->count() > 0)
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <label class="block text-base-content font-medium">คำถามที่มีอยู่ ({{ $exam->questions->count() }} ข้อ)</label>
+                    <a href="{{ route('questions.manage', $exam->e_id) }}" 
+                       class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
+                        <i class="fa-solid fa-list-check mr-1"></i>
+                        จัดการคำถาม
+                    </a>
+                </div>
 
-            <!-- รายการคำถาม -->
-            <div class="space-y-4" x-show="questions.length > 0">
-                <template x-for="(question, index) in questions" :key="question.id">
-                    <div class="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
-                        <!-- Header คำถาม -->
-                        <div class="flex items-center justify-between mb-3">
-                            <h4 class="font-medium text-base-content" x-text="`คำถามที่ ${index + 1}`"></h4>
-                            <button type="button" @click="removeQuestion(index)" 
-                                    class="text-red-600 hover:text-red-800">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-
-                        <!-- คำถาม -->
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">คำถาม</label>
-                            <textarea x-model="question.q_question" 
-                                    :name="`questions[${index}][q_question]`"
-                                    rows="2" 
-                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100 resize-none"
-                                    placeholder="กรอกคำถาม..." 
-                                    required></textarea>
-                        </div>
-
-                        <!-- ตัวเลือก 4 ข้อ -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                            <template x-for="(answer, answerIndex) in ['q_answer1', 'q_answer2', 'q_answer3', 'q_answer4']" :key="answerIndex">
+                <div class="space-y-3 max-h-96 overflow-y-auto">
+                    @foreach($exam->questions as $question)
+                        <div class="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+                            <div class="mb-2">
+                                <span class="font-medium text-gray-700">{{ $loop->iteration }}. {{ $question->q_question }}</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                                 <div class="flex items-center gap-2">
-                                    <!-- Radio button สำหรับเลือกคำตอบที่ถูก -->
-                                    <input type="radio" 
-                                        :name="`questions[${index}][q_correct_answer]`" 
-                                        :value="answerIndex + 1"
-                                        x-model="question.q_correct_answer"
-                                        class="text-green-600 focus:ring-green-500" 
-                                        required>
-                                    
-                                    <!-- Input สำหรับคำตอบ -->
-                                    <input type="text" 
-                                        x-model="question[answer]"
-                                        :name="`questions[${index}][${answer}]`"
-                                        :placeholder="`ตัวเลือกที่ ${answerIndex + 1}`"
-                                        class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100"
-                                        required>
+                                    <span class="w-6 h-6 rounded-full {{ $question->q_correct_answer == 1 ? 'bg-blue-500 text-white' : 'bg-gray-300' }} flex items-center justify-center text-xs font-bold">1</span>
+                                    <span class="{{ $question->q_correct_answer == 1 ? 'text-blue-700 font-medium' : 'text-gray-600' }}">{{ $question->q_answer1 }}</span>
                                 </div>
-                            </template>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full {{ $question->q_correct_answer == 2 ? 'bg-blue-500 text-white' : 'bg-gray-300' }} flex items-center justify-center text-xs font-bold">2</span>
+                                    <span class="{{ $question->q_correct_answer == 2 ? 'text-blue-700 font-medium' : 'text-gray-600' }}">{{ $question->q_answer2 }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full {{ $question->q_correct_answer == 3 ? 'bg-blue-500 text-white' : 'bg-gray-300' }} flex items-center justify-center text-xs font-bold">3</span>
+                                    <span class="{{ $question->q_correct_answer == 3 ? 'text-blue-700 font-medium' : 'text-gray-600' }}">{{ $question->q_answer3 }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full {{ $question->q_correct_answer == 4 ? 'bg-blue-500 text-white' : 'bg-gray-300' }} flex items-center justify-center text-xs font-bold">4</span>
+                                    <span class="{{ $question->q_correct_answer == 4 ? 'text-blue-700 font-medium' : 'text-gray-600' }}">{{ $question->q_answer4 }}</span>
+                                </div>
+                            </div>
                         </div>
-
-                        <!-- แสดงคำตอบที่เลือก -->
-                        <div class="text-sm text-gray-600">
-                            <i class="fa-solid fa-check-circle text-green-600 mr-1"></i>
-                            <span x-show="question.q_correct_answer">
-                                คำตอบที่ถูก: ตัวเลือกที่ <span x-text="question.q_correct_answer"></span>
-                            </span>
-                            <span x-show="!question.q_correct_answer" class="text-red-600">
-                                กรุณาเลือกคำตอบที่ถูกต้อง
-                            </span>
-                        </div>
-                    </div>
-                </template>
-
-                <!-- ปุ่มเพิ่มคำถาม - อยู่ส่วนล่างของคำถามล่าสุด -->
-                <div class="flex justify-center">
-                    <button type="button" @click="addQuestion()" 
-                            class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                        <i class="fa-solid fa-plus mr-2"></i>
-                        เพิ่มคำถามใหม่
-                    </button>
+                    @endforeach
                 </div>
             </div>
-
-            <!-- ข้อความเมื่อไม่มีคำถาม -->
-            <div x-show="questions.length === 0" 
-                class="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
-                <i class="fa-solid fa-question-circle text-4xl mb-2 text-gray-400"></i>
-                <p>ยังไม่มีคำถาม กดปุ่ม "เพิ่มคำถาม" เพื่อเริ่มต้น</p>
+        @else
+            <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <i class="fa-solid fa-question-circle text-3xl mb-2 text-gray-400"></i>
+                <p class="mb-3">ยังไม่มีคำถามในแบบทดสอบนี้</p>
+                <a href="{{ route('questions.manage', $exam->e_id) }}" 
+                   class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
+                    <i class="fa-solid fa-plus mr-2"></i>
+                    เพิ่มคำถาม
+                </a>
             </div>
-        </div>
+        @endif
 
         {{-- ปุ่ม Action --}}
         <div class="col-span-1 md:col-span-2 flex justify-center gap-4 mt-10">
             <button type="submit" 
                     class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">
-                สร้าง
+                บันทึก
             </button>
-           <a href="{{ route('courses.show', ['id' => $courseId]) }}" 
-            class="btn btn-outline text-base-content rounded-lg px-6 py-3">
+            <a href="{{ route('courses.show', ['id' => $courseId]) }}" 
+               class="btn btn-outline text-base-content rounded-lg px-6 py-3">
                 ยกเลิก
             </a>
         </div>
@@ -193,12 +172,12 @@ let lessonPending = false;
 
 function examForm() {
     return {
-        examName: '',
-        examDesc: '',
+        examName: '{{ old('e_name', $exam->e_name) }}',
+        examDesc: '{{ old('e_description', $exam->e_description) }}',
         examNameError: false,
 
         init() {
-            console.log('Alpine.js examForm initialized');
+            console.log('Alpine.js examForm initialized for edit');
         },
 
         validateForm() {
@@ -216,26 +195,6 @@ function examForm() {
                 return;
             }
 
-            // ตรวจสอบคำถาม
-            const questionTextareas = document.querySelectorAll('textarea[name*="[q_question]"]');
-            if (questionTextareas.length === 0) {
-                alert("กรุณาเพิ่มคำถามอย่างน้อย 1 ข้อ");
-                return;
-            }
-
-            // ตรวจสอบว่าคำถามมีเนื้อหา
-            let hasValidQuestion = false;
-            questionTextareas.forEach(textarea => {
-                if (textarea.value.trim() !== '') {
-                    hasValidQuestion = true;
-                }
-            });
-
-            if (!hasValidQuestion) {
-                alert("กรุณากรอกคำถามให้ครบถ้วน");
-                return;
-            }
-
             // ตรวจสอบว่า e_l_id เป็น number
             const select = document.querySelector("#lesson_select");
             const value = select.value;
@@ -250,38 +209,13 @@ function examForm() {
     }
 }
 
-function questionManager() {
-    return {
-        questions: [],
-        questionIdCounter: 1,
-
-        addQuestion() {
-            this.questions.push({
-                id: this.questionIdCounter++,
-                q_question: '',
-                q_answer1: '',
-                q_answer2: '',
-                q_answer3: '',
-                q_answer4: '',
-                q_correct_answer: ''
-            });
-        },
-
-        removeQuestion(index) {
-            if (confirm('คุณต้องการลบคำถามนี้หรือไม่?')) {
-                this.questions.splice(index, 1);
-            }
-        }
-    }
-}
-
+// ใช้ TomSelect และ lesson management code เหมือนเดิม...
 document.addEventListener("DOMContentLoaded", function () {
     const lessonSelect = document.querySelector("#lesson_select");
     const lessonsList = document.querySelector(".lessons-list");
     let lessonPending = false;
-    let ts; // ประกาศ ts ที่ scope ที่สามารถเข้าถึงได้ทุกที่
+    let ts;
 
-    // ================= TomSelect =================
     ts = new TomSelect(lessonSelect, {
         placeholder: "--เพิ่ม/เลือกบทเรียน--",
         create: true,
@@ -301,17 +235,14 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(res => res.json())
             .then(data => {
-                // ลบ option ชั่วคราวและเพิ่ม option ที่มี ID จริง
                 ts.removeOption(value);
                 ts.addOption({ value: data.l_id, text: data.l_name });
                 ts.setValue(data.l_id, true);
 
-                // อัพเดท UI
                 const existing = lessonsList.querySelector(".lesson-item");
                 if (existing) {
                     existing.setAttribute("data-id", data.l_id);
                     existing.querySelector(".lesson-name").textContent = data.l_name;
-                    // อัพเดทปุ่ม edit และ delete ด้วย ID ใหม่
                     existing.querySelector(".edit-btn").setAttribute("data-value", data.l_id);
                     existing.querySelector(".delete-btn").setAttribute("data-value", data.l_id);
                 } else {
@@ -328,26 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // เมื่อเลือกบทเรียนจาก dropdown
-    ts.on('change', function (value) {
-        if (value && !lessonPending) {
-            const option = ts.options[value];
-            if (option) {
-                const existing = lessonsList.querySelector(".lesson-item");
-                if (existing) {
-                    existing.setAttribute("data-id", value);
-                    existing.querySelector(".lesson-name").textContent = option.text;
-                    // อัพเดทปุ่ม edit และ delete
-                    existing.querySelector(".edit-btn").setAttribute("data-value", value);
-                    existing.querySelector(".delete-btn").setAttribute("data-value", value);
-                } else {
-                    addLessonToList(value, option.text);
-                }
-            }
-        }
-    });
-
-    // ================= ฟังก์ชันช่วย =================
+    // เพิ่มฟังก์ชันช่วยเหลือเหมือนเดิม...
     function addLessonToList(id, name) {
         const placeholder = lessonsList.querySelector(".lesson-placeholder");
         if (placeholder) placeholder.remove();
@@ -380,13 +292,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ================= Event listener ปุ่ม =================
+    // Event listeners เหมือนเดิม...
     lessonsList.addEventListener("click", function (e) {
         const removeBtn = e.target.closest(".remove-from-list");
         const editBtn = e.target.closest(".edit-btn");
         const deleteBtn = e.target.closest(".delete-btn");
 
-        // ----- ลบออกจาก list (ไม่ลบจากฐานข้อมูล) -----
         if (removeBtn) {
             const lessonDiv = lessonsList.querySelector(".lesson-item");
             if (lessonDiv) {
@@ -396,24 +307,18 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // ----- แก้ไขชื่อ -----
         if (editBtn) {
             const value = editBtn.getAttribute("data-value");
             const lessonSpan = lessonsList.querySelector(`.lesson-item[data-id="${value}"] .lesson-name`);
             
-            if (!lessonSpan) {
-                console.error("ไม่พบ lesson span สำหรับ ID:", value);
-                return;
-            }
+            if (!lessonSpan) return;
 
             const currentName = lessonSpan.textContent.trim();
             const newName = prompt("แก้ไขชื่อบทเรียน:", currentName);
             
             if (newName && newName.trim() !== "" && newName.trim() !== currentName) {
-                // แสดง loading state
                 lessonSpan.textContent = "กำลังอัพเดท...";
                 
-                // ใช้ named route
                 const updateUrl = "{{ route('lesson.update', ':id') }}".replace(':id', value);
                 
                 fetch(updateUrl, {
@@ -425,55 +330,38 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     body: JSON.stringify({ l_name: newName.trim() })
                 })
-                .then(res => {
-                    if (!res.ok) {
-                        throw new Error(`HTTP error! status: ${res.status}`);
-                    }
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => {
                     if (data && data.success === true) {
-                        // อัพเดท UI แบบ real-time
                         lessonSpan.textContent = data.lesson.l_name;
-                        
-                        // อัพเดท TomSelect option
                         if (typeof ts !== 'undefined' && ts.updateOption) {
                             ts.updateOption(value, { value: value, text: data.lesson.l_name });
-                            
-                            // ถ้า option นี้ถูกเลือกอยู่ ให้อัพเดท display text
                             if (ts.getValue() == value) {
                                 ts.setValue(value, true);
                             }
                         }
-                    } else {
-                        throw new Error("Response success is false");
                     }
                 })
                 .catch(err => {
                     console.error("Error updating lesson:", err);
-                    lessonSpan.textContent = currentName; // คืนค่าเดิม
-                    alert("เกิดข้อผิดพลาดในการอัพเดทบทเรียน: " + err.message);
+                    lessonSpan.textContent = currentName;
+                    alert("เกิดข้อผิดพลาดในการอัพเดทบทเรียน");
                 });
             }
         }
 
-        // ----- ลบบทเรียน -----
         if (deleteBtn) {
             const value = deleteBtn.getAttribute("data-value");
             const lessonDiv = lessonsList.querySelector(`.lesson-item[data-id="${value}"]`);
             const lessonName = lessonDiv ? lessonDiv.querySelector(".lesson-name").textContent : "";
             
-            if (!confirm(`คุณต้องการลบบทเรียน "${lessonName}" หรือไม่?`)) {
-                return;
-            }
+            if (!confirm(`คุณต้องการลบบทเรียน "${lessonName}" หรือไม่?`)) return;
 
-            // แสดง loading state
             if (lessonDiv) {
                 lessonDiv.style.opacity = "0.5";
                 lessonDiv.style.pointerEvents = "none";
             }
 
-            // ใช้ named route
             const deleteUrl = "{{ route('lesson.destroyLesson', ':id') }}".replace(':id', value);
 
             fetch(deleteUrl, {
@@ -483,43 +371,28 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Accept": "application/json"
                 }
             })
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
                 if (data && data.success === true) {
-                    // ลบจาก UI แบบ real-time
-                    if (lessonDiv) {
-                        lessonDiv.remove();
-                    }
-                    
-                    // ลบจาก TomSelect
+                    if (lessonDiv) lessonDiv.remove();
                     if (typeof ts !== 'undefined' && ts.removeOption) {
                         ts.removeOption(value);
                         ts.clear(true);
                     }
-                    
                     updatePlaceholder();
-                } else {
-                    throw new Error("Delete failed - success is false");
                 }
             })
             .catch(err => {
                 console.error("Error deleting lesson:", err);
-                // คืนค่า UI เดิม
                 if (lessonDiv) {
                     lessonDiv.style.opacity = "1";
                     lessonDiv.style.pointerEvents = "auto";
                 }
-                alert("เกิดข้อผิดพลาดในการลบบทเรียน: " + err.message);
+                alert("เกิดข้อผิดพลาดในการลบบทเรียน");
             });
         }
     });
 
-    // เรียกตอนโหลดหน้าเพื่อเช็ค placeholder
     updatePlaceholder();
 });
 </script>

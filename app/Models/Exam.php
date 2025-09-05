@@ -32,6 +32,6 @@ class Exam extends Model
     // แก้ไขชื่อ method จาก question เป็น questions
     public function questions()
     {
-        return $this->hasMany(Question::class, 'q_e_id', 'e_id')->orderBy('q_order');
+        return $this->hasMany(Question::class, 'q_e_id', 'e_id')->orderBy('q_id');
     }
 }

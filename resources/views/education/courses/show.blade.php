@@ -81,7 +81,7 @@
                     <span>{{ $course->c_name ?? 'ยังไม่มีข้อมูล' }}</span>
                 </div>
                 <div>
-                    <span>{{ $course->c_description ?? '“เพิ่มคำอธิบายคอร์สอบรมของคุณ”' }}</span>
+                    <span>{{ $course->c_description ?? '"เพิ่มคำอธิบายคอร์สอบรมของคุณ"' }}</span>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     @forelse($course->skills->sortBy('name') as $skill)
@@ -185,12 +185,13 @@
                     </div>
                 </div>
 
-                <!-- Medias under lesson -->
+                <!-- Content under lesson -->
                 <div x-show="open" class="mt-3 space-y-2 pl-6">
+                    {{-- สื่อการสอนในบทเรียน --}}
                     @if ($lesson->medias && $lesson->medias->count() > 0)
                         <span class="font-semibold text-base-content">สื่อการสอน</span>
                         @foreach ($lesson->medias as $media)
-                            <div x-data="{ subOpen: false, menuOpen: false }" class="relative p-3 bg-gray-50 rounded">
+                            <div x-data="{ subOpen: false, menuOpen: false }" class="relative bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <span class="flex items-center justify-center p-1 text-white bg-blue-600 rounded-full w-7 h-7">
@@ -235,7 +236,7 @@
                                 </div>
 
                                 <div x-show="subOpen" class="mt-2 space-y-2">
-                                    <div class="p-3 bg-white rounded shadow-sm">
+                                    <div class="bg-gray-50 rounded-lg p-3">
                                         @if (!empty($media->m_desc))
                                             <p class="text-sm text-base-content">{{ $media->m_desc }}</p>
                                         @else
@@ -309,6 +310,95 @@
                             </div>
                         @endforeach
                     @endif
+
+                    {{-- แบบทดสอบในบทเรียน - แก้ไขชื่อฟิลด์ --}}
+                    @if ($lesson->exams && $lesson->exams->count() > 0)
+                        <span class="font-semibold text-base-content">แบบทดสอบ</span>
+                        @foreach ($lesson->exams as $exam)
+                            <div x-data="{ subOpen: false, menuOpen: false }" class="relative bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="flex items-center justify-center p-1 text-white bg-blue-600 rounded-full w-7 h-7">
+                                            <i class="fa-solid fa-clipboard-question"></i>
+                                        </span>
+                                        <h4 class="text-base-content">{{ $exam->e_name }}</h4>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <button @click="subOpen = !subOpen" class="p-2 rounded-full hover:bg-gray-100">
+                                            <i :class="subOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="transition-transform"></i>
+                                        </button>
+
+                                        @if (auth()->check() && in_array(auth()->user()->role, ['education','admin']))
+                                            <div class="relative">
+                                                <button @click="menuOpen = !menuOpen" class="p-2 rounded-full hover:bg-gray-100">
+                                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                                </button>
+                                                <div x-show="menuOpen" @click.outside="menuOpen = false" class="absolute right-0 mt-2 w-32 bg-white border rounded border-gray-300 shadow z-50">
+                                                    <button type="button" onclick="window.location='{{ route('exams.edit', $exam->e_id) }}'" class="w-full text-sm text-blue-600 hover:bg-blue-200 py-1 rounded">แก้ไข</button>
+                                                    <label for="delete-exam-lesson-{{ $lesson->l_id }}-{{ $exam->e_id }}" class="w-full text-sm text-red-600 hover:bg-red-200 py-1 rounded cursor-pointer block text-center">ลบ</label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Delete exam modal -->
+                                            <input type="checkbox" id="delete-exam-lesson-{{ $lesson->l_id }}-{{ $exam->e_id }}" class="modal-toggle">
+                                            <div class="modal">
+                                                <div class="modal-box text-center max-w-xs w-full rounded-2xl">
+                                                    <h3 class="font-bold text-lg">ยืนยันการลบแบบทดสอบนี้หรือไม่?</h3>
+                                                    <div class="modal-action justify-center gap-4">
+                                                        <form action="{{ route('exams.destroy', $exam->e_id) }}" method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">ยืนยัน</button>
+                                                        </form>
+                                                        <label for="delete-exam-lesson-{{ $lesson->l_id }}-{{ $exam->e_id }}" class="hover:bg-gray-200 text-base-content font-normal rounded-lg px-6 py-3">ยกเลิก</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div x-show="subOpen" class="mt-2 space-y-2">
+                                    <div class="bg-gray-50 rounded-lg p-3">
+                                        @if (!empty($exam->e_description))
+                                            <p class="text-sm text-base-content mb-3">{{ $exam->e_description }}</p>
+                                        @else
+                                            <p class="text-sm italic text-gray-400 mb-3">ยังไม่มีคำอธิบาย</p>
+                                        @endif
+
+                                        <!-- สรุปข้อมูลแบบทดสอบ -->
+                                        <div class="flex flex-wrap gap-2 text-xs text-gray-600 mb-4">
+                                            <span class="bg-green-100 px-3 py-1 rounded-full">
+                                                <i class="fa-solid fa-question-circle mr-1"></i>
+                                                {{ $exam->questions->count() }} ข้อ
+                                            </span>
+                                        </div>
+
+                                        <!-- ปุ่มดำเนินการ -->
+                                        <div class="flex flex-wrap gap-3 justify-center">
+                                            @if (auth()->check() && in_array(auth()->user()->role, ['education','admin']))
+                                                <!-- ปุ่มจัดการคำถาม -->
+                                                <a href="{{ route('questions.manage', $exam->e_id) }}" 
+                                                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                                                    <i class="fa-solid fa-list-check mr-2"></i>
+                                                    จัดการคำถาม
+                                                </a>
+                                            @endif
+
+                                            @if (auth()->check() && auth()->user()->role === 'jobber')
+                                                <a href="{{ route('exams.take', $exam->e_id) }}" 
+                                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                                    <i class="fa-solid fa-play mr-2"></i>
+                                                    เริ่มทำแบบทดสอบ
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
                 </div>
             </div>
         @endforeach
@@ -360,7 +450,7 @@
                 </div>
 
                 <div x-show="subOpen" class="mt-2 space-y-2">
-                    <div class="p-3 bg-white rounded shadow-sm">
+                    <div class="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
                         @if (!empty($media->m_desc))
                             <p class="text-sm text-base-content">{{ $media->m_desc }}</p>
                         @else
@@ -434,7 +524,99 @@
             </div>
         @endforeach
 
-        @if (($lessons->count() ?? 0) === 0 && ($soloMedias->count() ?? 0) === 0)
+        <!-- Solo exams (no lesson) -->
+        @foreach ($soloExams as $exam)
+            <div x-data="{ subOpen: false, menuOpen: false }" class="relative p-4 bg-white border-b-2 border-gray-300 rounded-lg shadow">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="flex items-center justify-center p-1 text-white bg-blue-600 rounded-full w-7 h-7">
+                            <i class="fa-solid fa-clipboard-question"></i>
+                        </span>
+                        <h4 class="text-base-content">{{ $exam->e_name }}</h4>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button @click="subOpen = !subOpen" class="p-2 rounded-full hover:bg-gray-100">
+                            <i :class="subOpen ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'" class="transition-transform"></i>
+                        </button>
+
+                        @if (auth()->check() && in_array(auth()->user()->role, ['education','admin']))
+                            <div class="relative">
+                                <button @click="menuOpen = !menuOpen" class="p-2 rounded-full hover:bg-gray-100">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                                <div x-show="menuOpen" @click.outside="menuOpen = false" class="absolute right-0 mt-2 w-32 bg-white border rounded border-gray-300 shadow z-50">
+                                    <button type="button" onclick="window.location='{{ route('exams.edit', $exam->e_id) }}'" class="w-full text-sm text-blue-600 hover:bg-blue-200 py-1 rounded">แก้ไข</button>
+                                    <label for="delete-examOut-modal-{{ $exam->e_id }}" class="w-full text-sm text-red-600 hover:bg-red-200 py-1 rounded cursor-pointer block text-center">ลบ</label>
+                                </div>
+                            </div>
+
+                            <!-- Delete solo exam modal -->
+                            <input type="checkbox" id="delete-examOut-modal-{{ $exam->e_id }}" class="modal-toggle">
+                            <div class="modal">
+                                <div class="modal-box text-center max-w-xs w-full rounded-2xl">
+                                    <h3 class="font-bold text-lg">ยืนยันการลบแบบทดสอบนี้หรือไม่?</h3>
+                                    <div class="modal-action justify-center gap-4">
+                                        <form action="{{ route('exams.destroy', $exam->e_id) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">ยืนยัน</button>
+                                        </form>
+                                        <label for="delete-examOut-modal-{{ $exam->e_id }}" class="hover:bg-gray-200 text-base-content font-normal rounded-lg px-6 py-3">ยกเลิก</label>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div x-show="subOpen" class="mt-2 space-y-2">
+                    <div class="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
+                        @if (!empty($exam->e_description))
+                            <p class="text-sm text-base-content mb-3">{{ $exam->e_description }}</p>
+                        @else
+                            <p class="text-sm italic text-gray-400 mb-3">ยังไม่มีคำอธิบาย</p>
+                        @endif
+
+                        <!-- สรุปข้อมูลแบบทดสอบ -->
+                        <div class="flex flex-wrap gap-2 text-xs text-gray-600 mb-4">
+                            <span class="bg-green-100 px-3 py-1 rounded-full">
+                                <i class="fa-solid fa-question-circle mr-1"></i>
+                                {{ $exam->questions->count() }} ข้อ
+                            </span>
+                            @if ($exam->questions->count() > 0)
+                                <span class="bg-blue-100 px-3 py-1 rounded-full">
+                                    <i class="fa-solid fa-clock mr-1"></i>
+                                    สร้างแล้ว
+                                </span>
+                            @endif
+                        </div>
+
+                        <!-- ปุ่มดำเนินการ -->
+                        <div class="flex flex-wrap gap-3 justify-center">
+                            @if (auth()->check() && in_array(auth()->user()->role, ['education','admin']))
+                                <!-- ปุ่มจัดการคำถาม -->
+                                <a href="{{ route('questions.manage', $exam->e_id) }}" 
+                                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                                    <i class="fa-solid fa-list-check mr-2"></i>
+                                    จัดการคำถาม
+                                </a>
+                            @endif
+
+                            @if (auth()->check() && auth()->user()->role === 'jobber')
+                                <a href="{{ route('exams.take', $exam->e_id) }}" 
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                    <i class="fa-solid fa-play mr-2"></i>
+                                    เริ่มทำแบบทดสอบ
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+
+        @if (($lessons->count() ?? 0) === 0 && ($soloMedias->count() ?? 0) === 0 && ($soloExams->count() ?? 0) === 0)
             <div class="p-4 text-center text-gray-500 bg-white rounded-xl">ยังไม่มีเนื้อหาในคอร์สนี้</div>
         @endif
     </div>
@@ -461,4 +643,3 @@ function openImageModal(src, title) {
 </script>
 
 @endsection
-

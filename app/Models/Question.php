@@ -16,7 +16,7 @@ class Question extends Model
         'q_answer3',
         'q_answer4',
         'q_correct_answer',
-        'q_e_id', // FK to exams
+        'q_e_id',
     ];
     protected $casts = [
         'q_correct_answer' => 'integer',
