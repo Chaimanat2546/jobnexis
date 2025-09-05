@@ -81,6 +81,25 @@ class ProfileDetailController extends Controller
                 $targetUserId = $user->id; // jobber = ตัวเองเท่านั้น
             }
 
+            // Validate date-related fields before processing
+            $request->validate([
+                'up_birth_date' => 'nullable|date|before_or_equal:today',
+
+                'educations' => 'sometimes|array',
+                'educations.*.ed_name' => 'nullable|string|max:255',
+                'educations.*.ed_start_date' => 'nullable|date',
+                'educations.*.ed_end_date' => 'nullable|date|after_or_equal:educations.*.ed_start_date',
+
+                'work_experiences' => 'sometimes|array',
+                'work_experiences.*.we_company_name' => 'nullable|string|max:255',
+                'work_experiences.*.we_start_date' => 'nullable|date',
+                'work_experiences.*.we_end_date' => 'nullable|date|after_or_equal:work_experiences.*.we_start_date',
+            ], [
+                'up_birth_date.before_or_equal' => 'วันเกิดต้องไม่เกินวันที่ปัจจุบัน',
+                'educations.*.ed_end_date.after_or_equal' => 'วันที่สิ้นสุดการศึกษาต้องไม่ก่อนวันที่เริ่ม',
+                'work_experiences.*.we_end_date.after_or_equal' => 'วันที่สิ้นสุดการทำงานต้องไม่ก่อนวันที่เริ่ม',
+            ]);
+
             DB::beginTransaction();
 
             // ========== 1) เก็บข้อมูลโปรไฟล์ ==========

@@ -3,7 +3,7 @@
 @section('title', 'คอร์สทั้งหมด')
 
 @section('content')
-    <div class="w-full p-6 shadow bg-base-200 rounded-2xl" x-data="{
+    <div class="w-full p-3 shadow bg-base-200 rounded-2xl" x-data="{
         showEnroll: false,
         selectedCourseId: null,
         selectedCourseName: '',
@@ -17,18 +17,18 @@
         <div class="flex items-center justify-between px-4 mb-0">
             <div>
                 <h1 class="text-2xl font-bold text-base-content">คอร์สทั้งหมด</h1>
-                    <form method="GET" class="flex items-center gap-2 mt-2">
-                        <input type="text" name="q" value="{{ $q }}" placeholder=" ค้นหาคอร์ส..."
-                            class="border-2 border-gray-300 w-96 input">
-                        <input type="hidden" name="tab" value="{{ $tab ?? 'all' }}">
-                        <button class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">ค้นหา</button>
-                    </form>
-                <div class="mt-2 join">
+                <form method="GET" class="flex items-center gap-2 mt-2">
+                    <input type="text" name="q" value="{{ $q }}" placeholder=" ค้นหาคอร์ส..."
+                        class="border-2 border-gray-300 w-96 input">
+                    <input type="hidden" name="tab" value="{{ $tab ?? 'all' }}">
+                    <button class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">ค้นหา</button>
+                </form>
+                <div class="tabs tabs-border" role="tablist">
                     @auth
                         <a href="{{ request()->fullUrlWithQuery(['tab' => 'all', 'page' => 1]) }}"
-                            class="join-item btn btn-sm {{ ($tab ?? 'all') === 'all' ? 'btn-primary' : '' }}">ทั้งหมด</a>
+                            role="tab" class="tab {{ ($tab ?? 'all') === 'all' ? 'tab-active' : '' }}">ทั้งหมด</a>
                         <a href="{{ request()->fullUrlWithQuery(['tab' => 'my', 'page' => 1]) }}"
-                            class="join-item btn btn-sm {{ ($tab ?? 'all') === 'my' ? 'btn-primary' : '' }}">ที่สมัครแล้ว</a>
+                            role="tab" class="tab {{ ($tab ?? 'all') === 'my' ? 'tab-active' : '' }}">ที่สมัครแล้ว</a>
                     @endauth
                 </div>
             </div>
@@ -43,38 +43,48 @@
         @endif
 
         @if ($courses->count() === 0)
-            <div class="p-6 text-center bg-white rounded-xl">ไม่พบคอร์ส</div>
+            <div class="p-3 text-center bg-white rounded-xl">ไม่พบคอร์ส</div>
         @else
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($courses as $course)
-                    <div class="p-4 bg-white rounded-xl shadow flex flex-col cursor-pointer transition transform hover:shadow-lg hover:-translate-y-0.5"
-                        @click="
-                        @if (auth()->check() && auth()->user()->role === 'jobber')
-                            @if (in_array($course->c_id, $enrolledIds))
-                                window.location='{{ route('courses.view', ['id' => $course->c_id]) }}'
-                            @else
-                                openEnroll({{ $course->c_id }}, '{{ addslashes($course->c_name) }}')
-                            @endif
-                        @elseif(auth()->check())
-                            window.location='{{ route('courses.view', ['id' => $course->c_id]) }}'
-                        @else
-                            $dispatch('open-auth-modal', 'login')
-                        @endif
-                     ">
-                        <img src="{{ $course->c_image ? asset('storage/' . $course->c_image) : asset('image/web-image/ai-robot.jpg') }}"
-                            alt="{{ $course->c_name }}" class="object-cover w-full h-40 mb-3 rounded-lg">
-                        <h3 class="mb-1 text-lg font-bold text-base-content">{{ $course->c_name }}</h3>
-                        <p class="mb-3 text-sm text-gray-600 line-clamp-2">{{ $course->c_description }}</p>
+                    <div class="flex flex-col p-4 transition transform bg-white shadow rounded-xl ">
+                        <a href="{{ route('courses.view', ['id' => $course->c_id]) }}">
+                            <img src="{{ $course->c_image ? asset('storage/' . $course->c_image) : asset('image/web-image/ai-robot.jpg') }}"
+                                alt="{{ $course->c_name }}" class="object-cover w-full h-40 mb-3 rounded-lg">
+                        </a>
+                        <h3 class="mb-1 text-lg font-bold text-base-content">
+                            <a href="{{ route('courses.view', ['id' => $course->c_id]) }}" class="hover:underline">
+                                {{ $course->c_name }}
+                            </a>
+                        </h3>
+                        <div class="flex gap-2 mb-3 text-sm text-gray-600 line-clamp-2">
+                            <p>{{ $course->c_name }}</p>
+                        </div>
+
                         <div class="flex items-center justify-between gap-2 mt-auto">
-                            @if (auth()->check() && auth()->user()->role === 'jobber')
-                                @if (in_array($course->c_id, $enrolledIds))
-                                    <span class="badge badge-success">สมัครแล้ว</span>
+                            @auth
+                                @if (auth()->user()->role === 'jobber')
+                                    @if (in_array($course->c_id, $enrolledIds))
+                                        <span class="badge badge-success">สมัครแล้ว</span>
+                                        <a href="{{ route('courses.view', ['id' => $course->c_id]) }}"
+                                            class="btn btn-sm">เข้าคอร์ส</a>
+                                    @else
+                                        <button type="button"
+                                            class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                                            @click="openEnroll({{ $course->c_id }}, '{{ addslashes($course->c_name) }}')">
+                                            สมัครคอร์ส
+                                        </button>
+                                    @endif
                                 @else
-                                    <span class="badge">เปิดรับสมัคร</span>
+                                    <a href="{{ route('courses.view', ['id' => $course->c_id]) }}"
+                                        class="btn btn-sm">ดูรายละเอียด</a>
                                 @endif
                             @else
-                                <span class="badge">ดูรายละเอียด</span>
-                            @endif
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    @click="$dispatch('open-auth-modal', 'login')">
+                                    สมัครคอร์ส
+                                </button>
+                            @endauth
                         </div>
                     </div>
                 @endforeach
@@ -87,18 +97,19 @@
                 <div class="modal modal-open">
                     <div class="modal-box">
                         <h3 class="mb-2 text-lg font-bold">สมัครเข้าเรียน</h3>
-                        <p class="mb-4">คอร์ส: <span class="font-semibold" x-text="selectedCourseName"></span></p>
+                        <p class="mb-2">คอร์ส: <span class="font-semibold" x-text="selectedCourseName"></span></p>
                         <form x-ref="enrollForm" method="POST"
                             @submit.prevent="$refs.enrollForm.action = routeTpl.replace('ID_PLACEHOLDER', selectedCourseId); $refs.enrollForm.submit();">
                             @csrf
                             <label class="w-full mb-4 form-control">
                                 <div class="label"><span class="label-text">กรอกรหัสคอร์ส</span></div>
-                                <input type="text" name="code" class="w-full input input-bordered" required
-                                    autocomplete="off" />
+                                <input type="text" name="code" class="w-full border-2 border-gray-300 input" required
+                                    autocomplete="off" placeholder="กรุณากรอกรหัสคอร์ส" />
                             </label>
                             <div class="modal-action">
+                                <button type="submit"
+                                    class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">ยืนยัน</button>
                                 <button type="button" class="btn" @click="showEnroll=false">ยกเลิก</button>
-                                <button type="submit" class="btn btn-primary">ยืนยัน</button>
                             </div>
                         </form>
                     </div>

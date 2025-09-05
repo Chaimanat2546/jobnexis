@@ -4,8 +4,8 @@
 
 @section('content')
 <!-- Header + Tabs -->
-<div class="w-full p-6 bg-base-200 rounded-2xl shadow">
-    <div class="flex items-center justify-between border-b pb-3 mb-4">
+<div class="w-full p-6 shadow bg-base-200 rounded-2xl">
+    <div class="flex items-center justify-between pb-3 mb-4 border-b">
         <!-- Left: Tabs -->
         <div class="flex items-baseline gap-3">
             <a href="{{ (auth()->check() && in_array(auth()->user()->role, ['education','admin'])) ? route('courses.show', ['id' => $course->c_id]) : route('courses.view', ['id' => $course->c_id]) }}"
@@ -14,7 +14,7 @@
             </a>
             @if (auth()->check() && in_array(auth()->user()->role, ['education','admin']))
                 <a href="{{ route('courses.person.show', ['id' => $course->c_id]) }}"
-                   class="text-xl text-base-content cursor-pointer hover:text-blue-600">
+                   class="text-xl cursor-pointer text-base-content hover:text-blue-600">
                     ผู้เรียน
                 </a>
             @endif
@@ -65,7 +65,7 @@
 
             @if (auth()->check() && in_array(auth()->user()->role, ['education','admin']))
                 <a href="{{ route('courses.edit', ['id' => $course->c_id]) }}">
-                    <i class="fa-solid fa-gear text-xl text-base-content cursor-pointer hover:text-blue-600"></i>
+                    <i class="text-xl cursor-pointer fa-solid fa-gear text-base-content hover:text-blue-600"></i>
                 </a>
             @endif
         </div>
@@ -74,9 +74,9 @@
     <!-- Course Summary -->
     <div class="w-full rounded-[20px] shadow pt-20 pb-20 px-6 md:px-16 text-white"
          style="background: linear-gradient(to bottom, rgb(125 211 252) 0%, rgb(37 99 235) 100%);">
-        <div class="bg-base-200 text-base-content rounded-xl p-6 shadow-md flex flex-col md:flex-row gap-6">
+        <div class="flex flex-col gap-6 p-6 shadow-md bg-base-200 text-base-content rounded-xl md:flex-row">
             <!-- Left: Details -->
-            <div class="md:w-1/2 space-y-4">
+            <div class="space-y-4 md:w-1/2">
                 <div class="text-4xl font-bold">
                     <span>{{ $course->c_name ?? 'ยังไม่มีข้อมูล' }}</span>
                 </div>
@@ -94,13 +94,25 @@
                         </span>
                     @endforelse
                 </div>
-                <div class="flex items-center gap-2">
-                    <h3>รหัสคอร์สอบรม:</h3>
-                    <span>{{ $course->c_code ?? 'ยังไม่มีข้อมูล' }}</span>
-                </div>
+                @if (auth()->check() && in_array(auth()->user()->role, ['education','admin']))
+                    <div class="flex items-center gap-2">
+                        <h3>รหัสคอร์สอบรม:</h3>
+                        <span>{{ $course->c_code ?? 'ยังไม่มีข้อมูล' }}</span>
+                    </div>
+                    <p>
+                        สถานะคอร์ส:
+                        @if ($course->c_status === 'open')
+                            <span class="px-2 py-1 text-white bg-green-600 rounded-lg">เปิดรับสมัคร</span>
+                        @elseif ($course->c_status === 'closed')
+                            <span class="px-2 py-1 text-white bg-red-600 rounded-lg">ปิดรับสมัคร</span>
+                        @else
+                            <span class="px-2 py-1 text-white bg-gray-600 rounded-lg">ไม่ระบุสถานะ</span>
+                        @endif
+                    </p>
+                @endif
             </div>
             <!-- Right: Image -->
-            <div class="md:w-1/2 flex justify-center items-center">
+            <div class="flex items-center justify-center md:w-1/2">
                 <img src="{{ $course->c_image ? asset('storage/'.$course->c_image) : asset('image/web-image/ai-robot.jpg') }}"
                      alt="Image" class="w-full h-80 rounded-[20px] object-cover">
             </div>
@@ -116,7 +128,7 @@
 @endif
 
 <!-- Actions + Content List -->
-<div class="w-full p-6 mt-6 bg-base-200 rounded-2xl shadow">
+<div class="w-full p-6 mt-6 shadow bg-base-200 rounded-2xl">
     @if (auth()->check() && in_array(auth()->user()->role, ['education','admin']))
         <div class="flex justify-end gap-4 mb-6">
             <a href="{{ route('medias.create', ['courseId' => $course->c_id]) }}"
@@ -186,11 +198,11 @@
                 </div>
 
                 <!-- Medias under lesson -->
-                <div x-show="open" class="mt-3 space-y-2 pl-6">
+                <div x-show="open" class="pl-6 mt-3 space-y-2">
                     @if ($lesson->medias && $lesson->medias->count() > 0)
                         <span class="font-semibold text-base-content">สื่อการสอน</span>
                         @foreach ($lesson->medias as $media)
-                            <div x-data="{ subOpen: false, menuOpen: false }" class="relative p-3 bg-gray-50 rounded">
+                            <div x-data="{ subOpen: false, menuOpen: false }" class="relative p-3 rounded bg-gray-50">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <span class="flex items-center justify-center p-1 text-white bg-blue-600 rounded-full w-7 h-7">
@@ -209,24 +221,24 @@
                                                 <button @click="menuOpen = !menuOpen" class="p-2 rounded-full hover:bg-gray-100">
                                                     <i class="fa-solid fa-ellipsis-vertical"></i>
                                                 </button>
-                                                <div x-show="menuOpen" @click.outside="menuOpen = false" class="absolute right-0 mt-2 w-32 bg-white border rounded border-gray-300 shadow z-50">
-                                                    <button type="button" onclick="window.location='{{ route('medias.edit', $media->m_id) }}'" class="w-full text-sm text-blue-600 hover:bg-blue-200 py-1 rounded">แก้ไข</button>
-                                                    <label for="delete-media-lesson-{{ $lesson->l_id }}-{{ $media->m_id }}" class="w-full text-sm text-red-600 hover:bg-red-200 py-1 rounded cursor-pointer block text-center">ลบ</label>
+                                                <div x-show="menuOpen" @click.outside="menuOpen = false" class="absolute right-0 z-50 w-32 mt-2 bg-white border border-gray-300 rounded shadow">
+                                                    <button type="button" onclick="window.location='{{ route('medias.edit', $media->m_id) }}'" class="w-full py-1 text-sm text-blue-600 rounded hover:bg-blue-200">แก้ไข</button>
+                                                    <label for="delete-media-lesson-{{ $lesson->l_id }}-{{ $media->m_id }}" class="block w-full py-1 text-sm text-center text-red-600 rounded cursor-pointer hover:bg-red-200">ลบ</label>
                                                 </div>
                                             </div>
 
                                             <!-- Delete media modal -->
                                             <input type="checkbox" id="delete-media-lesson-{{ $lesson->l_id }}-{{ $media->m_id }}" class="modal-toggle">
                                             <div class="modal">
-                                                <div class="modal-box text-center max-w-xs w-full rounded-2xl">
-                                                    <h3 class="font-bold text-lg">ยืนยันการลบสื่อการสอนนี้หรือไม่?</h3>
-                                                    <div class="modal-action justify-center gap-4">
+                                                <div class="w-full max-w-xs text-center modal-box rounded-2xl">
+                                                    <h3 class="text-lg font-bold">ยืนยันการลบสื่อการสอนนี้หรือไม่?</h3>
+                                                    <div class="justify-center gap-4 modal-action">
                                                         <form action="{{ route('medias.destroy', $media->m_id) }}" method="POST">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">ยืนยัน</button>
+                                                            <button type="submit" class="px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700">ยืนยัน</button>
                                                         </form>
-                                                        <label for="delete-media-lesson-{{ $lesson->l_id }}-{{ $media->m_id }}" class="hover:bg-gray-200 text-base-content font-normal rounded-lg px-6 py-3">ยกเลิก</label>
+                                                        <label for="delete-media-lesson-{{ $lesson->l_id }}-{{ $media->m_id }}" class="px-6 py-3 font-normal rounded-lg hover:bg-gray-200 text-base-content">ยกเลิก</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -251,7 +263,7 @@
                                                         $color = 'text-gray-500';
                                                         $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']);
                                                         $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv', 'flv', '3gp', 'm4v']);
-                                                        
+
                                                         switch ($ext) {
                                                             case 'pdf': $icon = 'fas fa-file-pdf'; $color = 'text-red-500'; break;
                                                             case 'doc': case 'docx': $icon = 'fas fa-file-word'; $color = 'text-blue-500'; break;
@@ -262,15 +274,15 @@
                                                         }
                                                         $fileUrl = asset('storage/' . $file->mf_path);
                                                     @endphp
-                                                    
-                                                    <div class="bg-white border border-gray-300 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-                                                        
+
+                                                    <div class="overflow-hidden transition-shadow duration-200 bg-white border border-gray-300 shadow-sm rounded-xl hover:shadow-md">
+
                                                         <!-- Header ไฟล์ -->
-                                                        <div class="flex items-center justify-between p-3 bg-gray-50 border-b border-gray-100">
-                                                            <div class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer" 
+                                                        <div class="flex items-center justify-between p-3 border-b border-gray-100 bg-gray-50">
+                                                            <div class="flex items-center flex-1 min-w-0 gap-2 cursor-pointer"
                                                                 onclick="window.open('{{ $fileUrl }}', '_blank')">
                                                                 <i class="{{ $icon }} text-lg flex-shrink-0 {{ $color }}"></i>
-                                                                <span class="truncate text-sm font-medium text-gray-700 hover:text-blue-600">{{ $file->mf_original_name }}</span>
+                                                                <span class="text-sm font-medium text-gray-700 truncate hover:text-blue-600">{{ $file->mf_original_name }}</span>
                                                             </div>
                                                         </div>
 
@@ -278,14 +290,14 @@
                                                         <div class="p-3">
                                                             @if($isImage)
                                                                 <div class="cursor-pointer group" onclick="openImageModal('{{ $fileUrl }}', '{{ $file->mf_original_name }}')">
-                                                                    <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                                                                        <img src="{{ $fileUrl }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Preview">
+                                                                    <div class="overflow-hidden bg-gray-100 rounded-lg aspect-video">
+                                                                        <img src="{{ $fileUrl }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105" alt="Preview">
                                                                     </div>
                                                                 </div>
                                                             @elseif($isVideo)
                                                                 <div class="cursor-pointer group">
-                                                                    <div class="aspect-video bg-gray-900 rounded-lg overflow-hidden">
-                                                                        <video class="w-full h-full object-cover" controls preload="metadata">
+                                                                    <div class="overflow-hidden bg-gray-900 rounded-lg aspect-video">
+                                                                        <video class="object-cover w-full h-full" controls preload="metadata">
                                                                             <source src="{{ $fileUrl }}" type="video/{{ $ext }}">
                                                                             Your browser does not support the video tag.
                                                                         </video>
@@ -293,7 +305,7 @@
                                                                 </div>
                                                             @else
                                                                 <div class="py-4 text-center cursor-pointer group" onclick="window.open('{{ $fileUrl }}', '_blank')">
-                                                                    <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-gray-200 transition-colors">
+                                                                    <div class="flex items-center justify-center w-16 h-16 mx-auto mb-2 transition-colors bg-gray-100 rounded-full group-hover:bg-gray-200">
                                                                         <i class="{{ $icon }} text-2xl {{ $color }}"></i>
                                                                     </div>
                                                                     <p class="text-xs text-gray-500 group-hover:text-blue-600">คลิกเพื่อเปิดไฟล์</p>
@@ -334,24 +346,24 @@
                                 <button @click="menuOpen = !menuOpen" class="p-2 rounded-full hover:bg-gray-100">
                                     <i class="fa-solid fa-ellipsis-vertical"></i>
                                 </button>
-                                <div x-show="menuOpen" @click.outside="menuOpen = false" class="absolute right-0 mt-2 w-32 bg-white border rounded border-gray-300 shadow z-50">
-                                    <button type="button" onclick="window.location='{{ route('medias.edit', $media->m_id) }}'" class="w-full text-sm text-blue-600 hover:bg-blue-200 py-1 rounded">แก้ไข</button>
-                                    <label for="delete-mediaOut-modal-{{ $media->m_id }}" class="w-full text-sm text-red-600 hover:bg-red-200 py-1 rounded cursor-pointer block text-center">ลบ</label>
+                                <div x-show="menuOpen" @click.outside="menuOpen = false" class="absolute right-0 z-50 w-32 mt-2 bg-white border border-gray-300 rounded shadow">
+                                    <button type="button" onclick="window.location='{{ route('medias.edit', $media->m_id) }}'" class="w-full py-1 text-sm text-blue-600 rounded hover:bg-blue-200">แก้ไข</button>
+                                    <label for="delete-mediaOut-modal-{{ $media->m_id }}" class="block w-full py-1 text-sm text-center text-red-600 rounded cursor-pointer hover:bg-red-200">ลบ</label>
                                 </div>
                             </div>
 
                             <!-- Delete solo media modal -->
                             <input type="checkbox" id="delete-mediaOut-modal-{{ $media->m_id }}" class="modal-toggle">
                             <div class="modal">
-                                <div class="modal-box text-center max-w-xs w-full rounded-2xl">
-                                    <h3 class="font-bold text-lg">ยืนยันการลบสื่อนี้หรือไม่?</h3>
-                                    <div class="modal-action justify-center gap-4">
+                                <div class="w-full max-w-xs text-center modal-box rounded-2xl">
+                                    <h3 class="text-lg font-bold">ยืนยันการลบสื่อนี้หรือไม่?</h3>
+                                    <div class="justify-center gap-4 modal-action">
                                         <form action="{{ route('medias.destroy', $media->m_id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">ยืนยัน</button>
+                                            <button type="submit" class="px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700">ยืนยัน</button>
                                         </form>
-                                        <label for="delete-mediaOut-modal-{{ $media->m_id }}" class="hover:bg-gray-200 text-base-content font-normal rounded-lg px-6 py-3">ยกเลิก</label>
+                                        <label for="delete-mediaOut-modal-{{ $media->m_id }}" class="px-6 py-3 font-normal rounded-lg hover:bg-gray-200 text-base-content">ยกเลิก</label>
                                     </div>
                                 </div>
                             </div>
@@ -376,7 +388,7 @@
                                         $color = 'text-gray-500';
                                         $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']);
                                         $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mkv', 'webm', 'wmv', 'flv', '3gp', 'm4v']);
-                                        
+
                                         switch ($ext) {
                                             case 'pdf': $icon = 'fas fa-file-pdf'; $color = 'text-red-500'; break;
                                             case 'doc': case 'docx': $icon = 'fas fa-file-word'; $color = 'text-blue-500'; break;
@@ -387,15 +399,15 @@
                                         }
                                         $fileUrl = asset('storage/' . $file->mf_path);
                                     @endphp
-                                    
-                                    <div class="bg-white border border-gray-300 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-                                        
+
+                                    <div class="overflow-hidden transition-shadow duration-200 bg-white border border-gray-300 shadow-sm rounded-xl hover:shadow-md">
+
                                         <!-- Header ไฟล์ -->
-                                        <div class="flex items-center justify-between p-3 bg-gray-50 border-b border-gray-100">
-                                            <div class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer" 
+                                        <div class="flex items-center justify-between p-3 border-b border-gray-100 bg-gray-50">
+                                            <div class="flex items-center flex-1 min-w-0 gap-2 cursor-pointer"
                                                 onclick="window.open('{{ $fileUrl }}', '_blank')">
                                                 <i class="{{ $icon }} text-lg flex-shrink-0 {{ $color }}"></i>
-                                                <span class="truncate text-sm font-medium text-gray-700 hover:text-blue-600">{{ $file->mf_original_name }}</span>
+                                                <span class="text-sm font-medium text-gray-700 truncate hover:text-blue-600">{{ $file->mf_original_name }}</span>
                                             </div>
                                         </div>
 
@@ -403,14 +415,14 @@
                                         <div class="p-3">
                                             @if($isImage)
                                                 <div class="cursor-pointer group" onclick="openImageModal('{{ $fileUrl }}', '{{ $file->mf_original_name }}')">
-                                                    <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                                                        <img src="{{ $fileUrl }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Preview">
+                                                    <div class="overflow-hidden bg-gray-100 rounded-lg aspect-video">
+                                                        <img src="{{ $fileUrl }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105" alt="Preview">
                                                     </div>
                                                 </div>
                                             @elseif($isVideo)
                                                 <div class="cursor-pointer group">
-                                                    <div class="aspect-video bg-gray-900 rounded-lg overflow-hidden">
-                                                        <video class="w-full h-full object-cover" controls preload="metadata">
+                                                    <div class="overflow-hidden bg-gray-900 rounded-lg aspect-video">
+                                                        <video class="object-cover w-full h-full" controls preload="metadata">
                                                             <source src="{{ $fileUrl }}" type="video/{{ $ext }}">
                                                             Your browser does not support the video tag.
                                                         </video>
@@ -418,7 +430,7 @@
                                                 </div>
                                             @else
                                                 <div class="py-4 text-center cursor-pointer group" onclick="window.open('{{ $fileUrl }}', '_blank')">
-                                                    <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-gray-200 transition-colors">
+                                                    <div class="flex items-center justify-center w-16 h-16 mx-auto mb-2 transition-colors bg-gray-100 rounded-full group-hover:bg-gray-200">
                                                         <i class="{{ $icon }} text-2xl {{ $color }}"></i>
                                                     </div>
                                                     <p class="text-xs text-gray-500 group-hover:text-blue-600">คลิกเพื่อเปิดไฟล์</p>
@@ -446,13 +458,13 @@ function openImageModal(src, title) {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50';
     modal.innerHTML = `
-        <div class="max-w-4xl max-h-full p-4 relative">
-            <img src="${src}" alt="${title}" class="max-w-full max-h-full object-contain rounded">
+        <div class="relative max-w-4xl max-h-full p-4">
+            <img src="${src}" alt="${title}" class="object-contain max-w-full max-h-full rounded">
             <button onclick="this.closest('.fixed').remove()"
-                    class="absolute top-2 right-2 bg-white text-black rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-200 z-10">
+                    class="absolute z-10 flex items-center justify-center w-8 h-8 text-black bg-white rounded-full top-2 right-2 hover:bg-gray-200">
                 ×
             </button>
-            <p class="text-white text-center mt-2 absolute bottom-2 left-1/2 transform -translate-x-1/2">${title}</p>
+            <p class="absolute mt-2 text-center text-white transform -translate-x-1/2 bottom-2 left-1/2">${title}</p>
         </div>
     `;
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
