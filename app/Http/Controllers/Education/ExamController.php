@@ -184,7 +184,9 @@ class ExamController extends Controller
 
         // ตรวจสอบว่า jobber สมัครคอร์สนี้แล้วหรือไม่
         $course = $exam->course;
-        $isEnrolled = $course->enrolledUsers()->where('user_id', auth()->id())->exists();
+        $isEnrolled = \App\Models\CourseMember::where('cm_c_id', $course->c_id)
+                     ->where('cm_u_id', auth()->id())
+                     ->exists();
         
         if (!$isEnrolled) {
             return redirect()->route('courses.view', $course->c_id)
@@ -192,5 +194,37 @@ class ExamController extends Controller
         }
 
         return view('education.exams.take', compact('exam'));
+    }
+
+    public function submit(Request $request, $id)
+    {
+        $exam = Exam::with(['questions', 'course'])->findOrFail($id);
+        
+        // ตรวจสอบว่า jobber สมัครคอร์สนี้แล้วหรือไม่
+        $course = $exam->course;
+        $isEnrolled = \App\Models\CourseMember::where('cm_c_id', $course->c_id)
+                     ->where('cm_u_id', auth()->id())
+                     ->exists();
+        
+        if (!$isEnrolled) {
+            return redirect()->route('courses.view', $course->c_id)
+                        ->with('error', 'คุณไม่มีสิทธิ์เข้าถึง');
+        }
+        
+        $answers = $request->input('answers', []);
+        $score = 0;
+        $totalQuestions = $exam->questions->count();
+        
+        // คำนวณคะแนน
+        foreach ($exam->questions as $question) {
+            $userAnswer = $answers[$question->q_id] ?? null;
+            if ($userAnswer && (int)$userAnswer === (int)$question->q_correct_answer) {
+                $score++;
+            }
+        }
+        
+        $percentage = $totalQuestions > 0 ? ($score / $totalQuestions) * 100 : 0;
+        
+        return view('education.exams.result', compact('exam', 'score', 'totalQuestions', 'percentage'));
     }
 }

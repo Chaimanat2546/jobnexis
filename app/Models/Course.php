@@ -43,7 +43,6 @@ class Course extends Model
         return $this->getAttribute('c_status') === 'pending';
     }
 
-    // ความสัมพันธ์
     public function coursesMember()
     {
         return $this->hasMany(CourseMember::class, 'cm_c_id');

@@ -219,12 +219,18 @@ class CourseController extends Controller
             ->where('m_c_id', $id)
             ->get();
 
+        $soloExams = Exam::with('questions')
+            ->whereNull('e_l_id')
+            ->where('e_c_id', $id)
+            ->orderBy('e_index')
+            ->get();
+
         $examCount = DB::table('exams')
             ->join('lessons', 'exams.e_l_id', '=', 'lessons.l_id')
             ->where('lessons.l_c_id', $id)
             ->count();
 
-        return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'isEnrolled', 'examCount'));
+        return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams', 'isEnrolled', 'examCount'));
     }
     public function destroy($id)
     {
