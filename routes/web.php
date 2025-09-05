@@ -222,6 +222,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/jobber/edit-profile/certificate', [CertificateController::class, 'store'])->name('certificates.store');
         Route::get('/edit-profile', [ProfileDetailController::class, 'edit'])->name('profile-jobber.edit');
         Route::post('/edit-profile/store', [ProfileDetailController::class, 'store'])->name('profile-jobber.store');
+        // Exam routes สำหรับ Jobber
+        Route::get('/exams/{id}/take', [ExamController::class, 'take'])->name('exams.take');
+        Route::post('/exams/{id}/submit', [ExamController::class, 'submit'])->name('exams.submit');
     });
 
     /** ---------------- User Profile ---------------- */
