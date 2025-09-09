@@ -12,17 +12,8 @@ services:
       APP_DEBUG: "false"
       APP_URL: http://localhost:8080
       RUN_MIGRATIONS: "1"
-      # Mailpit SMTP for outgoing mail
-      MAIL_MAILER: smtp
-      MAIL_HOST: mailpit
-      MAIL_PORT: 1025
-      MAIL_USERNAME: ""
-      MAIL_PASSWORD: ""
-      MAIL_FROM_ADDRESS: noreply@example.com
-      MAIL_FROM_NAME: Laravel
     depends_on:
       - pgsql
-      - mailpit
 
   pgsql:
     image: postgres:17
@@ -35,21 +26,21 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  mailpit:
-    image: axllent/mailpit:latest
-    ports:
-      - "127.0.0.1::1025"  # Random host port -> container 1025 (SMTP)
-      - "127.0.0.1::8025"  # Random host port -> container 8025 (Web UI)
-
   pgadmin:
     image: dpage/pgadmin4:latest
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - "127.0.0.1::80"    # Random host port -> container 80 (Web UI)
+      - "127.0.0.1:${PGADMIN_UI_PORT:-8081}:80"  # Fixed host port for Web UI
     depends_on:
       - pgsql
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025"  # SMTP
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"    # Web UI
 
 volumes:
   pgdata:
