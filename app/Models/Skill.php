@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Skill extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'category'];
 
     public function courses()
     {
@@ -17,4 +17,5 @@ class Skill extends Model
             'course_id'     // foreign key ของ Course ใน pivot
         );
     }
+    // exams relation via pivot removed; exams store skills in JSON
 }

@@ -125,6 +125,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/jobber/{user}', [ProfileDetailController::class, 'destroy'])
             ->name('admin.jobber.destroy');
     });
+    Route::get('/dashboard/skills', [AdminDashboardController::class, 'skillStats'])->name('admin.skills.data');
 
     /** ---------------- Provider Routes ---------------- */
     Route::middleware('role:provider')->prefix('provider')->group(function () {
@@ -132,107 +133,104 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     /** ---------------- Education Routes ---------------- */
-    Route::middleware('role:education')->prefix('education')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
-        Route::get('/edit-education', [EducationProfileController::class, 'edit'])
-            ->name('profile-education.edit');
-        Route::post('/edit-education/store', [EducationProfileController::class, 'store'])
-            ->name('profile-education.store');
+
+
+    Route::get('/edit-education', [EducationProfileController::class, 'edit'])
+        ->name('profile-education.edit');
+    Route::post('/edit-education/store', [EducationProfileController::class, 'store'])
+        ->name('profile-education.store');
+});
+// Course details (all authenticated roles)
+Route::get('/courses/{id}', [CourseController::class, 'publicShow'])->name('courses.view');
+
+// Education routes (ให้ admin เข้าถึงได้ด้วย)
+Route::middleware('role:education,admin')->group(function () {
+
+    // Dashboard ของ Education
+    Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
+
+    // Course routes (สำหรับผู้สอน/แอดมิน)
+    Route::prefix('education/courses')->name('courses.')->group(function () {
+        Route::get('/', [CourseController::class, 'index'])->name('index');       // คอร์สทั้งหมด
+        Route::get('/create', [CourseController::class, 'create'])->name('create'); // สร้างคอร์ส
+        Route::post('/', [CourseController::class, 'store'])->name('store');      // บันทึกคอร์ส
+        Route::get('/{id}', [CourseController::class, 'show'])->name('show');     // รายละเอียดคอร์ส
+        Route::get('/person/{id}', [PersonController::class, 'show'])->name('person.show');      // บุคคล
+        // ออกประกาศนียบัตรให้สมาชิกในคอร์ส
+        Route::post('/{id}/members/{userId}/certificate', [PersonController::class, 'issueCertificate'])->name('members.certificate.issue');
+        Route::post('/{id}/members/certificates/issue-all', [PersonController::class, 'issueCertificatesAll'])->name('members.certificate.issueAll');
+        Route::delete('/{id}', [CourseController::class, 'destroy'])->name('destroy');      // ลบคอร์ส
+        Route::get('/{id}/edit', [CourseController::class, 'edit'])->name('edit');      // แก้ไขคอร์ส
+        Route::put('/{id}', [CourseController::class, 'update'])->name('update');      // อัพเดทคอร์ส
     });
-    // Course details (all authenticated roles)
-    Route::get('/courses/{id}', [CourseController::class, 'publicShow'])->name('courses.view');
-
-    // Education routes (ให้ admin เข้าถึงได้ด้วย)
-    Route::middleware('role:education,admin')->group(function () {
-
-        // Dashboard ของ Education
-        Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
-
-        // Course routes (สำหรับผู้สอน/แอดมิน)
-        Route::prefix('education/courses')->name('courses.')->group(function () {
-            Route::get('/', [CourseController::class, 'index'])->name('index');       // คอร์สทั้งหมด
-            Route::get('/create', [CourseController::class, 'create'])->name('create'); // สร้างคอร์ส
-            Route::post('/', [CourseController::class, 'store'])->name('store');      // บันทึกคอร์ส
-            Route::get('/{id}', [CourseController::class, 'show'])->name('show');     // รายละเอียดคอร์ส
-            Route::get('/person/{id}', [PersonController::class, 'show'])->name('person.show');      // บุคคล
-            // ออกประกาศนียบัตรให้สมาชิกในคอร์ส
-            Route::post('/{id}/members/{userId}/certificate', [PersonController::class, 'issueCertificate'])->name('members.certificate.issue');
-            Route::post('/{id}/members/certificates/issue-all', [PersonController::class, 'issueCertificatesAll'])->name('members.certificate.issueAll');
-            Route::delete('/{id}', [CourseController::class, 'destroy'])->name('destroy');      // ลบคอร์ส
-            Route::get('/{id}/edit', [CourseController::class, 'edit'])->name('edit');      // แก้ไขคอร์ส
-            Route::put('/{id}', [CourseController::class, 'update'])->name('update');      // อัพเดทคอร์ส
-        });
-
-        // Lesson routes
-        Route::prefix('education/lesson')->group(function () {
-            Route::put('/{id}', [LessonController::class, 'update'])->name('lesson.update');   // แก้ไขชื่อบทเรียน
-            Route::delete('/{id}', [LessonController::class, 'destroyLesson'])->name('lesson.destroyLesson'); // ลบบทเรียน
-        });
-
-        // Media routes
-        Route::prefix('education/medias')->name('medias.')->group(function () {
-            Route::get('/create/{courseId?}', [MediaController::class, 'create'])->name('create');      // ฟอร์มสร้างสื่อ
-            Route::post('/', [MediaController::class, 'store'])->name('store');       // บันทึกสื่อ
-            Route::post('/lesson', [MediaController::class, 'storeLesson'])->name('lesson.store');      // สร้างบทเรียนใหม่
-            Route::get('/{id}/edit', [MediaController::class, 'edit'])->name('edit');                    // หน้าแก้ไขสื่อ
-            Route::put('/{id}', [MediaController::class, 'update'])->name('update');                     // อัพเดทสื่อ
-            Route::delete('/{id}', [MediaController::class, 'destroy'])->name('destroy');                // ลบสื่อ
-        });
-        // Exam routes
-        Route::prefix('education/exams')->name('exams.')->group(function () {
-            Route::get('/create/{courseId?}', [ExamController::class, 'create'])->name('create');
-            Route::post('/', [ExamController::class, 'store'])->name('store');
-            Route::get('/{id}', [ExamController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [ExamController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [ExamController::class, 'update'])->name('update');
-            Route::delete('/{id}', [ExamController::class, 'destroy'])->name('destroy');
-            Route::post('/lesson', [ExamController::class, 'storeLesson'])->name('lesson.store');
-        });
-        // Question routes
-        Route::prefix('education/questions')->name('questions.')->group(function () {
-            Route::get('/manage/{exam_id}', [QuestionController::class, 'manage'])->name('manage');
-            Route::post('/', [QuestionController::class, 'store'])->name('store');
-            Route::post('/batch-update', [QuestionController::class, 'updateBatch'])->name('updateBatch');
-            Route::put('/{id}', [QuestionController::class, 'update'])->name('update');
-            Route::delete('/{id}', [QuestionController::class, 'destroy'])->name('destroy');
-        });
+    // Lesson routes
+    Route::prefix('education/lesson')->group(function () {
+        Route::put('/{id}', [LessonController::class, 'update'])->name('lesson.update');   // แก้ไขชื่อบทเรียน
+        Route::delete('/{id}', [LessonController::class, 'destroyLesson'])->name('lesson.destroyLesson'); // ลบบทเรียน
     });
-    /** ---------------- Provider Routes ---------------- */
-    Route::middleware('role:provider')->prefix('provider')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'provider'])->name('provider.dashboard');
-        Route::get('/edit-profile', [CompaniesProfileController::class, 'edit'])->name('provider.profile.edit.self');
-        Route::post('/edit-profile/store', [CompaniesProfileController::class, 'store'])->name('provider.profile.store.self');
+    // Media routes
+    Route::prefix('education/medias')->name('medias.')->group(function () {
+        Route::get('/create/{courseId?}', [MediaController::class, 'create'])->name('create');      // ฟอร์มสร้างสื่อ
+        Route::post('/', [MediaController::class, 'store'])->name('store');       // บันทึกสื่อ
+        Route::post('/lesson', [MediaController::class, 'storeLesson'])->name('lesson.store');      // สร้างบทเรียนใหม่
+        Route::get('/{id}/edit', [MediaController::class, 'edit'])->name('edit');                    // หน้าแก้ไขสื่อ
+        Route::put('/{id}', [MediaController::class, 'update'])->name('update');                     // อัพเดทสื่อ
+        Route::delete('/{id}', [MediaController::class, 'destroy'])->name('destroy');                // ลบสื่อ
     });
+    // Exam routes
+    Route::prefix('education/exams')->name('exams.')->group(function () {
+        Route::get('/create/{courseId?}', [ExamController::class, 'create'])->name('create');
+        Route::post('/', [ExamController::class, 'store'])->name('store');
+        Route::get('/{id}', [ExamController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [ExamController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [ExamController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ExamController::class, 'destroy'])->name('destroy');
+        Route::post('/lesson', [ExamController::class, 'storeLesson'])->name('lesson.store');
+    });
+    // Question routes
+    Route::prefix('education/questions')->name('questions.')->group(function () {
+        Route::get('/manage/{exam_id}', [QuestionController::class, 'manage'])->name('manage');
+        Route::post('/', [QuestionController::class, 'store'])->name('store');
+        Route::post('/batch-update', [QuestionController::class, 'updateBatch'])->name('updateBatch');
+        Route::put('/{id}', [QuestionController::class, 'update'])->name('update');
+        Route::delete('/{id}', [QuestionController::class, 'destroy'])->name('destroy');
+    });
+});
+/** ---------------- Provider Routes ---------------- */
+Route::middleware('role:provider')->prefix('provider')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'provider'])->name('provider.dashboard');
+    Route::get('/edit-profile', [CompaniesProfileController::class, 'edit'])->name('provider.profile.edit.self');
+    Route::post('/edit-profile/store', [CompaniesProfileController::class, 'store'])->name('provider.profile.store.self');
+});
 
-    /** ---------------- Education Routes ---------------- */
-    Route::middleware('role:education')->prefix('education')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
-        Route::get('/edit-education', [EducationProfileController::class, 'edit'])->name('profile-education.edit.self');
-        Route::post('/edit-education/store', [EducationProfileController::class, 'store'])->name('profile-education.store.self');
-    });
+/** ---------------- Education Routes ---------------- */
+Route::middleware('role:education')->prefix('education')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');
+    Route::get('/edit-education', [EducationProfileController::class, 'edit'])->name('profile-education.edit.self');
+    Route::post('/edit-education/store', [EducationProfileController::class, 'store'])->name('profile-education.store.self');
+});
 
-    /** ---------------- Jobber Routes ---------------- */
-    Route::middleware('role:jobber')->prefix('jobber')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'jobber'])->name('jobber.dashboard');
-        Route::get('/jobs', [RecruitmentController::class, 'jobberIndex'])->name('jobber.jobs.index');
-        Route::get('/jobs/{rcId}', [RecruitmentController::class, 'jobberShow'])->name('jobber.jobs.show');
-        // Companies directory for jobbers
-        Route::get('/companies', [CompaniesProfileController::class, 'publicIndex'])->name('jobber.companies.index');
-        Route::get('/companies/{userId}', [CompaniesProfileController::class, 'publicShow'])->name('jobber.companies.show');
-        Route::post('/jobber/edit-profile/certificate', [CertificateController::class, 'store'])->name('certificates.store');
-        Route::get('/edit-profile', [ProfileDetailController::class, 'edit'])->name('profile-jobber.edit');
-        Route::post('/edit-profile/store', [ProfileDetailController::class, 'store'])->name('profile-jobber.store');
-        // Exam routes สำหรับ Jobber
-        Route::get('/exams/{id}/take', [ExamController::class, 'take'])->name('exams.take');
-        Route::post('/exams/{id}/submit', [ExamController::class, 'submit'])->name('exams.submit');
-    });
+/** ---------------- Jobber Routes ---------------- */
+Route::middleware('role:jobber')->prefix('jobber')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'jobber'])->name('jobber.dashboard');
+    Route::get('/jobs', [RecruitmentController::class, 'jobberIndex'])->name('jobber.jobs.index');
+    Route::get('/jobs/{rcId}', [RecruitmentController::class, 'jobberShow'])->name('jobber.jobs.show');
+    // Companies directory for jobbers
+    Route::get('/companies', [CompaniesProfileController::class, 'publicIndex'])->name('jobber.companies.index');
+    Route::get('/companies/{userId}', [CompaniesProfileController::class, 'publicShow'])->name('jobber.companies.show');
+    Route::post('/jobber/edit-profile/certificate', [CertificateController::class, 'store'])->name('certificates.store');
+    Route::get('/edit-profile', [ProfileDetailController::class, 'edit'])->name('profile-jobber.edit');
+    Route::post('/edit-profile/store', [ProfileDetailController::class, 'store'])->name('profile-jobber.store');
+    // Exam routes สำหรับ Jobber
+    Route::get('/exams/{id}/take', [ExamController::class, 'take'])->name('exams.take');
+    Route::post('/exams/{id}/submit', [ExamController::class, 'submit'])->name('exams.submit');
+});
 
-    /** ---------------- User Profile ---------------- */
-    Route::controller(ProfileController::class)->group(function () {
-        Route::get('/profile', 'edit')->name('profile.edit');
-        Route::patch('/profile', 'update')->name('profile.update');
-        Route::delete('/profile', 'destroy')->name('profile.destroy');
-    });
+/** ---------------- User Profile ---------------- */
+Route::controller(ProfileController::class)->group(function () {
+    Route::get('/profile', 'edit')->name('profile.edit');
+    Route::patch('/profile', 'update')->name('profile.update');
+    Route::delete('/profile', 'destroy')->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';

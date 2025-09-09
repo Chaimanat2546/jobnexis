@@ -83,9 +83,9 @@
                     x-text="`${examName.length} / 50`"></span>
             </div>
             <!-- ข้อความแจ้งเตือน แยกออกมา -->
-            <span class="text-red-600 text-sm mt-1" 
-                x-show="examNameError" 
-                x-cloak 
+            <span class="text-red-600 text-sm mt-1"
+                x-show="examNameError"
+                x-cloak
                 style="display: none;">
                 กรุณากรอกชื่อแบบทดสอบ
             </span>
@@ -100,12 +100,53 @@
                   x-text="`${examDesc.length} / 200`"></span>
         </div>
 
+        {{-- ทักษะที่ประเมิน (จัดหมวดหมู่) --}}
+        <div class="flex flex-col gap-2" x-data="skillSelectEdit()">
+            <label class="block text-base-content mb-1">ทักษะที่แบบทดสอบนี้วัดผล</label>
+
+            <div class="flex flex-wrap gap-2 mb-2">
+                <template x-for="(skill,index) in selectedSkills" :key="index">
+                    <span class="px-3 py-1 rounded-full border border-gray-300 bg-base-100 text-base-content">
+                        <span x-text="skill"></span>
+                        <button type="button" class="ml-2 text-red-500" @click="removeSkill(index)">&times;</button>
+                    </span>
+                </template>
+                <template x-if="selectedSkills.length === 0">
+                    <span class="text-sm text-gray-400">ยังไม่ได้เลือกทักษะ</span>
+                </template>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <select x-model="currentSkill" class="select select-bordered border border-gray-300">
+                    <option value="">เลือกทักษะ</option>
+                    @foreach($skillsByCategory as $category => $items)
+                        <optgroup label="{{ $category }}">
+                            @foreach($items as $skill)
+                                <option value="{{ $skill->name }}">{{ $skill->name }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+                <button type="button" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm" @click="addSkill()">เพิ่ม</button>
+            </div>
+
+            <input type="hidden" name="skills" :value="selectedSkills.join(',')">
+            <p class="text-sm text-red-600" x-show="skillError">กรุณาเลือกอย่างน้อย 1 ทักษะ</p>
+        </div>
+
+        {{-- เกณฑ์ผ่าน (จำนวนข้อที่ต้องถูกอย่างน้อย) --}}
+        <div class="flex flex-col gap-1">
+            <label class="block text-base-content mb-1">เกณฑ์ผ่าน (จำนวนข้อ)</label>
+            <input type="number" name="pass_threshold" min="1" class="input input-bordered w-40 border border-gray-300" value="{{ old('pass_threshold', $exam->pass_threshold) }}" required>
+            <p class="text-xs text-gray-500">ระบบจะตรวจว่าคุณทำถูกอย่างน้อยจำนวนข้อตามเกณฑ์นี้</p>
+        </div>
+
         {{-- แสดงคำถามที่มีอยู่ --}}
         @if($exam->questions && $exam->questions->count() > 0)
             <div class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <label class="block text-base-content font-medium">คำถามที่มีอยู่ ({{ $exam->questions->count() }} ข้อ)</label>
-                    <a href="{{ route('questions.manage', $exam->e_id) }}" 
+                    <a href="{{ route('questions.manage', $exam->e_id) }}"
                        class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
                         <i class="fa-solid fa-list-check mr-1"></i>
                         จัดการคำถาม
@@ -118,7 +159,7 @@
                             <div class="mb-2">
                                 <span class="font-medium text-gray-700">{{ $loop->iteration }}. {{ $question->q_question }}</span>
                             </div>
-                            
+
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                                 <div class="flex items-center gap-2">
                                     <span class="w-6 h-6 rounded-full {{ $question->q_correct_answer == 1 ? 'bg-blue-500 text-white' : 'bg-gray-300' }} flex items-center justify-center text-xs font-bold">1</span>
@@ -145,7 +186,7 @@
             <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                 <i class="fa-solid fa-question-circle text-3xl mb-2 text-gray-400"></i>
                 <p class="mb-3">ยังไม่มีคำถามในแบบทดสอบนี้</p>
-                <a href="{{ route('questions.manage', $exam->e_id) }}" 
+                <a href="{{ route('questions.manage', $exam->e_id) }}"
                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
                     <i class="fa-solid fa-plus mr-2"></i>
                     เพิ่มคำถาม
@@ -155,11 +196,11 @@
 
         {{-- ปุ่ม Action --}}
         <div class="col-span-1 md:col-span-2 flex justify-center gap-4 mt-10">
-            <button type="submit" 
+            <button type="submit"
                     class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">
                 บันทึก
             </button>
-            <a href="{{ route('courses.show', ['id' => $courseId]) }}" 
+            <a href="{{ route('courses.show', ['id' => $courseId]) }}"
                class="btn btn-outline text-base-content rounded-lg px-6 py-3">
                 ยกเลิก
             </a>
@@ -182,14 +223,14 @@ function examForm() {
 
         validateForm() {
             console.log('validateForm called');
-            
+
             if (lessonPending) {
                 alert("กรุณารอสักครู่ กำลังสร้างบทเรียนใหม่...");
                 return;
             }
 
             this.examNameError = this.examName.trim() === '';
-            
+
             if (this.examNameError) {
                 console.log('Form validation failed - empty name');
                 return;
@@ -205,6 +246,25 @@ function examForm() {
 
             console.log('Form validation passed, submitting...');
             this.$el.submit();
+        }
+    }
+}
+
+function skillSelectEdit() {
+    return {
+        selectedSkills: @json(collect($exam->skills ?? [])->pluck('name')),
+        currentSkill: '',
+        skillError: false,
+        addSkill() {
+            if (this.currentSkill && !this.selectedSkills.includes(this.currentSkill)) {
+                this.selectedSkills.push(this.currentSkill);
+                this.skillError = false;
+            }
+            this.currentSkill = '';
+        },
+        removeSkill(index) {
+            this.selectedSkills.splice(index, 1);
+            if (this.selectedSkills.length === 0) this.skillError = true;
         }
     }
 }
@@ -310,17 +370,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (editBtn) {
             const value = editBtn.getAttribute("data-value");
             const lessonSpan = lessonsList.querySelector(`.lesson-item[data-id="${value}"] .lesson-name`);
-            
+
             if (!lessonSpan) return;
 
             const currentName = lessonSpan.textContent.trim();
             const newName = prompt("แก้ไขชื่อบทเรียน:", currentName);
-            
+
             if (newName && newName.trim() !== "" && newName.trim() !== currentName) {
                 lessonSpan.textContent = "กำลังอัพเดท...";
-                
+
                 const updateUrl = "{{ route('lesson.update', ':id') }}".replace(':id', value);
-                
+
                 fetch(updateUrl, {
                     method: "PUT",
                     headers: {
@@ -354,7 +414,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const value = deleteBtn.getAttribute("data-value");
             const lessonDiv = lessonsList.querySelector(`.lesson-item[data-id="${value}"]`);
             const lessonName = lessonDiv ? lessonDiv.querySelector(".lesson-name").textContent : "";
-            
+
             if (!confirm(`คุณต้องการลบบทเรียน "${lessonName}" หรือไม่?`)) return;
 
             if (lessonDiv) {

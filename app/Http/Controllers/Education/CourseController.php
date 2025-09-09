@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CourseMember;
 use Illuminate\Support\Facades\DB;
+use App\Models\ExamAttempt;
 
 class CourseController extends Controller
 {
@@ -187,7 +188,37 @@ class CourseController extends Controller
                 ->exists();
         }
 
-        return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams', 'isEnrolled'));
+        // Build per-user pass summary for this course (education/admin use)
+        $examIds = Exam::where('e_c_id', $id)->pluck('e_id');
+        $courseExamTotal = $examIds->count();
+
+        $memberIds = CourseMember::where('cm_c_id', $id)->pluck('cm_u_id')->unique();
+        $passedByUser = collect();
+        if ($courseExamTotal > 0 && $memberIds->isNotEmpty()) {
+            $passedByUser = ExamAttempt::whereIn('exam_id', $examIds)
+                ->whereIn('user_id', $memberIds)
+                ->where('passed', true)
+                ->select('user_id', DB::raw('COUNT(DISTINCT exam_id) as passed_count'))
+                ->groupBy('user_id')
+                ->pluck('passed_count', 'user_id');
+        }
+
+        $users = \App\Models\User::with('profile')->whereIn('id', $memberIds)->get()->keyBy('id');
+        $reportRows = $memberIds->map(function ($uid) use ($users, $passedByUser, $courseExamTotal) {
+            $u = $users->get($uid);
+            $name = $u && $u->profile ? $u->profile->up_name : ("User #$uid");
+            $passed = (int)($passedByUser[$uid] ?? 0);
+            $percentage = $courseExamTotal > 0 ? round(($passed / $courseExamTotal) * 100, 1) : 0.0;
+            return (object) [
+                'user_id' => $uid,
+                'name' => $name,
+                'passed' => $passed,
+                'total' => $courseExamTotal,
+                'percentage' => $percentage,
+            ];
+        });
+
+        return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams', 'isEnrolled', 'reportRows', 'courseExamTotal'));
     }
     /** แสดงคอร์สสำหรับผู้ใช้ทั่วไป (เช่น Jobber) */
     public function publicShow($id)
@@ -230,7 +261,11 @@ class CourseController extends Controller
             ->where('lessons.l_c_id', $id)
             ->count();
 
-        return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams', 'isEnrolled', 'examCount'));
+        // Provide default summary vars for view (education/admin block will check role)
+        $courseExamTotal = Exam::where('e_c_id', $id)->count();
+        $reportRows = collect();
+
+        return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams', 'isEnrolled', 'examCount', 'reportRows', 'courseExamTotal'));
     }
     public function destroy($id)
     {

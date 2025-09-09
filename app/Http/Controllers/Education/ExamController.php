@@ -8,6 +8,8 @@ use App\Models\Exam;
 use App\Models\Lesson;
 use App\Models\Course;
 use App\Models\Question;
+use App\Models\Skill;
+use App\Models\ExamAttempt;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ExamController extends Controller
@@ -23,7 +25,9 @@ class ExamController extends Controller
         }
         
         $lessons = Lesson::where('l_c_id', $courseId)->get();
-        return view('education.exams.create', compact('lessons', 'courseId'));
+        $skills = Skill::orderBy('category')->orderBy('name')->get();
+        $skillsByCategory = $skills->groupBy(function ($s) { return $s->category ?: 'ทั่วไป'; });
+        return view('education.exams.create', compact('lessons', 'courseId', 'skillsByCategory'));
     }
 
     // บันทึกแบบทดสอบ
@@ -34,6 +38,13 @@ class ExamController extends Controller
             $course = Course::findOrFail($request->course_id);
             $this->authorize('manageContent', $course);
         }
+
+        // Parse skills from comma-separated string to array
+        $skillsArray = !empty($request->skills) ? explode(',', $request->skills) : [];
+        $request->merge(['skills' => $skillsArray]);
+
+        // Count incoming questions to cap threshold
+        $totalIncomingQuestions = is_array($request->questions) ? count($request->questions) : 0;
 
         $request->validate([
             'e_name' => 'required|string|max:255',
@@ -46,15 +57,20 @@ class ExamController extends Controller
             'questions.*.q_answer3' => 'required|string',
             'questions.*.q_answer4' => 'required|string',
             'questions.*.q_correct_answer' => 'required|integer|min:1|max:4',
+            'pass_threshold' => 'required|integer|min:1|max:' . max(1, $totalIncomingQuestions),
+            'skills'       => 'required|array|min:1|max:10',
+            'skills.*'     => 'string|exists:skills,name',
         ]);
 
         // สร้างแบบทดสอบ
         $exam = Exam::create([
             'e_name' => $request->e_name,
             'e_description' => $request->e_description,
+            'e_skills' => $skillsArray,
             'e_l_id' => $request->e_l_id,
             'e_c_id' => $request->course_id,
             'e_index' => 0,
+            'pass_threshold' => (int)$request->pass_threshold,
         ]);
 
         // บันทึกคำถาม
@@ -72,7 +88,7 @@ class ExamController extends Controller
             }
         }
 
-        return redirect()->route('courses.show', ['id' => $request->course_id])
+                return redirect()->route('courses.show', ['id' => $request->course_id])
                 ->with('success', 'บันทึกแบบทดสอบและคำถามเรียบร้อยแล้ว');
     }
 
@@ -116,8 +132,10 @@ class ExamController extends Controller
         }
 
         $lessons = Lesson::where('l_c_id', $courseId)->get();
+        $skills = Skill::orderBy('category')->orderBy('name')->get();
+        $skillsByCategory = $skills->groupBy(function ($s) { return $s->category ?: 'ทั่วไป'; });
 
-        return view('education.exams.edit', compact('exam', 'lessons', 'courseId'));
+        return view('education.exams.edit', compact('exam', 'lessons', 'courseId', 'skillsByCategory'));
     }
 
     // อัพเดทแบบทดสอบ
@@ -132,19 +150,28 @@ class ExamController extends Controller
             $this->authorize('manageContent', $course);
         }
 
+        // Parse skills from comma-separated string to array
+        $skillsArray = !empty($request->skills) ? explode(',', $request->skills) : [];
+        $request->merge(['skills' => $skillsArray]);
+
         $request->validate([
             'e_name' => 'required|string|max:255',
             'e_l_id' => 'nullable|exists:lessons,l_id',
             'e_description' => 'nullable|string',
+            'pass_threshold' => 'required|integer|min:1|max:' . max(1, $exam->questions()->count()),
+            'skills'       => 'required|array|min:1|max:10',
+            'skills.*'     => 'string|exists:skills,name',
         ]);
 
         $exam->update([
             'e_name' => $request->e_name,
             'e_description' => $request->e_description,
             'e_l_id' => $request->e_l_id ?: null,
+            'pass_threshold' => (int)$request->pass_threshold,
+            'e_skills' => $skillsArray,
         ]);
 
-        return redirect()->route('courses.show', ['id' => $courseId])
+                return redirect()->route('courses.show', ['id' => $courseId])
                  ->with('success', 'อัพเดทแบบทดสอบเรียบร้อยแล้ว');
     }
 
@@ -193,6 +220,24 @@ class ExamController extends Controller
                            ->with('error', 'คุณต้องสมัครเข้าเรียนก่อนทำแบบทดสอบ');
         }
 
+        // If this user already passed and did not request retake, show last result with retake button
+        $retake = request()->boolean('retake');
+        if (!$retake) {
+            $latestPassed = \App\Models\ExamAttempt::where('user_id', auth()->id())
+                ->where('exam_id', $exam->e_id)
+                ->where('passed', true)
+                ->orderByDesc('id')
+                ->first();
+            if ($latestPassed) {
+                $score = (int)$latestPassed->score;
+                $totalQuestions = (int)$latestPassed->total_questions;
+                $required = (int)($latestPassed->required ?? ($exam->pass_threshold ?? (int)ceil(max(1, $totalQuestions) * 0.6)));
+                $passed = (bool)$latestPassed->passed;
+                $percentage = $totalQuestions > 0 ? ($score / $totalQuestions) * 100 : 0;
+                return view('education.exams.result', compact('exam', 'score', 'totalQuestions', 'percentage', 'required', 'passed'));
+            }
+        }
+
         return view('education.exams.take', compact('exam'));
     }
 
@@ -223,8 +268,24 @@ class ExamController extends Controller
             }
         }
         
+        $required = $exam->pass_threshold ?? (int)ceil($totalQuestions * 0.6);
+        $passed = $score >= $required;
+
         $percentage = $totalQuestions > 0 ? ($score / $totalQuestions) * 100 : 0;
+
+        // Save exam attempt
+        ExamAttempt::create([
+            'user_id' => auth()->id(),
+            'exam_id' => $exam->e_id,
+            'score' => $score,
+            'total_questions' => $totalQuestions,
+            'required' => $required,
+            'passed' => $passed,
+            'percentage' => number_format($percentage, 2, '.', ''),
+            'answers' => $answers,
+        ]);
         
-        return view('education.exams.result', compact('exam', 'score', 'totalQuestions', 'percentage'));
+        return view('education.exams.result', compact('exam', 'score', 'totalQuestions', 'percentage', 'required', 'passed'));
     }
 }
+

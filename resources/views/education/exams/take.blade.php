@@ -7,6 +7,7 @@
     <div class="text-center mb-6">
         <h2 class="text-2xl font-semibold text-gray-800">{{ $exam->e_name }}</h2>
         <p class="text-gray-600 mt-2">จำนวนคำถาม {{ $exam->questions->count() }} ข้อ</p>
+        <p class="text-gray-600 mt-1">เกณฑ์ผ่าน: อย่างน้อย {{ $exam->pass_threshold ?? (int)ceil($exam->questions->count()*0.6) }} ข้อ</p>
     </div>
 
     @if($exam->questions->count() === 0)

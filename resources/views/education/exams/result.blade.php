@@ -11,11 +11,16 @@
 
     <div class="bg-white rounded-lg p-8 shadow text-center">
         <div class="mb-6">
-            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full {{ $percentage >= 60 ? 'bg-green-100' : 'bg-red-100' }} mb-4">
-                <i class="fa-solid {{ $percentage >= 60 ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600' }} text-4xl"></i>
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full {{ $passed ? 'bg-green-100' : 'bg-red-100' }} mb-4">
+                <i class="fa-solid {{ $passed ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600' }} text-4xl"></i>
             </div>
             
-            <h3 class="text-2xl font-bold {{ $percentage >= 60 ? 'text-green-600' : 'text-red-600' }} mb-2">
+            <div class="flex justify-between items-center py-2">
+                <span class="text-gray-600">เกณฑ์ผ่าน:</span>
+                <span class="font-semibold">อย่างน้อย {{ $required }} ข้อ</span>
+            </div>
+            
+            <h3 class="text-2xl font-bold {{ $passed ? 'text-green-600' : 'text-red-600' }} mb-2">
                 {{ $percentage >= 60 ? 'ผ่าน' : 'ไม่ผ่าน' }}
             </h3>
         </div>
@@ -28,7 +33,7 @@
             
             <div class="flex justify-between items-center py-2 border-b">
                 <span class="text-gray-600">เปอร์เซ็นต์:</span>
-                <span class="font-semibold text-lg {{ $percentage >= 60 ? 'text-green-600' : 'text-red-600' }}">
+                <span class="font-semibold text-lg {{ $passed ? 'text-green-600' : 'text-red-600' }}">
                     {{ number_format($percentage, 1) }}%
                 </span>
             </div>
@@ -56,13 +61,19 @@
         @endif
 
         <div class="flex justify-center gap-4">
-             @if($percentage < 60)
+             @if(!$passed)
                 <a href="{{ route('exams.take', $exam->e_id) }}" 
-                   class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                   class="hidden px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
                     <i class="fa-solid fa-redo mr-2"></i>
                     ทำแบบทดสอบอีกครั้ง
                 </a>
             @endif
+
+            <a href="{{ route('exams.take', $exam->e_id) . '?retake=1' }}" 
+               class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                <i class="fa-solid fa-redo mr-2"></i>
+                ทำแบบทดสอบอีกครั้ง
+            </a>
 
             <a href="{{ route('courses.view', $exam->e_c_id) }}" 
                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">

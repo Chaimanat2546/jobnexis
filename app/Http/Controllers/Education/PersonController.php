@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\CourseMember;
+use App\Models\Exam;
+use App\Models\ExamAttempt;
 use App\Models\User;
 use App\Models\EducationProfile;
 use App\Models\Certificate;
@@ -34,7 +36,38 @@ class PersonController extends Controller
         // ผู้ที่ถูกออกใบประกาศแล้วในคอร์สนี้
         $issuedUserIds = Certificate::where('cer_c_id', $course->c_id)->pluck('cer_u_id')->toArray();
 
-        return view('education.courses.person', compact('course', 'id', 'members', 'universityProfile', 'issuedUserIds'));
+        // Build per-user pass summary for this course
+        $examIds = Exam::where('e_c_id', $id)->pluck('e_id');
+        $courseExamTotal = $examIds->count();
+        $memberIds = $members->pluck('cm_u_id')->unique();
+
+        $passedByUser = collect();
+        if ($courseExamTotal > 0 && $memberIds->isNotEmpty()) {
+            $passedByUser = ExamAttempt::whereIn('exam_id', $examIds)
+                ->whereIn('user_id', $memberIds)
+                ->where('passed', true)
+                ->select('user_id', \DB::raw('COUNT(DISTINCT exam_id) as passed_count'))
+                ->groupBy('user_id')
+                ->pluck('passed_count', 'user_id');
+        }
+
+        $reportRows = $members->map(function ($m) use ($passedByUser, $courseExamTotal) {
+            $uid = $m->cm_u_id;
+            $name = optional($m->user->profile)->up_name ?? ($m->user->email ?? ('User #'.$uid));
+            $passed = (int)($passedByUser[$uid] ?? 0);
+            $percentage = $courseExamTotal > 0 ? round(($passed / $courseExamTotal) * 100, 1) : 0.0;
+            return (object) [
+                'user_id' => $uid,
+                'name' => $name,
+                'passed' => $passed,
+                'total' => $courseExamTotal,
+                'percentage' => $percentage,
+            ];
+        });
+
+        $summaryByUser = $reportRows->keyBy('user_id');
+
+        return view('education.courses.person', compact('course', 'id', 'members', 'universityProfile', 'issuedUserIds', 'reportRows', 'courseExamTotal', 'summaryByUser'));
     }
 
     /** ออกประกาศนียบัตรให้ผู้เรียนรายบุคคล */
