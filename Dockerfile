@@ -19,17 +19,16 @@ FROM composer:2 AS app
 
 WORKDIR /var/www/html
 
-# Required libs/exts for Laravel (Debian-based composer image)
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       git unzip \
-       libpq-dev \
-       libsqlite3-dev \
+# Required libs/exts for Laravel (Alpine-based image)
+RUN apk add --no-cache \
+      bash \
+      postgresql-dev \
+      sqlite sqlite-dev \
+      oniguruma-dev \
     && docker-php-ext-install \
-       pdo_sqlite \
-       pdo_pgsql \
-       mbstring \
-    && rm -rf /var/lib/apt/lists/*
+      pdo_sqlite \
+      pdo_pgsql \
+      mbstring
 
 # Copy application code
 COPY . .
