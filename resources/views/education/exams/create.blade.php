@@ -66,9 +66,9 @@
                     x-text="`${examName.length} / 50`"></span>
             </div>
             <!-- ข้อความแจ้งเตือน แยกออกมา -->
-            <span class="text-red-600 text-sm mt-1" 
-                x-show="examNameError" 
-                x-cloak 
+            <span class="text-red-600 text-sm mt-1"
+                x-show="examNameError"
+                x-cloak
                 style="display: none;">
                 กรุณากรอกชื่อแบบทดสอบ
             </span>
@@ -83,12 +83,53 @@
                   x-text="`${examDesc.length} / 200`"></span>
         </div>
 
+        {{-- ทักษะที่ประเมิน (จัดหมวดหมู่) --}}
+        <div class="flex flex-col gap-2" x-data="skillSelect()">
+            <label class="block text-base-content mb-1">ทักษะที่แบบทดสอบนี้วัดผล</label>
+
+            <div class="flex flex-wrap gap-2 mb-2">
+                <template x-for="(skill,index) in selectedSkills" :key="index">
+                    <span class="px-3 py-1 rounded-full border border-gray-300 bg-base-100 text-base-content">
+                        <span x-text="skill"></span>
+                        <button type="button" class="ml-2 text-red-500" @click="removeSkill(index)">&times;</button>
+                    </span>
+                </template>
+                <template x-if="selectedSkills.length === 0">
+                    <span class="text-sm text-gray-400">ยังไม่ได้เลือกทักษะ</span>
+                </template>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <select x-model="currentSkill" class="select select-bordered border border-gray-300">
+                    <option value="">เลือกทักษะ</option>
+                    @foreach($skillsByCategory as $category => $items)
+                        <optgroup label="{{ $category }}">
+                            @foreach($items as $skill)
+                                <option value="{{ $skill->name }}">{{ $skill->name }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+                <button type="button" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm" @click="addSkill()">เพิ่ม</button>
+            </div>
+
+            <input type="hidden" name="skills" :value="selectedSkills.join(',')">
+            <p class="text-sm text-red-600" x-show="skillError">กรุณาเลือกอย่างน้อย 1 ทักษะ</p>
+        </div>
+
+        {{-- เกณฑ์ผ่าน (จำนวนข้อที่ต้องถูกอย่างน้อย) --}}
+        <div class="flex flex-col gap-1">
+            <label class="block text-base-content mb-1">เกณฑ์ผ่าน (จำนวนข้อ)</label>
+            <input type="number" name="pass_threshold" min="1" class="input input-bordered w-40 border border-gray-300" required>
+            <p class="text-xs text-gray-500">ระบบจะตรวจว่าคุณทำถูกอย่างน้อยจำนวนข้อตามเกณฑ์นี้</p>
+        </div>
+
         {{-- ส่วนคำถาม --}}
         <div class="flex flex-col gap-4" x-data="questionManager()">
             <div class="flex items-center justify-between">
                 <label class="block text-base-content mb-1">คำถาม</label>
                 <!-- ปุ่มเพิ่มคำถามเมื่อยังไม่มีคำถาม -->
-                <button type="button" @click="addQuestion()" 
+                <button type="button" @click="addQuestion()"
                         x-show="questions.length === 0"
                         class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
                     <i class="fa-solid fa-plus mr-1"></i>
@@ -103,7 +144,7 @@
                         <!-- Header คำถาม -->
                         <div class="flex items-center justify-between mb-3">
                             <h4 class="font-medium text-base-content" x-text="`คำถามที่ ${index + 1}`"></h4>
-                            <button type="button" @click="removeQuestion(index)" 
+                            <button type="button" @click="removeQuestion(index)"
                                     class="text-red-600 hover:text-red-800">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
@@ -112,11 +153,11 @@
                         <!-- คำถาม -->
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-1">คำถาม</label>
-                            <textarea x-model="question.q_question" 
+                            <textarea x-model="question.q_question"
                                     :name="`questions[${index}][q_question]`"
-                                    rows="2" 
+                                    rows="2"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-600 focus:ring focus:ring-blue-100 resize-none"
-                                    placeholder="กรอกคำถาม..." 
+                                    placeholder="กรอกคำถาม..."
                                     required></textarea>
                         </div>
 
@@ -125,15 +166,15 @@
                             <template x-for="(answer, answerIndex) in ['q_answer1', 'q_answer2', 'q_answer3', 'q_answer4']" :key="answerIndex">
                                 <div class="flex items-center gap-2">
                                     <!-- Radio button สำหรับเลือกคำตอบที่ถูก -->
-                                    <input type="radio" 
-                                        :name="`questions[${index}][q_correct_answer]`" 
+                                    <input type="radio"
+                                        :name="`questions[${index}][q_correct_answer]`"
                                         :value="answerIndex + 1"
                                         x-model="question.q_correct_answer"
-                                        class="text-green-600 focus:ring-green-500" 
+                                        class="text-green-600 focus:ring-green-500"
                                         required>
-                                    
+
                                     <!-- Input สำหรับคำตอบ -->
-                                    <input type="text" 
+                                    <input type="text"
                                         x-model="question[answer]"
                                         :name="`questions[${index}][${answer}]`"
                                         :placeholder="`ตัวเลือกที่ ${answerIndex + 1}`"
@@ -158,7 +199,7 @@
 
                 <!-- ปุ่มเพิ่มคำถาม - อยู่ส่วนล่างของคำถามล่าสุด -->
                 <div class="flex justify-center">
-                    <button type="button" @click="addQuestion()" 
+                    <button type="button" @click="addQuestion()"
                             class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
                         <i class="fa-solid fa-plus mr-2"></i>
                         เพิ่มคำถามใหม่
@@ -167,7 +208,7 @@
             </div>
 
             <!-- ข้อความเมื่อไม่มีคำถาม -->
-            <div x-show="questions.length === 0" 
+            <div x-show="questions.length === 0"
                 class="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
                 <i class="fa-solid fa-question-circle text-4xl mb-2 text-gray-400"></i>
                 <p>ยังไม่มีคำถาม กดปุ่ม "เพิ่มคำถาม" เพื่อเริ่มต้น</p>
@@ -176,11 +217,11 @@
 
         {{-- ปุ่ม Action --}}
         <div class="col-span-1 md:col-span-2 flex justify-center gap-4 mt-10">
-            <button type="submit" 
+            <button type="submit"
                     class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-6 py-3">
                 สร้าง
             </button>
-           <a href="{{ route('courses.show', ['id' => $courseId]) }}" 
+           <a href="{{ route('courses.show', ['id' => $courseId]) }}"
             class="btn btn-outline text-base-content rounded-lg px-6 py-3">
                 ยกเลิก
             </a>
@@ -203,14 +244,14 @@ function examForm() {
 
         validateForm() {
             console.log('validateForm called');
-            
+
             if (lessonPending) {
                 alert("กรุณารอสักครู่ กำลังสร้างบทเรียนใหม่...");
                 return;
             }
 
             this.examNameError = this.examName.trim() === '';
-            
+
             if (this.examNameError) {
                 console.log('Form validation failed - empty name');
                 return;
@@ -246,6 +287,25 @@ function examForm() {
 
             console.log('Form validation passed, submitting...');
             this.$el.submit();
+        }
+    }
+}
+
+function skillSelect() {
+    return {
+        selectedSkills: [],
+        currentSkill: '',
+        skillError: false,
+        addSkill() {
+            if (this.currentSkill && !this.selectedSkills.includes(this.currentSkill)) {
+                this.selectedSkills.push(this.currentSkill);
+                this.skillError = false;
+            }
+            this.currentSkill = '';
+        },
+        removeSkill(index) {
+            this.selectedSkills.splice(index, 1);
+            if (this.selectedSkills.length === 0) this.skillError = true;
         }
     }
 }
@@ -400,7 +460,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (editBtn) {
             const value = editBtn.getAttribute("data-value");
             const lessonSpan = lessonsList.querySelector(`.lesson-item[data-id="${value}"] .lesson-name`);
-            
+
             if (!lessonSpan) {
                 console.error("ไม่พบ lesson span สำหรับ ID:", value);
                 return;
@@ -408,14 +468,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const currentName = lessonSpan.textContent.trim();
             const newName = prompt("แก้ไขชื่อบทเรียน:", currentName);
-            
+
             if (newName && newName.trim() !== "" && newName.trim() !== currentName) {
                 // แสดง loading state
                 lessonSpan.textContent = "กำลังอัพเดท...";
-                
+
                 // ใช้ named route
                 const updateUrl = "{{ route('lesson.update', ':id') }}".replace(':id', value);
-                
+
                 fetch(updateUrl, {
                     method: "PUT",
                     headers: {
@@ -435,11 +495,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (data && data.success === true) {
                         // อัพเดท UI แบบ real-time
                         lessonSpan.textContent = data.lesson.l_name;
-                        
+
                         // อัพเดท TomSelect option
                         if (typeof ts !== 'undefined' && ts.updateOption) {
                             ts.updateOption(value, { value: value, text: data.lesson.l_name });
-                            
+
                             // ถ้า option นี้ถูกเลือกอยู่ ให้อัพเดท display text
                             if (ts.getValue() == value) {
                                 ts.setValue(value, true);
@@ -462,7 +522,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const value = deleteBtn.getAttribute("data-value");
             const lessonDiv = lessonsList.querySelector(`.lesson-item[data-id="${value}"]`);
             const lessonName = lessonDiv ? lessonDiv.querySelector(".lesson-name").textContent : "";
-            
+
             if (!confirm(`คุณต้องการลบบทเรียน "${lessonName}" หรือไม่?`)) {
                 return;
             }
@@ -495,13 +555,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (lessonDiv) {
                         lessonDiv.remove();
                     }
-                    
+
                     // ลบจาก TomSelect
                     if (typeof ts !== 'undefined' && ts.removeOption) {
                         ts.removeOption(value);
                         ts.clear(true);
                     }
-                    
+
                     updatePlaceholder();
                 } else {
                     throw new Error("Delete failed - success is false");

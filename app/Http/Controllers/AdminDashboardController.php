@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Models\ExamAttempt;
+use App\Models\Exam;
 
 class AdminDashboardController extends Controller
 {
@@ -135,5 +137,41 @@ class AdminDashboardController extends Controller
     {
         return $interval === 'day' ? $dt->format('Y-m-d') :
                ($interval === 'week' ? $dt->format('o-\WW') : $dt->format('Y-m'));
+    }
+
+    // Top skills pie (global): returns top 5 skills by attempts share with average percentage per skill
+    public function skillStats(Request $request)
+    {
+        $attempts = ExamAttempt::with('exam:e_id,e_skills')
+            ->select(['exam_id','score','total_questions'])
+            ->get();
+
+        $agg = [];
+        foreach ($attempts as $att) {
+            $exam = $att->exam;
+            if (!$exam || empty($exam->e_skills) || !is_array($exam->e_skills)) continue;
+            $pct = ($att->total_questions > 0) ? ($att->score / $att->total_questions) * 100.0 : 0.0;
+            foreach ($exam->e_skills as $name) {
+                $key = (string) $name;
+                if (!isset($agg[$key])) $agg[$key] = ['count'=>0,'sumPct'=>0.0];
+                $agg[$key]['count'] += 1;
+                $agg[$key]['sumPct'] += $pct;
+            }
+        }
+
+        // compute avg and pick top 5 by count
+        $rows = [];
+        foreach ($agg as $skill => $v) {
+            $avg = $v['count'] > 0 ? $v['sumPct'] / $v['count'] : 0.0;
+            $rows[] = ['skill'=>$skill, 'count'=>$v['count'], 'avg'=>round($avg,1)];
+        }
+        usort($rows, fn($a,$b)=> $b['count'] <=> $a['count']);
+        $top = array_slice($rows, 0, 5);
+
+        return response()->json([
+            'labels' => array_map(fn($r)=> $r['skill'], $top),
+            'data'   => array_map(fn($r)=> $r['count'], $top),
+            'avg'    => array_map(fn($r)=> $r['avg'], $top),
+        ]);
     }
 }

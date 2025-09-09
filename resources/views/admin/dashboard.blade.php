@@ -38,4 +38,37 @@
     title="สถิติผู้ใช้งาน"
 />
     </div>
+
+    <div class="mt-6 p-4 bg-base-100 rounded-2xl shadow">
+        <h3 class="text-lg font-semibold mb-3">Top 5 Skills (All Exams)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="relative h-[300px]">
+                <canvas id="admin-skill-pie"></canvas>
+            </div>
+            <div id="admin-skill-legend" class="flex flex-col gap-2"></div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            (async function(){
+                const res = await fetch("{{ route('admin.skills.data') }}");
+                const j = await res.json();
+                const el = document.getElementById('admin-skill-pie');
+                const colors = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa'];
+                new Chart(el.getContext('2d'), {
+                    type: 'doughnut',
+                    data: { labels: j.labels, datasets: [{ data: j.data, backgroundColor: colors, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins:{ legend:{ display:false } } }
+                });
+                const legend = document.getElementById('admin-skill-legend');
+                legend.innerHTML = j.labels.map((lb,i)=>`
+                    <div class="flex items-center gap-3 p-2 rounded bg-base-200">
+                        <span class="inline-block w-3 h-3 rounded" style="background:${colors[i%colors.length]}"></span>
+                        <span class="flex-1">${lb}</span>
+                        <span class="text-sm text-gray-600">attempts: <b>${j.data[i]||0}</b></span>
+                        <span class="text-sm text-gray-600">avg: <b>${(j.avg[i]||0)}%</b></span>
+                    </div>
+                `).join('');
+            })();
+        </script>
+    </div>
 @endsection
