@@ -111,7 +111,7 @@
                                     $isJobber = Auth::user()->role === 'jobber';
 
                                     $profileRoute = match (Auth::user()->role) {
-                                        'admin' => route('admin.dashboard'),
+                                        'admin' => route('admin.userStats'),
                                         'provider' => route('provider.dashboard'),
                                         'education' => route('education.dashboard'),
                                         'jobber' => route('jobber.dashboard'),
