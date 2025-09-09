@@ -24,8 +24,10 @@ RUN apk add --no-cache \
       bash \
       sqlite sqlite-dev \
       oniguruma-dev \
+      postgresql-dev \
     && docker-php-ext-install \
       pdo_sqlite \
+      pdo_pgsql \
       mbstring
 
 # Copy application code
@@ -46,4 +48,3 @@ ENV APP_PORT=8000
 EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]
-

@@ -12,4 +12,20 @@ services:
       APP_DEBUG: "false"
       APP_URL: http://localhost:8080
       RUN_MIGRATIONS: "1"
+    depends_on:
+      - pgsql
 
+  pgsql:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: laravel
+      POSTGRES_USER: sail
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+    driver: local

@@ -34,7 +34,22 @@ if [ "${RUN_MIGRATIONS:-1}" = "1" ]; then
   php artisan session:table --no-interaction || true
   php artisan cache:table --no-interaction || true
   php artisan queue:table --no-interaction || true
-  php artisan migrate --force || true
+
+  # If using Postgres/MySQL, retry a few times for readiness
+  if [ "$DB_CONNECTION_ENV" = "pgsql" ] || [ "$DB_CONNECTION_ENV" = "mysql" ]; then
+    tries=0
+    until php artisan migrate --force; do
+      tries=$((tries+1))
+      if [ $tries -ge 10 ]; then
+        echo "Migrations failed after $tries attempts; continuing to serve."
+        break
+      fi
+      echo "Waiting for database to be ready... ($tries)"
+      sleep 3
+    done
+  else
+    php artisan migrate --force || true
+  fi
 fi
 
 exec php artisan serve --host=0.0.0.0 --port="${APP_PORT:-8000}"
