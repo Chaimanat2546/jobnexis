@@ -12,8 +12,17 @@ services:
       APP_DEBUG: "false"
       APP_URL: http://localhost:8080
       RUN_MIGRATIONS: "1"
+      # Mailpit SMTP for outgoing mail
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      MAIL_FROM_ADDRESS: noreply@example.com
+      MAIL_FROM_NAME: Laravel
     depends_on:
       - pgsql
+      - mailpit
 
   pgsql:
     image: postgres:17
@@ -25,6 +34,12 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
 
 volumes:
   pgdata:
