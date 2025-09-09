@@ -15,20 +15,21 @@ RUN composer install \
 ######################################################################
 # Runtime image
 ######################################################################
-FROM php:8.2-cli-alpine AS app
+FROM composer:2 AS app
 
 WORKDIR /var/www/html
 
-# Required libs/exts for a basic Laravel app on sqlite
-RUN apk add --no-cache \
-      bash \
-      sqlite sqlite-dev \
-      oniguruma-dev \
-      postgresql-dev \
+# Required libs/exts for Laravel (Debian-based composer image)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       git unzip \
+       libpq-dev \
+       libsqlite3-dev \
     && docker-php-ext-install \
-      pdo_sqlite \
-      pdo_pgsql \
-      mbstring
+       pdo_sqlite \
+       pdo_pgsql \
+       mbstring \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY . .
