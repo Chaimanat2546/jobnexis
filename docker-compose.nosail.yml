@@ -41,6 +41,16 @@ services:
       - "127.0.0.1::1025"  # Random host port -> container 1025 (SMTP)
       - "127.0.0.1::8025"  # Random host port -> container 8025 (Web UI)
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "127.0.0.1::80"    # Random host port -> container 80 (Web UI)
+    depends_on:
+      - pgsql
+
 volumes:
   pgdata:
     driver: local
