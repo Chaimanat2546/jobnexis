@@ -18,6 +18,7 @@ use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileDetailController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\SkillController;
 
 Route::get('/', fn() => view('welcome'))->name('home');
 
@@ -124,6 +125,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('admin.jobber.toggleBan');
         Route::delete('/jobber/{user}', [ProfileDetailController::class, 'destroy'])
             ->name('admin.jobber.destroy');
+        Route::get('/management-skills', [SkillController::class, 'index'])->name('management.skills.index');
+        Route::post('/management-skills', [SkillController::class, 'store'])->name('management.skills.store');
+        Route::put('/management-skills/{skill}', [SkillController::class, 'update'])->name('management.skills.update');
+        Route::delete('/management-skills/{skill}', [SkillController::class, 'destroy'])->name('management.skills.destroy');
     });
 
     /** ---------------- Provider Routes ---------------- */
