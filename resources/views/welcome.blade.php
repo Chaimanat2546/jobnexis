@@ -101,9 +101,7 @@
                                     };
                                 @endphp
 
-                                @if ($isAdmin)
-                                    <a href="{{ $profileRoute }}">โปรไฟล์</a>
-                                @else
+                                @if (!$isAdmin)
                                     <a href="{{ $profileRoute }}">โปรไฟล์</a>
                                 @endif
                             </li>
