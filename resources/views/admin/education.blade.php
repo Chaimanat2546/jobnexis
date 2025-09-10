@@ -43,6 +43,12 @@
                                             : 'Active');
                             @endphp
                             <div class="flex items-center gap-2">
+                                {{-- ดูคอร์สของสถาบันนี้ --}}
+                                <a href="{{ route('courses.index', ['owner' => $row->id]) }}"
+                                   class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-indigo-600 hover:text-white"
+                                   title="ดูคอร์สทั้งหมดของสถาบันนี้">
+                                    <i class="fa-solid fa-book"></i>
+                                </a>
                                 {{-- ลิงก์แก้ไข --}}
                                 <a href="{{ route('admin.profile-education.edit', $row->id) }}"
                                     class="flex items-center justify-center w-10 h-10 text-gray-700 transition border border-gray-400 rounded-2xl bg-base-100 hover:bg-blue-600 hover:text-white"

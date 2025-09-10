@@ -21,8 +21,20 @@ class CourseController extends Controller
 {
     public function index(Request $request)
     {
+        // ถ้ามี owner (user id) ให้กรองเฉพาะคอร์สของสถาบันนั้น
+        $ownerId = (int) ($request->query('owner') ?? 0);
+
+        $query = Course::query();
+        if ($ownerId > 0) {
+            // สิทธิ์: admin ดูของใครก็ได้, education ดูได้เฉพาะของตัวเอง
+            if (!(auth()->user()?->role === 'admin' || auth()->id() === $ownerId)) {
+                abort(403);
+            }
+            $query->where('c_create_by_id', $ownerId);
+        }
+
         // ดึงข้อมูลคอร์สจากฐานข้อมูล
-        $coursesFromDB = Course::all();
+        $coursesFromDB = $query->get();
 
         // แปลงข้อมูลจาก DB ให้ตรงตามที่ View ต้องการ
         $allCourses = $coursesFromDB->map(function ($course) {
