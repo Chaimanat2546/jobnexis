@@ -102,7 +102,7 @@
                                 @endphp
 
                                 @if ($isAdmin)
-                                    <span>ESP BUU</span>
+                                    <a href="{{ $profileRoute }}">โปรไฟล์</a>
                                 @else
                                     <a href="{{ $profileRoute }}">โปรไฟล์</a>
                                 @endif
@@ -121,9 +121,6 @@
                                     };
                                 @endphp
 
-                                @if ($isAdmin)
-                                    <span>ESP BUU</span>
-                                @endif
                                 @if (!$isJobber)
                                     <a href="{{ $profileRoute }}">แดชบอร์ด</a>
                                 @endif
