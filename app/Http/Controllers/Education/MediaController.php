@@ -39,12 +39,13 @@ class MediaController extends Controller
             $this->authorize('manageContent', $course);
         }
 
+        $maxKb = (int) config('media.max_upload_mb', 3072) * 1024; // convert MB → KB for Laravel 'max'
         $request->validate([
             'm_name' => 'required|string|max:50',
             'm_l_id' => 'nullable|exists:lessons,l_id',
             'm_desc' => 'nullable|string|max:200',
             'm_index' => 'nullable|integer',
-            'files.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,svg,mp4,mov,avi,mkv,webm,wmv,flv,3gp|max:102400', // 100MB
+            'files.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,svg,mp4,mov,avi,mkv,webm,wmv,flv,3gp|max:' . $maxKb,
         ]);
 
         Log::info('Validation passed for store');
@@ -185,11 +186,12 @@ class MediaController extends Controller
         }
 
         // Validation
+        $maxKb = (int) config('media.max_upload_mb', 3072) * 1024; // convert MB → KB for Laravel 'max'
         $request->validate([
             'm_name' => 'required|string|max:50',
             'm_l_id' => 'nullable|exists:lessons,l_id',
             'm_desc' => 'nullable|string|max:200',
-            'files.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,svg,mp4,mov,avi,mkv,webm,wmv,flv,3gp|max:102400',
+            'files.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,svg,mp4,mov,avi,mkv,webm,wmv,flv,3gp|max:' . $maxKb,
             'delete_files' => 'nullable|array',
             'delete_files.*' => 'integer|exists:media_files,mf_id'
         ]);

@@ -487,13 +487,15 @@ function mediaForm() {
         },
 
         handleFiles(event) {
+            const MAX_MB = {{ (int) config('media.max_upload_mb') }};
+            const MAX_BYTES = MAX_MB * 1024 * 1024;
             const newFiles = Array.from(event.target.files).filter(file => {
                 if (!this.validateFileType(file)) {
                     alert(`ไฟล์ ${file.name} ไม่รองรับ กรุณาเลือกไฟล์ประเภท PDF, DOCX, รูปภาพ หรือวีดีโอ`);
                     return false;
                 }
-                if (file.size > 102400 * 1024) {
-                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
+                if (file.size > MAX_BYTES) {
+                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด ${MAX_MB}MB)`);
                     return false;
                 }
                 return true;
@@ -506,13 +508,15 @@ function mediaForm() {
         },
 
         handleDrop(event) {
+            const MAX_MB = {{ (int) config('media.max_upload_mb') }};
+            const MAX_BYTES = MAX_MB * 1024 * 1024;
             const droppedFiles = Array.from(event.dataTransfer.files).filter(file => {
                 if (!this.validateFileType(file)) {
                     alert(`ไฟล์ ${file.name} ไม่รองรับ กรุณาเลือกไฟล์ประเภท PDF, DOCX, รูปภาพ หรือวีดีโอ`);
                     return false;
                 }
-                if (file.size > 102400 * 1024) {
-                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
+                if (file.size > MAX_BYTES) {
+                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด ${MAX_MB}MB)`);
                     return false;
                 }
                 return true;

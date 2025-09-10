@@ -85,7 +85,7 @@
                 @dragover.prevent
                 @drop.prevent="handleDrop($event)">
                 <p class="text-gray-600">ลากไฟล์มาวางที่นี่ หรือ <span class="text-blue-600 underline">เลือกไฟล์</span></p>
-                <p class="text-xs text-gray-400 mt-1">รองรับหลายไฟล์ (PDF, DOCX, PNG, JPG, MP4, MOV, AVI และอื่นๆ)</p>
+                <p class="text-xs text-gray-400 mt-1">รองรับหลายไฟล์ (PDF, DOCX, PNG, JPG, MP4, MOV, AVI และอื่นๆ) ขนาดสูงสุดไฟล์ละ {{ (int) config('media.max_upload_mb') }}MB</p>
             </div>
 
             <!-- input file จริง แต่ซ่อน -->
@@ -284,13 +284,15 @@ function mediaForm() {
         },
 
          handleFiles(event) {
+            const MAX_MB = {{ (int) config('media.max_upload_mb') }};
+            const MAX_BYTES = MAX_MB * 1024 * 1024;
             const newFiles = Array.from(event.target.files).filter(file => {
                 if (!this.validateFileType(file)) {
                     alert(`ไฟล์ ${file.name} ไม่รองรับ กรุณาเลือกไฟล์ประเภท PDF, DOCX, รูปภาพ หรือวีดีโอ`);
                     return false;
                 }
-                if (file.size > 102400 * 1024) { // 100MB
-                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
+                if (file.size > MAX_BYTES) { // dynamic max size
+                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด ${MAX_MB}MB)`);
                     return false;
                 }
                 return true;
@@ -303,13 +305,15 @@ function mediaForm() {
         },
 
         handleDrop(event) {
+            const MAX_MB = {{ (int) config('media.max_upload_mb') }};
+            const MAX_BYTES = MAX_MB * 1024 * 1024;
             const droppedFiles = Array.from(event.dataTransfer.files).filter(file => {
                 if (!this.validateFileType(file)) {
                     alert(`ไฟล์ ${file.name} ไม่รองรับ กรุณาเลือกไฟล์ประเภท PDF, DOCX, รูปภาพ หรือวีดีโอ`);
                     return false;
                 }
-                if (file.size > 102400 * 1024) { // 100MB
-                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด 100MB)`);
+                if (file.size > MAX_BYTES) { // dynamic max size
+                    alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด ${MAX_MB}MB)`);
                     return false;
                 }
                 return true;
