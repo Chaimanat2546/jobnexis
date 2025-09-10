@@ -40,10 +40,12 @@
                         <li class="transition-transform duration-200 hover:scale-105">
                             <a href="{{ route('courses.catalog') }}">เรียนรู้ทักษะ</a>
                         </li>
-                        <li class="transition-transform duration-200 hover:scale-105"><a
-                                href="{{ route('jobber.jobs.index') }}">หางาน</a></li>
-                        <li class="transition-transform duration-200 hover:scale-105"><a
-                                href="{{ route('jobber.companies.index') }}">ผู้ประกอบการ</a></li>
+                        <li class="transition-transform duration-200 hover:scale-105">
+                            <a href="{{ auth()->user()->role === 'jobber' ? route('jobber.jobs.index') : route('jobs.index') }}">หางาน</a>
+                        </li>
+                        <li class="transition-transform duration-200 hover:scale-105">
+                            <a href="{{ auth()->user()->role === 'jobber' ? route('jobber.companies.index') : route('companies.index') }}">ผู้ประกอบการ</a>
+                        </li>
                         <li class="transition-transform duration-200 hover:scale-105"><a
                                 href="https://esp.informatics.buu.ac.th/2025/" target="_blank">ติดต่อเรา</a></li>
                     @else
