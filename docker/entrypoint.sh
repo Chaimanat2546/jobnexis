@@ -28,6 +28,13 @@ if ! grep -qE '^APP_KEY=.+$' .env 2>/dev/null; then
   php artisan key:generate --force || true
 fi
 
+# Ensure storage symlink exists and fix permissions
+if [ ! -L public/storage ]; then
+  php artisan storage:link || true
+fi
+chown -R www-data:www-data storage bootstrap/cache || true
+chmod -R 775 storage bootstrap/cache || true
+
 # Run migrations by default (can disable with RUN_MIGRATIONS=0)
 if [ "${RUN_MIGRATIONS:-1}" = "1" ]; then
   # Generate tables for session/cache/queue if configured to use database

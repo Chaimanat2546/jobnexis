@@ -12,6 +12,8 @@ services:
       APP_DEBUG: "false"
       APP_URL: http://localhost:8080
       RUN_MIGRATIONS: "1"
+    volumes:
+      - uploads:/var/www/html/storage/app/public
     depends_on:
       - pgsql
 
@@ -44,4 +46,6 @@ services:
 
 volumes:
   pgdata:
+    driver: local
+  uploads:
     driver: local
