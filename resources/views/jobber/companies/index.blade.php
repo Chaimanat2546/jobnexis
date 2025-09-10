@@ -36,7 +36,7 @@
                 <div class="overflow-hidden bg-white shadow rounded-xl">
                     @php
                         $banner = $p->co_banner_img ? asset('storage/'.$p->co_banner_img) : asset('image/web-image/work-group.jpg');
-                        $logo   = $p->co_profile_img ? asset('storage/'.$p->co_profile_img) : asset('image/web-image/logo.png');
+                        $logo   = asset('image/web-image/logo.png');
                     @endphp
                     <div class="relative h-28">
                         <img src="{{ $banner }}" class="object-cover w-full h-full" />
