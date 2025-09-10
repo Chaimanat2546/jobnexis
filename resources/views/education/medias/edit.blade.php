@@ -172,11 +172,12 @@
                                 case 'm4v': $icon = 'fas fa-file-video text-pink-500'; break;
                             }
                         @endphp
+                        @php $fileUrl = Storage::disk(config('media.disk','public'))->url($file->mf_path); @endphp
                         
                         <!-- Header ไฟล์ -->
                         <div class="flex items-center justify-between p-3 bg-gray-50 border-b border-gray-100">
                             <div class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer" 
-                                onclick="window.open('{{ asset('storage/'.$file->mf_path) }}', '_blank')">
+                                onclick="window.open('{{ $fileUrl }}', '_blank')">
                                 <i class="{{ $icon }} text-lg flex-shrink-0"></i>
                                 <span class="truncate text-sm font-medium text-gray-700 hover:text-blue-600">{{ $file->mf_original_name }}</span>
                             </div>
@@ -191,22 +192,22 @@
                         <!-- Preview Area -->
                         <div class="p-3">
                             @if($isImage)
-                                <div class="cursor-pointer group" onclick="openImageModal('{{ asset('storage/'.$file->mf_path) }}', '{{ $file->mf_original_name }}')">
+                                <div class="cursor-pointer group" onclick="openImageModal('{{ $fileUrl }}', '{{ $file->mf_original_name }}')">
                                     <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                                        <img src="{{ asset('storage/'.$file->mf_path) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Preview">
+                                        <img src="{{ $fileUrl }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Preview">
                                     </div>
                                 </div>
                             @elseif($isVideo)
                                 <div class="cursor-pointer group">
                                     <div class="aspect-video bg-gray-900 rounded-lg overflow-hidden">
                                         <video class="w-full h-full object-cover" controls preload="metadata">
-                                            <source src="{{ asset('storage/'.$file->mf_path) }}" type="video/{{ $ext }}">
+                                            <source src="{{ $fileUrl }}" type="video/{{ $ext }}">
                                             Your browser does not support the video tag.
                                         </video>
                                     </div>
                                 </div>
                             @else
-                                <div class="py-4 text-center cursor-pointer group" onclick="window.open('{{ asset('storage/'.$file->mf_path) }}', '_blank')">
+                                <div class="py-4 text-center cursor-pointer group" onclick="window.open('{{ $fileUrl }}', '_blank')">
                                     <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-gray-200 transition-colors">
                                         <i class="{{ $icon }} text-2xl"></i>
                                     </div>

@@ -60,6 +60,20 @@ return [
             'report' => false,
         ],
 
+        // Backblaze B2 via S3-compatible API
+        'b2' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-west-002'),
+            'bucket' => env('AWS_BUCKET'),
+            'endpoint' => env('AWS_ENDPOINT', 'https://s3.us-west-002.backblazeb2.com'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
+            'visibility' => env('AWS_VISIBILITY', 'public'),
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

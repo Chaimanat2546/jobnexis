@@ -273,7 +273,7 @@
                                                             case 'jpg': case 'jpeg': case 'png': case 'gif': case 'svg': $icon = 'fas fa-file-image'; $color = 'text-purple-500'; break;
                                                             case 'mp4': case 'mov': case 'avi': case 'mkv': case 'webm': case 'wmv': case 'flv': case '3gp': case 'm4v': $icon = 'fas fa-file-video'; $color = 'text-pink-500'; break;
                                                         }
-                                                        $fileUrl = asset('storage/' . $file->mf_path);
+                                                        $fileUrl = Storage::disk(config('media.disk','public'))->url($file->mf_path);
                                                     @endphp
 
                                                     <div class="overflow-hidden transition-shadow duration-200 bg-white border border-gray-300 shadow-sm rounded-xl hover:shadow-md">
@@ -487,7 +487,7 @@
                                             case 'jpg': case 'jpeg': case 'png': case 'gif': case 'svg': $icon = 'fas fa-file-image'; $color = 'text-purple-500'; break;
                                             case 'mp4': case 'mov': case 'avi': case 'mkv': case 'webm': case 'wmv': case 'flv': case '3gp': case 'm4v': $icon = 'fas fa-file-video'; $color = 'text-pink-500'; break;
                                         }
-                                        $fileUrl = asset('storage/' . $file->mf_path);
+                                        $fileUrl = Storage::disk(config('media.disk','public'))->url($file->mf_path);
                                     @endphp
 
                                     <div class="overflow-hidden transition-shadow duration-200 bg-white border border-gray-300 shadow-sm rounded-xl hover:shadow-md">

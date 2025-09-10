@@ -66,8 +66,9 @@ class MediaController extends Controller
         $uploadedFiles = $request->file('files') ?? [];
         Log::info('Processing file uploads:', ['files_count' => count($uploadedFiles)]);
 
+        $disk = config('media.disk', 'public');
         foreach ($uploadedFiles as $index => $file) {
-            $path = $file->store('media', 'public');
+            $path = $file->store('media', $disk);
 
             $mediaFile = MediaFile::create([
                 'mf_m_id' => $media->m_id,
@@ -248,8 +249,8 @@ class MediaController extends Controller
                     ]);
 
                     // ลบไฟล์จาก storage
-                    if ($file->mf_path && Storage::disk('public')->exists($file->mf_path)) {
-                        $deleteResult = Storage::disk('public')->delete($file->mf_path);
+                    if ($file->mf_path && Storage::disk(config('media.disk', 'public'))->exists($file->mf_path)) {
+                        $deleteResult = Storage::disk(config('media.disk', 'public'))->delete($file->mf_path);
                         Log::info('File deletion from storage:', [
                             'path' => $file->mf_path,
                             'success' => $deleteResult
@@ -257,7 +258,7 @@ class MediaController extends Controller
                     } else {
                         Log::warning('File not found in storage or path empty:', [
                             'path' => $file->mf_path,
-                            'exists' => $file->mf_path ? Storage::disk('public')->exists($file->mf_path) : false
+                            'exists' => $file->mf_path ? Storage::disk(config('media.disk', 'public'))->exists($file->mf_path) : false
                         ]);
                     }
 
@@ -301,7 +302,7 @@ class MediaController extends Controller
                     'mime_type' => $uploadedFile->getClientMimeType()
                 ]);
 
-                $path = $uploadedFile->store('media', 'public');
+                $path = $uploadedFile->store('media', config('media.disk', 'public'));
 
                 $mediaFile = $media->files()->create([
                     'mf_m_id' => $media->m_id,
@@ -368,7 +369,7 @@ class MediaController extends Controller
         // ลบไฟล์จริงจาก storage
         foreach ($media->files as $file) {
             if ($file->mf_path) {
-                $deleteResult = Storage::disk('public')->delete($file->mf_path);
+                $deleteResult = Storage::disk(config('media.disk', 'public'))->delete($file->mf_path);
                 Log::info('File deleted from storage:', [
                     'file_id' => $file->mf_id,
                     'path' => $file->mf_path,
