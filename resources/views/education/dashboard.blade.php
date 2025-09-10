@@ -6,7 +6,7 @@
     <div class="w-full p-6 shadow bg-base-200 rounded-2xl">
         <div class="flex items-center justify-end pb-4 mb-6 border-b">
             <a href="{{ route('courses.create') }}" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-plus mr-2 text-base-100"></i>สร้างคอร์ส</a>
+                <i class="mr-2 fa-solid fa-plus text-base-100"></i>สร้างคอร์ส</a>
         </div>
 
         <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
@@ -76,36 +76,4 @@
         </div>
     </div>
 
-    <div class="mt-6 p-4 bg-base-100 rounded-2xl shadow">
-        <h3 class="text-lg font-semibold mb-3">Top 5 Skills (คอร์สของฉัน)</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="relative h-[300px]"><canvas id="edu-skill-pie"></canvas></div>
-            <div id="edu-skill-legend" class="flex flex-col gap-2"></div>
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            (async function(){
-                try{
-                    const res = await fetch("{{ route('education.skills.data') }}");
-                    const j = await res.json();
-                    const el = document.getElementById('edu-skill-pie');
-                    const colors = ['#60a5fa','#34d399','#f472b6','#f59e0b','#a78bfa'];
-                    new Chart(el.getContext('2d'), {
-                        type: 'doughnut',
-                        data: { labels: j.labels, datasets: [{ data: j.data, backgroundColor: colors, borderWidth: 0 }] },
-                        options: { responsive: true, maintainAspectRatio: false, plugins:{ legend:{ display:false } } }
-                    });
-                    const legend = document.getElementById('edu-skill-legend');
-                    legend.innerHTML = j.labels.map((lb,i)=>`
-                        <div class=\"flex items-center gap-3 p-2 rounded bg-base-200\">
-                            <span class=\"inline-block w-3 h-3 rounded\" style=\"background:${colors[i%colors.length]}\"></span>
-                            <span class=\"flex-1\">${lb}</span>
-                            <span class=\"text-sm text-gray-600\">attempts: <b>${j.data[i]||0}</b></span>
-                            <span class=\"text-sm text-gray-600\">avg: <b>${(j.avg[i]||0)}%</b></span>
-                        </div>
-                    `).join('');
-                }catch(e){ console.error(e); }
-            })();
-        </script>
-    </div>
 @endsection

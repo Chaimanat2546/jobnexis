@@ -10,12 +10,9 @@ use App\Http\Controllers\Education\PersonController;
 use App\Http\Controllers\EducationProfileController;
 use App\Http\Controllers\RecruitmentController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CompaniesProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProviderController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileDetailController;
 use App\Http\Controllers\CertificateController;
 
@@ -31,8 +28,6 @@ Route::get('/companies', [CompaniesProfileController::class, 'guestIndex'])->nam
 Route::get('/companies/{userId}', [CompaniesProfileController::class, 'guestShow'])->name('companies.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-
-    //dev
     /** -------- Admin: รายงานของ provider แต่ละคน -------- */
     Route::get('/admin/providers/{userId}/recruitments', [RecruitmentController::class, 'adminIndex'])
         ->name('admin.providers.recruitments.index');
@@ -83,8 +78,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('admin.providers.destroy');
     });
 
-
-
     // สมัคร/ยกเลิกสมัครคอร์ส (เฉพาะ Jobber) - ไม่มี prefix เส้นทาง
     Route::middleware('role:jobber')->group(function () {
         Route::post('/courses/{id}/enroll', [CourseController::class, 'enroll'])->name('courses.enroll');
@@ -105,7 +98,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('admin.userStats');
         Route::get('/dashboard/data', [AdminDashboardController::class, 'userStatsData'])
             ->name('admin.userStats.data');
-
         Route::get('/jobber', [ProfileDetailController::class, 'index'])->name('admin.jobber.index');
         Route::get('/education', [EducationProfileController::class, 'index'])->name('admin.educations.index');
         Route::post('/edit-jobber/{userId}/certificate', [CertificateController::class, 'store'])
@@ -126,15 +118,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('admin.jobber.destroy');
     });
     Route::get('/dashboard/skills', [AdminDashboardController::class, 'skillStats'])->name('admin.skills.data');
-
     /** ---------------- Provider Routes ---------------- */
     Route::middleware('role:provider')->prefix('provider')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'provider'])->name('provider.dashboard');
     });
-
     /** ---------------- Education Routes ---------------- */
-
-
     Route::get('/edit-education', [EducationProfileController::class, 'edit'])
         ->name('profile-education.edit');
     Route::post('/edit-education/store', [EducationProfileController::class, 'store'])
