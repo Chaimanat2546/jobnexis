@@ -28,6 +28,10 @@ Route::get('/companies', [CompaniesProfileController::class, 'guestIndex'])->nam
 Route::get('/companies/{userId}', [CompaniesProfileController::class, 'guestShow'])->name('companies.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/jobs', [RecruitmentController::class, 'publicIndex'])->name('jobs.index');
+Route::get('/jobs/{rcId}', [RecruitmentController::class, 'publicShow'])->name('jobs.show');
+Route::get('/companies', [CompaniesProfileController::class, 'guestIndex'])->name('companies.index');
+Route::get('/companies/{userId}', [CompaniesProfileController::class, 'guestShow'])->name('companies.show');
     /** -------- Admin: รายงานของ provider แต่ละคน -------- */
     Route::get('/admin/providers/{userId}/recruitments', [RecruitmentController::class, 'adminIndex'])
         ->name('admin.providers.recruitments.index');
