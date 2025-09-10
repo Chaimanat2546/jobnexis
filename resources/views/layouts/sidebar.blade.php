@@ -54,6 +54,14 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('management.skills.index') }}"
+                    class="flex items-center {{ request()->is('admin/management-skills*') ? 'text-blue-600' : '' }}">
+                    <i
+                        class="fa-solid fa-lightbulb w-5 text-blue-600 text-center mr-1"></i>
+                    จัดการทักษะ
+                </a>
+            </li>
+            <li>
 
                 <a href="{{ route('logout') }}"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

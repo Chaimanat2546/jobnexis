@@ -8,6 +8,8 @@ class Skill extends Model
 {
     protected $fillable = ['name', 'category'];
 
+    public $timestamps = true;
+
     public function courses()
     {
         return $this->belongsToMany(
