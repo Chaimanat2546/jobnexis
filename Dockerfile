@@ -36,6 +36,9 @@ COPY . .
 # Bring in vendor from composer stage
 COPY --from=vendor /app/vendor ./vendor
 
+# Configure PHP upload limits for large media uploads
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Ensure storage and cache are writable
 RUN mkdir -p storage/framework/{cache,data,sessions,views} \
     && chmod -R 775 storage bootstrap/cache || true
