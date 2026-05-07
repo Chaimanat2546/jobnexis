@@ -65,7 +65,10 @@ class PasswordResetTest extends TestCase
 
             $response
                 ->assertSessionHasNoErrors()
-                ->assertRedirect(route('login'));
+                ->assertRedirect('/')
+                ->assertSessionHas('showAuthModal', true)
+                ->assertSessionHas('authForm', 'login')
+                ->assertSessionHas('status', 'password-updated');
 
             return true;
         });

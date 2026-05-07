@@ -1,23 +1,23 @@
 <?php
 
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CompaniesProfileController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Education\CourseController;
 use App\Http\Controllers\Education\ExamController;
 use App\Http\Controllers\Education\LessonController;
 use App\Http\Controllers\Education\MediaController;
-use App\Http\Controllers\Education\QuestionController;
 use App\Http\Controllers\Education\PersonController;
+use App\Http\Controllers\Education\QuestionController;
 use App\Http\Controllers\EducationProfileController;
-use App\Http\Controllers\RecruitmentController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CompaniesProfileController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileDetailController;
-use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\SkillController;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn() => view('welcome'))->name('home');
+Route::get('/', fn () => view('welcome'))->name('home');
 
 // Public catalog page (guest-friendly)
 Route::get('/courses', [CourseController::class, 'catalog'])->name('courses.catalog');
@@ -60,8 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('provider.recruitments.destroy');
     Route::patch('/my/recruitments/{rcId}/status', [RecruitmentController::class, 'updateStatus'])
         ->name('provider.recruitments.status');
-    //----------------
-
+    // ----------------
 
     /** ---------------- Dashboard ---------------- */
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -220,10 +219,10 @@ Route::middleware('role:jobber')->prefix('jobber')->group(function () {
 });
 
 /** ---------------- User Profile ---------------- */
-Route::controller(ProfileController::class)->group(function () {
+Route::middleware('auth')->controller(ProfileController::class)->group(function () {
     Route::get('/profile', 'edit')->name('profile.edit');
     Route::patch('/profile', 'update')->name('profile.update');
     Route::delete('/profile', 'destroy')->name('profile.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
