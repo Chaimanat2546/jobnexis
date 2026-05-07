@@ -47,15 +47,31 @@
         @else
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($courses as $course)
+                    @php
+                        $currentUser = auth()->user();
+                        $canOpenCourse = !$currentUser
+                            || $currentUser->role === 'jobber'
+                            || $currentUser->role === 'admin'
+                            || ($currentUser->role === 'education' && (int) $course->c_create_by_id === (int) $currentUser->id);
+                    @endphp
                     <div class="flex flex-col p-4 transition transform bg-white shadow rounded-xl ">
-                        <a href="{{ route('courses.view', ['id' => $course->c_id]) }}">
+                        @if ($canOpenCourse)
+                            <a href="{{ route('courses.view', ['id' => $course->c_id]) }}">
+                                <img src="{{ $course->c_image ? asset('storage/' . $course->c_image) : asset('image/web-image/ai-robot.jpg') }}"
+                                    alt="{{ $course->c_name }}" class="object-cover w-full h-40 mb-3 rounded-lg">
+                            </a>
+                        @else
                             <img src="{{ $course->c_image ? asset('storage/' . $course->c_image) : asset('image/web-image/ai-robot.jpg') }}"
                                 alt="{{ $course->c_name }}" class="object-cover w-full h-40 mb-3 rounded-lg">
-                        </a>
+                        @endif
                         <h3 class="mb-1 text-lg font-bold text-base-content">
-                            <a href="{{ route('courses.view', ['id' => $course->c_id]) }}" class="hover:underline">
+                            @if ($canOpenCourse)
+                                <a href="{{ route('courses.view', ['id' => $course->c_id]) }}" class="hover:underline">
+                                    {{ $course->c_name }}
+                                </a>
+                            @else
                                 {{ $course->c_name }}
-                            </a>
+                            @endif
                         </h3>
                         <div class="flex gap-2 mb-3 text-sm text-gray-600 line-clamp-2">
                             <p>{{ $course->c_name }}</p>
@@ -75,9 +91,11 @@
                                             สมัครคอร์ส
                                         </button>
                                     @endif
-                                @else
+                                @elseif ($canOpenCourse)
                                     <a href="{{ route('courses.view', ['id' => $course->c_id]) }}"
                                         class="btn btn-sm">ดูรายละเอียด</a>
+                                @else
+                                    <span class="text-sm text-gray-500">สำหรับผู้เรียน</span>
                                 @endif
                             @else
                                 <button type="button" class="btn btn-sm btn-primary"

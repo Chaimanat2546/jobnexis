@@ -10,11 +10,12 @@ class CoursePolicy
     /**
      * Allow admins to do everything on Course.
      */
-    public function before(User $user, string $ability): bool|null
+    public function before(User $user, string $ability): ?bool
     {
         if ($user->role === 'admin') {
             return true;
         }
+
         return null;
     }
 
@@ -23,8 +24,8 @@ class CoursePolicy
      */
     public function view(User $user, Course $course): bool
     {
-        // Education users can view education area pages
-        return $user->role === 'education';
+        // Education users can view only courses they own.
+        return $user->role === 'education' && (int) $course->c_create_by_id === (int) $user->id;
     }
 
     /**
@@ -36,4 +37,3 @@ class CoursePolicy
         return $user->role === 'education' && (int) $course->c_create_by_id === (int) $user->id;
     }
 }
-

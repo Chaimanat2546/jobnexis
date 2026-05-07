@@ -3,23 +3,26 @@
 namespace App\Http\Controllers\Education;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\CourseMember;
+use App\Models\EducationProfile;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
 use App\Models\User;
-use App\Models\EducationProfile;
-use App\Models\Certificate;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PersonController extends Controller
 {
+    use AuthorizesRequests;
+
     public function show($id)
     {
         $course = Course::where('c_id', $id)->firstOrFail();
+        $this->authorize('manageContent', $course);
 
         // ดึงสมาชิกคอร์สพร้อมข้อมูลผู้ใช้
         $members = CourseMember::where('cm_c_id', $id)
@@ -29,7 +32,7 @@ class PersonController extends Controller
 
         // ข้อมูลมหาวิทยาลัยที่เปิดสอน (ผู้สร้างคอร์ส)
         $universityProfile = null;
-        if (!empty($course->c_create_by_id)) {
+        if (! empty($course->c_create_by_id)) {
             $universityProfile = EducationProfile::where('e_u_id', $course->c_create_by_id)->first();
         }
 
@@ -54,8 +57,9 @@ class PersonController extends Controller
         $reportRows = $members->map(function ($m) use ($passedByUser, $courseExamTotal) {
             $uid = $m->cm_u_id;
             $name = optional($m->user->profile)->up_name ?? ($m->user->email ?? ('User #'.$uid));
-            $passed = (int)($passedByUser[$uid] ?? 0);
+            $passed = (int) ($passedByUser[$uid] ?? 0);
             $percentage = $courseExamTotal > 0 ? round(($passed / $courseExamTotal) * 100, 1) : 0.0;
+
             return (object) [
                 'user_id' => $uid,
                 'name' => $name,
@@ -74,12 +78,7 @@ class PersonController extends Controller
     public function issueCertificate($id, $userId)
     {
         $course = Course::where('c_id', $id)->firstOrFail();
-
-        // ตรวจสอบสิทธิ์: เจ้าของคอร์ส (education) หรือ admin
-        if (!Auth::check() || !in_array(Auth::user()->role, ['education', 'admin']) ||
-            (Auth::user()->role === 'education' && $course->c_create_by_id !== Auth::id())) {
-            abort(403, 'คุณไม่มีสิทธิ์ออกประกาศนียบัตรในคอร์สนี้');
-        }
+        $this->authorize('manageContent', $course);
 
         // ต้องเป็นสมาชิกในคอร์ส
         $member = CourseMember::where('cm_c_id', $id)->where('cm_u_id', $userId)->firstOrFail();
@@ -105,21 +104,21 @@ class PersonController extends Controller
             ?? optional(\App\Models\User::find($userId))->email
             ?? ('User#'.$userId);
         $imageRelPath = $this->makeCertificatePng([
-            'student'   => $studentName,
-            'course'    => (string) ($course->c_name ?? ''),
+            'student' => $studentName,
+            'course' => (string) ($course->c_name ?? ''),
             'institute' => (string) $institute,
-            'ref'       => (string) $ref,
+            'ref' => (string) $ref,
         ]) ?? 'https://via.placeholder.com/800x600.png?text=Certificate';
 
         Certificate::create([
-            'cer_u_id'           => (int) $userId,
-            'cer_c_id'           => (int) $course->c_id,
-            'cer_name'           => 'ประกาศนียบัตร: ' . ($course->c_name ?? 'ไม่ระบุชื่อคอร์ส'),
+            'cer_u_id' => (int) $userId,
+            'cer_c_id' => (int) $course->c_id,
+            'cer_name' => 'ประกาศนียบัตร: '.($course->c_name ?? 'ไม่ระบุชื่อคอร์ส'),
             'cer_institute_name' => $institute,
-            'cer_ref_number'     => $ref,
-            'cer_image_path'     => $imageRelPath,
-            'cer_publiced'       => true,
-            'cer_from_lesson'    => true,
+            'cer_ref_number' => $ref,
+            'cer_image_path' => $imageRelPath,
+            'cer_publiced' => true,
+            'cer_from_lesson' => true,
         ]);
 
         return back()->with('success', 'ออกประกาศนียบัตรให้ผู้เรียนเรียบร้อยแล้ว');
@@ -129,12 +128,7 @@ class PersonController extends Controller
     public function issueCertificatesAll($id)
     {
         $course = Course::where('c_id', $id)->firstOrFail();
-
-        // ตรวจสอบสิทธิ์: เจ้าของคอร์ส (education) หรือ admin
-        if (!Auth::check() || !in_array(Auth::user()->role, ['education', 'admin']) ||
-            (Auth::user()->role === 'education' && $course->c_create_by_id !== Auth::id())) {
-            abort(403, 'คุณไม่มีสิทธิ์ออกประกาศนียบัตรในคอร์สนี้');
-        }
+        $this->authorize('manageContent', $course);
 
         $members = CourseMember::where('cm_c_id', $id)->get();
 
@@ -146,7 +140,9 @@ class PersonController extends Controller
             $already = Certificate::where('cer_c_id', $course->c_id)
                 ->where('cer_u_id', $m->cm_u_id)
                 ->exists();
-            if ($already) continue;
+            if ($already) {
+                continue;
+            }
 
             $rand = substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6);
             $ref = sprintf('CER-%s-%s-%s', $course->c_id, now()->format('Ymd'), $rand);
@@ -154,21 +150,21 @@ class PersonController extends Controller
                 ?? optional(\App\Models\User::find($m->cm_u_id))->email
                 ?? ('User#'.$m->cm_u_id);
             $imageRelPath = $this->makeCertificatePng([
-                'student'   => $studentName,
-                'course'    => (string) ($course->c_name ?? ''),
+                'student' => $studentName,
+                'course' => (string) ($course->c_name ?? ''),
                 'institute' => (string) $institute,
-                'ref'       => (string) $ref,
+                'ref' => (string) $ref,
             ]) ?? 'https://via.placeholder.com/800x600.png?text=Certificate';
 
             Certificate::create([
-                'cer_u_id'           => (int) $m->cm_u_id,
-                'cer_c_id'           => (int) $course->c_id,
-                'cer_name'           => 'ประกาศนียบัตร: ' . ($course->c_name ?? 'ไม่ระบุชื่อคอร์ส'),
+                'cer_u_id' => (int) $m->cm_u_id,
+                'cer_c_id' => (int) $course->c_id,
+                'cer_name' => 'ประกาศนียบัตร: '.($course->c_name ?? 'ไม่ระบุชื่อคอร์ส'),
                 'cer_institute_name' => $institute,
-                'cer_ref_number'     => $ref,
-                'cer_image_path'     => $imageRelPath,
-                'cer_publiced'       => true,
-                'cer_from_lesson'    => true,
+                'cer_ref_number' => $ref,
+                'cer_image_path' => $imageRelPath,
+                'cer_publiced' => true,
+                'cer_from_lesson' => true,
             ]);
             $created++;
         }
@@ -176,7 +172,8 @@ class PersonController extends Controller
         if ($created === 0) {
             return back()->with('success', 'สมาชิกทุกคนมีประกาศนียบัตรแล้ว');
         }
-        return back()->with('success', 'ออกประกาศนียบัตรให้จำนวน ' . $created . ' คนเรียบร้อยแล้ว');
+
+        return back()->with('success', 'ออกประกาศนียบัตรให้จำนวน '.$created.' คนเรียบร้อยแล้ว');
     }
 
     /**
@@ -185,31 +182,37 @@ class PersonController extends Controller
      */
     private function makeCertificatePng(array $data): ?string
     {
-        if (!function_exists('imagecreatetruecolor')) {
+        if (! function_exists('imagecreatetruecolor')) {
             // Fallback: ดาวน์โหลด placeholder แล้วเซฟเป็นไฟล์ภายใน storage
             try {
                 $dir = 'certificates';
                 Storage::disk('public')->makeDirectory($dir);
                 $ref = isset($data['ref']) ? preg_replace('/[^A-Za-z0-9_-]/', '', (string) $data['ref']) : Str::random(6);
-                $filename = $dir . '/' . strtolower($ref) . '_' . Str::random(5) . '.png';
+                $filename = $dir.'/'.strtolower($ref).'_'.Str::random(5).'.png';
                 $content = @file_get_contents('https://via.placeholder.com/800x600.png?text=Certificate');
                 if ($content !== false) {
                     Storage::disk('public')->put($filename, $content);
+
                     return $filename;
                 }
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
+
             return null;
         }
 
-        $width = 1200; $height = 850;
+        $width = 1200;
+        $height = 850;
         $im = imagecreatetruecolor($width, $height);
-        if (!$im) return null;
+        if (! $im) {
+            return null;
+        }
 
         // Colors
         $white = imagecolorallocate($im, 255, 255, 255);
         $black = imagecolorallocate($im, 20, 20, 20);
-        $gold  = imagecolorallocate($im, 212, 175, 55);
-        $blue  = imagecolorallocate($im, 59, 130, 246);
+        $gold = imagecolorallocate($im, 212, 175, 55);
+        $blue = imagecolorallocate($im, 59, 130, 246);
 
         // Background
         imagefilledrectangle($im, 0, 0, $width, $height, $white);
@@ -219,35 +222,46 @@ class PersonController extends Controller
         imagerectangle($im, 20, 20, $width - 20, $height - 20, $gold);
 
         // Header
-        imagestring($im, 5, (int)($width/2 - 60), 60, 'Certificate', $blue);
+        imagestring($im, 5, (int) ($width / 2 - 60), 60, 'Certificate', $blue);
 
         // Helper: ASCII-safe text
         $ascii = function ($text, $fallback = 'N/A') {
             $t = (string) $text;
+
             return preg_match('/^[\x20-\x7E]+$/', $t) ? $t : $fallback;
         };
 
         // Fields (ASCII only to avoid font issues)
-        $course    = $ascii($data['course'] ?? '', 'Course');
-        $student   = $ascii($data['student'] ?? '', 'Student');
+        $course = $ascii($data['course'] ?? '', 'Course');
+        $student = $ascii($data['student'] ?? '', 'Student');
         $institute = $ascii($data['institute'] ?? '', 'Institute');
-        $ref       = $ascii($data['ref'] ?? '', 'REF');
+        $ref = $ascii($data['ref'] ?? '', 'REF');
 
-        $y = 160; $line = 36; $xLabel = 120; $xValue = 280;
-        imagestring($im, 4, $xLabel, $y,           'Course:',    $black); imagestring($im, 4, $xValue, $y,           $course,    $black);
-        imagestring($im, 4, $xLabel, $y += $line,  'Student:',   $black); imagestring($im, 4, $xValue, $y,           $student,   $black);
-        imagestring($im, 4, $xLabel, $y += $line,  'Institute:', $black); imagestring($im, 4, $xValue, $y,           $institute, $black);
-        imagestring($im, 4, $xLabel, $y += $line,  'Ref:',       $black); imagestring($im, 4, $xValue, $y,           $ref,       $black);
+        $y = 160;
+        $line = 36;
+        $xLabel = 120;
+        $xValue = 280;
+        imagestring($im, 4, $xLabel, $y, 'Course:', $black);
+        imagestring($im, 4, $xValue, $y, $course, $black);
+        imagestring($im, 4, $xLabel, $y += $line, 'Student:', $black);
+        imagestring($im, 4, $xValue, $y, $student, $black);
+        imagestring($im, 4, $xLabel, $y += $line, 'Institute:', $black);
+        imagestring($im, 4, $xValue, $y, $institute, $black);
+        imagestring($im, 4, $xLabel, $y += $line, 'Ref:', $black);
+        imagestring($im, 4, $xValue, $y, $ref, $black);
 
         // Footer date
         $date = date('Y-m-d');
-        imagestring($im, 3, $width - 220, $height - 60, 'Issued: ' . $date, $black);
+        imagestring($im, 3, $width - 220, $height - 60, 'Issued: '.$date, $black);
 
         // Ensure directory
         $dir = 'certificates';
-        try { Storage::disk('public')->makeDirectory($dir); } catch (\Throwable $e) {}
+        try {
+            Storage::disk('public')->makeDirectory($dir);
+        } catch (\Throwable $e) {
+        }
 
-        $filename = $dir . '/' . strtolower($ref) . '_' . Str::random(5) . '.png';
+        $filename = $dir.'/'.strtolower($ref).'_'.Str::random(5).'.png';
         $fullPath = Storage::disk('public')->path($filename);
         imagepng($im, $fullPath);
         imagedestroy($im);

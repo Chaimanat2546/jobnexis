@@ -132,11 +132,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/edit-education/store', [EducationProfileController::class, 'store'])
         ->name('profile-education.store');
 });
-// Course details (all authenticated roles)
+// Course details (controller gates content for enrolled learners and course owners)
 Route::get('/courses/{id}', [CourseController::class, 'publicShow'])->name('courses.view');
 
 // Education routes (ให้ admin เข้าถึงได้ด้วย)
-Route::middleware('role:education,admin')->group(function () {
+Route::middleware(['auth', 'verified', 'role:education,admin'])->group(function () {
 
     // Dashboard ของ Education
     Route::get('/education/dashboard', [DashboardController::class, 'education'])->name('education.dashboard');

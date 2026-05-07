@@ -3,22 +3,24 @@
 namespace App\Http\Controllers\Education;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\CourseMember;
+use App\Models\Exam;
+use App\Models\ExamAttempt;
+use App\Models\Media;
+use App\Models\Skill;
+use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Models\Course;
-use App\Models\User;
-use App\Models\Skill;
-use App\Models\Media;
-use App\Models\Exam;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use App\Models\CourseMember;
 use Illuminate\Support\Facades\DB;
-use App\Models\ExamAttempt;
+use Illuminate\Support\Facades\Storage;
 
 class CourseController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Request $request)
     {
         // ถ้ามี owner (user id) ให้กรองเฉพาะคอร์สของสถาบันนั้น
@@ -27,7 +29,7 @@ class CourseController extends Controller
         $query = Course::query();
         if ($ownerId > 0) {
             // สิทธิ์: admin ดูของใครก็ได้, education ดูได้เฉพาะของตัวเอง
-            if (!(auth()->user()?->role === 'admin' || auth()->id() === $ownerId)) {
+            if (! (auth()->user()?->role === 'admin' || auth()->id() === $ownerId)) {
                 abort(403);
             }
             $query->where('c_create_by_id', $ownerId);
@@ -39,16 +41,16 @@ class CourseController extends Controller
         // แปลงข้อมูลจาก DB ให้ตรงตามที่ View ต้องการ
         $allCourses = $coursesFromDB->map(function ($course) {
             return [
-                'c_id'         => $course->c_id,
-                'title'        => $course->c_name,
+                'c_id' => $course->c_id,
+                'title' => $course->c_name,
                 'participants' => $course->participants ?? 0, // ใช้ accessor จาก model
-                'status'       => $this->mapStatus($course->c_status),
-                'image'        => $course->c_image,
+                'status' => $this->mapStatus($course->c_status),
+                'image' => $course->c_image,
             ];
         })->toArray();
 
         $perPage = 7;
-        $page    = $request->get('page', 1);
+        $page = $request->get('page', 1);
 
         // Slice array ตามหน้า
         $coursesSlice = array_slice($allCourses, ($page - 1) * $perPage, $perPage);
@@ -60,7 +62,7 @@ class CourseController extends Controller
             $perPage,
             $page,
             [
-                'path'  => $request->url(),
+                'path' => $request->url(),
                 'query' => $request->query(),
             ]
         );
@@ -84,11 +86,12 @@ class CourseController extends Controller
             $base->where('c_status', 'open');
         }
 
-        $query = $base->when($q, function ($qq) use ($q) {
-            $qq->where(function ($w) use ($q) {
-                $w->where('c_name', 'ilike', "%{$q}%")
-                  ->orWhere('c_description', 'ilike', "%{$q}%")
-                  ->orWhere('c_code', 'ilike', "%{$q}%");
+        $likeOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+
+        $query = $base->when($q, function ($qq) use ($q, $likeOperator) {
+            $qq->where(function ($w) use ($q, $likeOperator) {
+                $w->where('c_name', $likeOperator, "%{$q}%")
+                    ->orWhere('c_description', $likeOperator, "%{$q}%");
             });
         })->orderByDesc('c_id');
 
@@ -109,8 +112,8 @@ class CourseController extends Controller
     private function mapStatus($dbStatus)
     {
         $statusMap = [
-            'open'   => 'เผยแพร่',
-            'draft'  => 'ฉบับร่าง',
+            'open' => 'เผยแพร่',
+            'draft' => 'ฉบับร่าง',
             'closed' => 'ไม่เผยแพร่',
             'pending' => 'รออนุมัติ',
         ];
@@ -121,24 +124,25 @@ class CourseController extends Controller
     public function create()
     {
         $skills = Skill::orderBy('name', 'asc')->get(); // เรียง A-Z
+
         return view('education.courses.create', compact('skills'));
     }
 
     public function store(Request $request)
     {
         // แปลง skill จาก string → array
-        $skillsArray = !empty($request->skills) ? explode(',', $request->skills) : [];
+        $skillsArray = ! empty($request->skills) ? explode(',', $request->skills) : [];
         $request->merge(['skills' => $skillsArray]);
 
         // Validate ฟิลด์
         $request->validate([
-            'c_name'       => 'required|string|max:50',
-            'c_description'=> 'nullable|string|max:200',
-            'skills'       => 'required|array|min:1|max:5',
-            'skills.*'     => 'string|exists:skills,name',
-            'c_status'     => 'required|in:open,draft',
-            'c_image'      => 'nullable|image|max:2048',
-            'c_code'       => 'required|string|max:20|unique:courses,c_code',
+            'c_name' => 'required|string|max:50',
+            'c_description' => 'nullable|string|max:200',
+            'skills' => 'required|array|min:1|max:5',
+            'skills.*' => 'string|exists:skills,name',
+            'c_status' => 'required|in:open,draft',
+            'c_image' => 'nullable|image|max:2048',
+            'c_code' => 'required|string|max:20|unique:courses,c_code',
         ]);
 
         // จัดการไฟล์ภาพ
@@ -152,14 +156,14 @@ class CourseController extends Controller
 
         // สร้าง Course
         $course = Course::create([
-            'c_name'        => $request->c_name,
+            'c_name' => $request->c_name,
             'c_description' => $request->c_description,
-            'c_code'        => $request->c_code, // ใช้จากฟอร์ม
-            'c_status'      => $request->c_status,
-            'c_image'       => $imagePath,
-            'c_create_by_id'=> Auth::id(),
-            'c_create_at'   => now()->toDateString(),
-            'c_end_at'      => now()->toDateString(),
+            'c_code' => $request->c_code, // ใช้จากฟอร์ม
+            'c_status' => $request->c_status,
+            'c_image' => $imagePath,
+            'c_create_by_id' => Auth::id(),
+            'c_create_at' => now()->toDateString(),
+            'c_end_at' => now()->toDateString(),
         ]);
 
         // เชื่อม Skills
@@ -172,7 +176,8 @@ class CourseController extends Controller
     public function show($id)
     {
         // ดึงคอร์สตาม id
-       $course = Course::with('skills')->where('c_id', $id)->firstOrFail();
+        $course = Course::with('skills')->where('c_id', $id)->firstOrFail();
+        $this->authorize('manageContent', $course);
 
         // ดึงบทเรียนพร้อมสื่อและไฟล์
         $lessons = \App\Models\Lesson::with(['medias.files', 'exams'])
@@ -219,8 +224,9 @@ class CourseController extends Controller
         $reportRows = $memberIds->map(function ($uid) use ($users, $passedByUser, $courseExamTotal) {
             $u = $users->get($uid);
             $name = $u && $u->profile ? $u->profile->up_name : ("User #$uid");
-            $passed = (int)($passedByUser[$uid] ?? 0);
+            $passed = (int) ($passedByUser[$uid] ?? 0);
             $percentage = $courseExamTotal > 0 ? round(($passed / $courseExamTotal) * 100, 1) : 0.0;
+
             return (object) [
                 'user_id' => $uid,
                 'name' => $name,
@@ -232,25 +238,38 @@ class CourseController extends Controller
 
         return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams', 'isEnrolled', 'reportRows', 'courseExamTotal'));
     }
+
     /** แสดงคอร์สสำหรับผู้ใช้ทั่วไป (เช่น Jobber) */
     public function publicShow($id)
     {
-        // ตรวจสิทธิ์เข้าดู: ต้องสมัครก่อน (ยกเว้นบทบาท education/admin)
-        $isEnrolled = false;
-        if (Auth::check()) {
-            $isEnrolled = CourseMember::where('cm_c_id', $id)
-                ->where('cm_u_id', Auth::id())
-                ->exists();
+        // โหลดคอร์สก่อนตรวจสิทธิ์ เพื่อให้ 404 ยังคงทำงานถูกต้อง
+        $course = Course::with('skills')->where('c_id', $id)->firstOrFail();
+        $user = Auth::user();
 
-            $role = Auth::user()->role;
-            if (!in_array($role, ['education', 'admin']) && !$isEnrolled) {
-                return redirect()->route('courses.catalog')
-                    ->with('error', 'กรุณาสมัครคอร์ส');
-            }
+        if (! $user) {
+            return redirect()->route('home')->with([
+                'showAuthModal' => true,
+                'authForm' => 'login',
+                'error' => 'กรุณาเข้าสู่ระบบก่อนเข้าเรียน',
+            ]);
         }
 
-        // โหลดข้อมูลคอร์สและเนื้อหา เมื่อผ่านการตรวจสิทธิ์แล้ว
-        $course = Course::with('skills')->where('c_id', $id)->firstOrFail();
+        if (! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+
+        $isEnrolled = CourseMember::where('cm_c_id', $id)
+            ->where('cm_u_id', $user->id)
+            ->exists();
+
+        if ($user->role === 'jobber') {
+            if (! $isEnrolled) {
+                return redirect()->route('courses.catalog')
+                    ->with('error', 'กรุณาสมัครคอร์สก่อนเข้าเรียน');
+            }
+        } else {
+            $this->authorize('view', $course);
+        }
 
         $lessons = \App\Models\Lesson::with(['medias.files'])
             ->where('l_c_id', $id)
@@ -279,73 +298,79 @@ class CourseController extends Controller
 
         return view('education.courses.show', compact('course', 'lessons', 'soloMedias', 'soloExams', 'isEnrolled', 'examCount', 'reportRows', 'courseExamTotal'));
     }
+
     public function destroy($id)
     {
-    $course = Course::findOrFail($id);
+        $course = Course::findOrFail($id);
+        $this->authorize('manageContent', $course);
 
-    // ลบรูปภาพถ้ามี
-    if ($course->c_image && Storage::disk('public')->exists($course->c_image)) {
-        Storage::disk('public')->delete($course->c_image);
-    }
-
-    // ลบคอร์ส
-    $course->delete();
-
-    return redirect()->back()->with('success', 'ลบคอร์สเรียบร้อยแล้ว');
-    }
-
-    public function update(Request $request, $id)
-    {
-    $course = Course::findOrFail($id);
-
-    $skillsArray = !empty($request->skills) ? explode(',', $request->skills) : [];
-    $request->merge(['skills' => $skillsArray]);
-
-    // validate
-    $request->validate([
-        'c_name'       => 'required|string|max:50',
-        'c_description'=> 'nullable|string|max:200',
-        'skills'       => 'required|array|min:1|max:5',
-        'skills.*'     => 'string|exists:skills,name',
-        'c_status'     => 'required|in:closed,draft,open,pending',
-        'c_image'      => 'nullable|image|max:2048',
-    ]);
-
-    // อัปเดตข้อมูลทั่วไป
-    $course->c_name = $request->c_name;
-    $course->c_description = $request->c_description;
-    $course->c_status = $request->c_status;
-
-    // อัปโหลดรูปภาพใหม่ถ้ามี
-    if ($request->hasFile('c_image')) {
-        // ลบรูปเก่า
+        // ลบรูปภาพถ้ามี
         if ($course->c_image && Storage::disk('public')->exists($course->c_image)) {
             Storage::disk('public')->delete($course->c_image);
         }
 
-        $path = $request->file('c_image')->store('courses', 'public');
-        $course->c_image = $path;
+        // ลบคอร์ส
+        $course->delete();
+
+        return redirect()->back()->with('success', 'ลบคอร์สเรียบร้อยแล้ว');
     }
 
-    $course->save();
+    public function update(Request $request, $id)
+    {
+        $course = Course::findOrFail($id);
+        $this->authorize('manageContent', $course);
 
-    // อัปเดต skills ใน pivot table course_skill
-    if (!empty($skillsArray)) {
-        $skillIds = Skill::whereIn('name', $skillsArray)->pluck('id')->toArray();
-        $course->skills()->sync($skillIds);
-    } else {
-        $course->skills()->sync([]);
+        $skillsArray = ! empty($request->skills) ? explode(',', $request->skills) : [];
+        $request->merge(['skills' => $skillsArray]);
+
+        // validate
+        $request->validate([
+            'c_name' => 'required|string|max:50',
+            'c_description' => 'nullable|string|max:200',
+            'skills' => 'required|array|min:1|max:5',
+            'skills.*' => 'string|exists:skills,name',
+            'c_status' => 'required|in:closed,draft,open,pending',
+            'c_image' => 'nullable|image|max:2048',
+        ]);
+
+        // อัปเดตข้อมูลทั่วไป
+        $course->c_name = $request->c_name;
+        $course->c_description = $request->c_description;
+        $course->c_status = $request->c_status;
+
+        // อัปโหลดรูปภาพใหม่ถ้ามี
+        if ($request->hasFile('c_image')) {
+            // ลบรูปเก่า
+            if ($course->c_image && Storage::disk('public')->exists($course->c_image)) {
+                Storage::disk('public')->delete($course->c_image);
+            }
+
+            $path = $request->file('c_image')->store('courses', 'public');
+            $course->c_image = $path;
+        }
+
+        $course->save();
+
+        // อัปเดต skills ใน pivot table course_skill
+        if (! empty($skillsArray)) {
+            $skillIds = Skill::whereIn('name', $skillsArray)->pluck('id')->toArray();
+            $course->skills()->sync($skillIds);
+        } else {
+            $course->skills()->sync([]);
+        }
+
+        return redirect()->route('courses.show', ['id' => $course->c_id])
+            ->with('success', 'แก้ไขคอร์สเรียบร้อยแล้ว');
+
     }
 
-    return redirect()->route('courses.show', ['id' => $course->c_id])
-                     ->with('success', 'แก้ไขคอร์สเรียบร้อยแล้ว');
-
-    }
     public function edit($id)
     {
-    $course = Course::with('skills')->findOrFail($id); // โหลด skills ด้วย
-    $skills = Skill::orderBy('name', 'asc')->get(); // ดึงทักษะทั้งหมดเรียง A-Z
-    return view('education.courses.edit', compact('course', 'skills'));
+        $course = Course::with('skills')->findOrFail($id); // โหลด skills ด้วย
+        $this->authorize('manageContent', $course);
+        $skills = Skill::orderBy('name', 'asc')->get(); // ดึงทักษะทั้งหมดเรียง A-Z
+
+        return view('education.courses.edit', compact('course', 'skills'));
     }
 
     /** สมัครเข้าเรียน (เฉพาะ Jobber) */
@@ -356,9 +381,9 @@ class CourseController extends Controller
             return back()->with('error', 'คอร์สนี้ยังไม่เปิดรับสมัคร');
         }
         $data = $request->validate([
-            'code' => ['required','string'],
+            'code' => ['required', 'string'],
         ]);
-        if (!hash_equals($course->c_code, $data['code'])) {
+        if (! hash_equals($course->c_code, $data['code'])) {
             return back()->withInput()->with('error', 'รหัสคอร์สไม่ถูกต้อง');
         }
         $userId = Auth::id();
@@ -380,6 +405,7 @@ class CourseController extends Controller
         $course = Course::findOrFail($id);
         $userId = Auth::id();
         CourseMember::where('cm_c_id', $course->c_id)->where('cm_u_id', $userId)->delete();
+
         return back()->with('success', 'ยกเลิกการสมัครเรียบร้อยแล้ว');
     }
 }
